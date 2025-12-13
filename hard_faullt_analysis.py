@@ -141,7 +141,6 @@ def hard_fault_analysis(memory_string):
         "cfsr":raw[9],
         "fault_addr":raw[10]
     }
-    print(F"raw : {hf["HF_Flag"]}")
     if(hf["HF_Flag"] != 0xFF00FF00):
         print("There was no hardfault in your Microcontroller, Kudos for you, I hope...")
         return
