@@ -8,18 +8,25 @@ ELF_FILE = "out/build/latest.elf"
 
 CALL_TRACE_MAX_DEPTH = 16
 def read_flash():
-    cmd = [
-        "STM32_Programmer_CLI",
-        "-c", "port=SWD",
-        "-r32", hex(HF_FLASH_ADDR), "112"
-    ]
-    out = subprocess.check_output(cmd, text=True)
-    return out
-
+    try:
+        cmd = [
+            "STM32_Programmer_CLI",
+            "-c", "port=SWD",
+            "-r32", hex(HF_FLASH_ADDR), "112"
+        ]
+        out = subprocess.check_output(cmd, text=True)
+        return out
+    except subprocess.CalledProcessError as e:
+        print("Stop debugging to check fault analysis!!!")
+        print(f"Error: {e}")
+        return None
+    except FileNotFoundError:
+        print("STM32_Programmer_CLI not found. Make sure it is installed and in PATH.")
+        return None
 def decode_cfsr_memory(cfsr, fault_addr):
     memory_fault = cfsr & 0xFF
     if memory_fault == 0:
-        return
+        return 0
     print("\nMemory Fault (MMFSR):")
     if memory_fault & 0b10000000:
         print(f"  MMARVALID: Memory fault address valid -> 0x{fault_addr:08X}")
@@ -38,7 +45,7 @@ def decode_cfsr_memory(cfsr, fault_addr):
         print("  DACCVIOL : Data access violation (NULL pointer or invalid access)")
     if memory_fault & 0b00000001:
         print("  IACCVIOL : Instruction access violation")
-
+    return 1
 
 # --------------------------
 # Decode Bus Fault (BFSR)
@@ -46,20 +53,21 @@ def decode_cfsr_memory(cfsr, fault_addr):
 def decode_cfsr_bus(cfsr, fault_addr):
     bus_fault = (cfsr & 0x0000FF00) >> 8
     if bus_fault == 0:
-        return
+        return 0
     print("\nBus Fault (BFSR):")
     if bus_fault & 0b10000000:
         if(bus_fault & 0b00000001):
             print(f"  BFARVALID : Bus fault address valid -> 0x{fault_addr:08X}")
     if bus_fault & 0b00000100:
-        print(f"\033[91m Bus fault address imprecise\033[0m")
+        print(f"\033[91m Bus fault address imprecise\033[0m (DON'T LOOK CALL STACK)")
+        
     if bus_fault & 0b00100000:
         print("  LSPERR : Floating Point Unit lazy state preservation error")
     if bus_fault & 0b00010000:
         print("  STKERR : Stack error on entry to exception")
     if bus_fault & 0b00001000:
         print("  UNSTKERR : Stack error on return from exception")
-
+    return 2
 
 # --------------------------
 # Decode Usage Fault (UFSR)
@@ -67,7 +75,7 @@ def decode_cfsr_bus(cfsr, fault_addr):
 def decode_cfsr_usage(cfsr):
     usage_fault = (cfsr & 0xFFFF0000) >> 16
     if usage_fault == 0:
-        return
+        return 0
     print("\nUsage Fault (UFSR):")
     if usage_fault & 0x0200:
         print("  DIVBYZERO : Division by zero")
@@ -81,12 +89,14 @@ def decode_cfsr_usage(cfsr):
         print("  INVSTATE : Invalid processor state")
     if usage_fault & 0x0001:
         print("  UNDEFINSTR : Undefined instruction")
-
+    return 4
 
 def decode_cfsr(cfsr, fault_addr):
-    decode_cfsr_memory(cfsr, fault_addr)
-    decode_cfsr_bus(cfsr, fault_addr)
-    decode_cfsr_usage(cfsr)
+    error = 0
+    error = decode_cfsr_memory(cfsr, fault_addr) + error
+    error = decode_cfsr_bus(cfsr, fault_addr) + error
+    error = decode_cfsr_usage(cfsr) + error
+    return error
     
         
 def addr2line(addr):
@@ -96,11 +106,43 @@ def addr2line(addr):
         return output
     except Exception as e:
         return f"addr2line failed: {e}"
+    
+def analyze_call_stack(calltrace_depth, calltrace_pcs, context=2):
+    """
+    Muestra el call stack, omitiendo frames sin fuente y mostrando snippet de código.
+    """
+    print("\n==== Call Stack Trace ====")
+    if calltrace_depth == 0:
+        print("No call trace available.")
+        return
+
+def analyze_call_stack(calltrace_depth, calltrace_pcs, context=0):
+    """
+    Muestra el call stack, mostrando snippet de código de la línea exacta
+    sin intentar sumar líneas arriba/abajo (context=0 por defecto).
+    Omite frames sin fuente.
+    """
+    print("\n==== Call Stack Trace ====")
+    if calltrace_depth == 0:
+        print("No call trace available.")
+        return
+
+    for pc in calltrace_pcs[:calltrace_depth]:
+        pc_base = pc & ~1
+        snippet = addr2line(pc_base- 4).strip()
+        if not snippet or snippet.startswith("??:?"):
+            continue  # no hay fuente, saltar
+        print_code_context(snippet,1)
+
+    print("======================================================")
+
+
+
 
 def print_code_context(lines, context=2):
     """
-    lines: salida de addr2line (función + file:line)
-    context: cuántas líneas arriba/abajo mostrar
+    lines: exit of addr2line (función + file:line)
+    context: how many lines up/down show
     """
     line_list = lines.splitlines()
     if len(line_list) < 2:
@@ -162,7 +204,7 @@ def hard_fault_analysis(memory_string):
         print(f"  {r.upper():<4}: 0x{hf[r]:08X}")
     
     print(f"  CFSR: 0x{hf['cfsr']:08X}")
-    decode_cfsr(hf["cfsr"], hf["fault_addr"])
+    error = decode_cfsr(hf["cfsr"], hf["fault_addr"])
     print("\nSource Location:")
     pc_loc = addr2line(hf["pc"])
     lr_loc = addr2line(hf["lr"])
@@ -171,6 +213,7 @@ def hard_fault_analysis(memory_string):
     print(f"  Program Counter : 0x{hf['pc']:08X} -> {pc_loc}")
     print_code_context(pc_loc)
     
+    analyze_call_stack(hf["calltrace_depth"],hf["calltrace_pcs"])
     
     print("======================================================")
     
@@ -184,6 +227,8 @@ def hard_fault_analysis(memory_string):
 
 if __name__ == '__main__':
     out = read_flash()
+    if(out == None):
+        exit()
     pos_memory_flash = out.rfind(HF_FLASH_ADDR_STRING)
     print(out[0:pos_memory_flash])
     flash = out[pos_memory_flash:]

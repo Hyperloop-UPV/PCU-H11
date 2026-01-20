@@ -52,7 +52,6 @@ MEMORY
   RAM_D3  (xrw)    : ORIGIN = 0x38000000,   LENGTH = 16K
 }
 
-/* Define output sections */
 SECTIONS
 {
   /* The startup code goes first into FLASH */
@@ -89,7 +88,18 @@ SECTIONS
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
   } >FLASH
-
+  /* ===============================
+  * Dedicated HardFault stack (DTCM)
+  * =============================== */
+  .hardfault_stack (NOLOAD) :
+  {
+    . = ALIGN(8);
+    _hf_stack_start = .;
+    . += 0x400;        /* 1 KB */
+    _hf_stack_end = .;
+  } >DTCMRAM
+  
+/* Define output sections */
   .ARM.extab (READONLY): { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
   .ARM (READONLY): {
     __exidx_start = .;

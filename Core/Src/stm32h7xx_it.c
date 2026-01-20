@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32h7xx_it.h"
+#include "stm32h7xx_hal.h"
 #include "HALAL/Benchmarking_toolkit/HardfaultTrace.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -87,6 +88,8 @@ extern uint32_t _stext;
 extern uint32_t _etext;
 extern uint32_t _sstack;
 extern uint32_t _estack;
+extern uint32_t _hf_stack_start;
+extern uint32_t _hf_stack_end;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -99,67 +102,81 @@ extern uint32_t _estack;
   */
 
 //calls my_fault_handler with the MSP(main stack pointer)
-#define HARDFAULT_HANDLING_ASM(_x)               \
-  __asm volatile(                                \
-      "mrs r0, msp \n"                         \
-      "b my_fault_handler_c \n"                  \
-    )
+#define HARDFAULT_HANDLING_ASM()                 \
+__asm volatile(                                 \
+    /* Detect which stack was in use */         \
+    "tst lr, #4                \n"              \
+    "ite eq                    \n"              \
+    "mrseq r0, msp             \n"              \
+    "mrsne r0, psp             \n"              \
+                                                 \
+    /* Switch to dedicated HardFault stack */   \
+    "ldr r1, =_hf_stack_end    \n"              \
+    "msr msp, r1               \n"              \
+    "isb                       \n"              \
+                                                 \
+    /* Call C handler with original frame */    \
+    "b my_fault_handler_c      \n"              \
+)
 
 
  //create the space for the hardfault section in the flash
 __attribute__((section(".hardfault_log")))
 volatile uint32_t hard_fault[128];
 
-static void flash_unlock(void){
-    if((FLASH->CR1 & FLASH_CR_LOCK) != 0){
-        FLASH->KEYR1 = FLASH_KEY1;
-        FLASH->KEYR1 = FLASH_KEY2;
+void hardfault_flash_write(
+    uint32_t addr_hard_fault, const void *data_hard_fault, size_t len_hard_fault,
+    uint32_t addr_metadata, const void *data_metadata, size_t len_metadata)
+{
+    __disable_irq();            
+    HAL_FLASH_Unlock();          
+
+    // Erase sector
+    FLASH_EraseInitTypeDef erase;
+    uint32_t sector_error = 0;
+    erase.TypeErase = FLASH_TYPEERASE_SECTORS;
+    erase.Banks = FLASH_BANK_1;
+    erase.Sector = FLASH_SECTOR_6;
+    erase.NbSectors = 1;
+    erase.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+
+    if(HAL_FLASHEx_Erase(&erase, &sector_error) != HAL_OK){
+        __BKPT(0);
     }
-}
-static void flash_lock(void){
-    FLASH->CR1 |= FLASH_CR_LOCK;
-}
-static void flash_wait(void){
-    while(FLASH->SR1 & FLASH_SR_QW){}
-}
-static void flash_write_32bytes(uint32_t address,const uint8_t* data){
-  if(address & 0X3U){
-    return; // the address direction must be aligned 4;
-  }
-  flash_wait();
-  flash_unlock();
-  FLASH->CR1 |= FLASH_CR_PG; //Enable writing
-  for(volatile size_t i = 0; i < 8; i++){
-    *(volatile uint32_t*)(address + i*4) = ((uint32_t*)data)[i];
-  }
-  flash_wait();
-  //Disable writing 
-  FLASH->CR1 &= ~FLASH_CR_PG;
-  flash_lock();
-}
-static void flash_write_blockwise(uint32_t address, const uint8_t *data,size_t blocks){
-    for(volatile size_t i = 0; i < blocks;i++){
-      flash_write_32bytes(address + i*32,data + i*32);
+
+  
+    size_t offset, copy_len;
+    uint8_t block[32];
+
+    offset = 0;
+    while(offset < len_hard_fault){
+        memset(block, 0xFF, sizeof(block)); 
+        copy_len = (len_hard_fault - offset) > 32 ? 32 : (len_hard_fault - offset);
+        memcpy(block, (uint8_t*)data_hard_fault + offset, copy_len);
+
+        if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, addr_hard_fault + offset, (uint32_t*)block) != HAL_OK){
+            __BKPT(0);
+        }
+        offset += 32;
     }
-}
-// //erase hard_fault sector 6
-static void flash_erase_hard_fault_sector(void){
-    flash_wait();
-    FLASH->CCR1 = 0xFFFFFFFFu;
-    flash_unlock();
-    
-    FLASH->CR1 |= FLASH_CR_SER | (FLASH_SECTOR_6 << FLASH_CR_SNB_Pos);
-  //start erase
-    FLASH->CR1 |= FLASH_CR_START;
-    flash_wait();
-    FLASH->CCR1 = 0xFFFFFFFFU;
-  // Clean flag
-    FLASH->CR1 &= ~FLASH_CR_SER;
-    flash_lock();
-}
-//check if we have already write.
-static int hardfault_flag_is_set(void){
-  return (*(volatile uint32_t *)HF_FLASH_ADDR) == HF_FLAG_VALUE;
+
+    offset = 0;
+    while(offset < len_metadata){
+        memset(block, 0xFF, sizeof(block));
+        copy_len = (len_metadata - offset) > 32 ? 32 : (len_metadata - offset);
+        memcpy(block, (uint8_t*)data_metadata + offset, copy_len);
+
+        if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, addr_metadata + offset, (uint32_t*)block) != HAL_OK){
+            __BKPT(0);
+        }
+        offset += 32;
+    }
+
+    SCB_InvalidateICache();
+    SCB_InvalidateDCache();
+
+    HAL_FLASH_Lock();
+    __enable_irq();
 }
 static uint8_t is_valid_pc(uint32_t pc)
 {
@@ -167,7 +184,7 @@ static uint8_t is_valid_pc(uint32_t pc)
     return (pc >= (uint32_t)&_stext &&
             pc <  (uint32_t)&_etext);
 }
-
+__attribute__((noreturn, optimize("O0")))
 static void scan_call_stack(sContextStateFrame *frame, HardFaultLog *log_hard_fault)
 {
     uint32_t *stack_start = (uint32_t *)&_sstack;
@@ -188,8 +205,6 @@ __attribute__((noreturn,optimize("O0")))
 void my_fault_handler_c(sContextStateFrame *frame) {
   volatile uint32_t real_fault_pc = frame->return_address & ~1;
   volatile HardFaultLog log_hard_fault;
-
-  scan_call_stack(frame,&log_hard_fault);
 
   volatile uint32_t *cfsr = (volatile uint32_t *)0xE000ED28;
   //keep the log in the estructure
@@ -235,15 +250,13 @@ void my_fault_handler_c(sContextStateFrame *frame) {
     const uint16_t INVSTATE = usage_fault & 0x0002; // Invalid processor state
     const uint16_t UNDEFINSTR = usage_fault & 0x0001; //Undefined instruction.
   }
+  if(usage_fault | bus_fault){
+    scan_call_stack(frame,&log_hard_fault);
+  }
   volatile uint8_t metadata_buffer[0x100];
   memcpy(metadata_buffer,(void*)METADATA_FLASH_ADDR,0x100);
-  flash_erase_hard_fault_sector();
   //write log hard fault
-  volatile uint8_t hardfault_buffer[0x100];
-  flash_write_blockwise(HF_FLASH_ADDR,(uint8_t*)&log_hard_fault,(sizeof(log_hard_fault) + 31)/32);
-  memcpy(hardfault_buffer,(void*)HF_FLASH_ADDR,0X200);
-  //write log Metadata_flash_addr
-  flash_write_blockwise(METADATA_FLASH_ADDR,metadata_buffer,(0x100)/32);
+  hardfault_flash_write(HF_FLASH_ADDR,(uint8_t*)&log_hard_fault,sizeof(log_hard_fault),METADATA_FLASH_ADDR,&metadata_buffer,sizeof(metadata_buffer));
   //reboot the system
   volatile uint32_t *aircr = (volatile uint32_t *)0xE000ED0C;
   __asm volatile ("dsb");
