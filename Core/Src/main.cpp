@@ -2,7 +2,7 @@
 #define TEST_0 // Test to be run
 
 // Include all examples, run the one defined above
-#include "Examples/ExampleMPU.hpp"
+#include "Examples/ExampleMPU.cpp"
 
 #ifdef EXAMPLE_BASE
 
