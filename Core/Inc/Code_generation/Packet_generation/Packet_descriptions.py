@@ -48,13 +48,14 @@ class BoardDescription:
             if not isinstance(item, dict):
                 continue
             period = item.get("period")
+            period_type = item.get("period_type")
             socket = item.get("socket")
             name = item.get("name")
-            key = (period, socket)
+            key = (period,period_type, socket)
             lookup.setdefault(key, []).append(name)
 
-        for (period, socket), names in lookup.items():
-            entry = {"period": period, "socket": socket}
+        for (period,period_type, socket), names in lookup.items():
+            entry = {"period": period,"period_type":period_type, "socket": socket}
             if len(names) == 1:
                 entry["name"] = names[0]
             else:
@@ -101,9 +102,13 @@ class PacketDescription:
             
     @staticmethod
     def check_for_sending(packet:dict):
-        if "period_ms" and "socket" in packet:
+        if "period" in packet and "period_type" in packet and "socket" in packet:
             name = packet["name"].replace(" ", "_").replace("-", "_")
-            return {"name": name,"period": packet["period_ms"],"socket": packet["socket"]}
+            return {"name": name,"period": packet["period"],"period_type":packet["period_type"],"socket": packet["socket"]}
+        
+        elif "period_ms" in packet and "socket" in packet:
+            name = packet["name"].replace(" ", "_").replace("-", "_")
+            return {"name": name,"period": packet["period_ms"],"period_type":"ms","socket": packet["socket"]}
         else:
             return None
 class MeasurmentsDescription:

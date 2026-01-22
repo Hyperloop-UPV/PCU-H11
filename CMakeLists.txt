@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.14)
 project(template-project LANGUAGES ASM C CXX)
 
 set(EXECUTABLE ${PROJECT_NAME}.elf)
-<<<<<<< HEAD
 set(Board "VCU") # User must change the Board name
 set(STLIB_DIR ${CMAKE_CURRENT_LIST_DIR}/deps/ST-LIB)
+set(LD_SCRIPT ${CMAKE_SOURCE_DIR}/STM32H723ZGTX_FLASH.ld)
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
@@ -15,8 +15,12 @@ add_custom_target(run_generator ALL
     COMMAND ${Python3_EXECUTABLE} ${GENERATOR_SCRIPT} ${Board}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
-set(VENV_PYTHON "${CMAKE_SOURCE_DIR}/virtual/bin/python")
 
+if(CMAKE_HOST_WIN32 )
+  set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/Scripts/python)
+else()
+  set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/bin/python)
+endif()
 
 add_custom_target(
     my_custom_target_that_always_runs ALL
@@ -43,17 +47,7 @@ if (PROJECT_IS_TOP_LEVEL AND (NOT CMAKE_CROSSCOMPILING))
   FetchContent_MakeAvailable(googletest)
   add_library(GTest::GTest INTERFACE IMPORTED)
   target_link_libraries(GTest::GTest INTERFACE gtest_main)
-=======
-set(STLIB_DIR  ${CMAKE_CURRENT_LIST_DIR}/deps/ST-LIB)
-set(LD_SCRIPT  ${CMAKE_SOURCE_DIR}/STM32H723ZGTX_FLASH.ld)
-if(CMAKE_HOST_WIN32 )
-  set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/Scripts/python)
-else()
-  set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/bin/python)
->>>>>>> origin/main
 endif()
-option(USE_ETHERNET  "Enable ethernet peripheral"                 OFF)
-option(TARGET_NUCLEO "Targets the STM32H723 Nucleo dev board"     OFF)
 
 message(STATUS "Template project: CMAKE_CROSSCOMPILING = ${CMAKE_CROSSCOMPILING}")
 message(STATUS "Template project: USE_ETHERNET         = ${USE_ETHERNET}")

@@ -31,7 +31,7 @@ class DataPackets{
     {% for packet in packets %}{{packet.name}} = new HeapPacket(static_cast<uint16_t>({{packet.id}}){% if packet.data%},{{packet.data}}{% endif%});
 
     {% endfor %}
-    {%for packet in sending_packets %}Time::register_low_precision_alarm({{packet.period}},+[](){
+    {%for packet in sending_packets %}Scheduler::register_task({% if packet.period_type == "ms" %}{{(packet.period*1000)}}{% else %}{{packet.period}}{% endif %},+[](){
         {% if packet.name is string %} DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{packet.name}});
         {%else%}
         {%for name in packet.name%}DataPackets::{{packet.socket}}->send_packet(*{{name}});
