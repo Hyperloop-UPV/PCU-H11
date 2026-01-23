@@ -72,15 +72,6 @@ extern LPTIM_HandleTypeDef hlptim3;
 extern DMA_HandleTypeDef hdma_spi3_rx;
 extern DMA_HandleTypeDef hdma_spi3_tx;
 extern SPI_HandleTypeDef hspi3;
-<<<<<<< HEAD
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim5;
-extern TIM_HandleTypeDef htim7;
-extern TIM_HandleTypeDef htim8;
-extern TIM_HandleTypeDef htim23;
-extern TIM_HandleTypeDef htim24;
-=======
->>>>>>> 215797d4569e0740eaf3c91a5831b8cae12c3c55
 extern FDCAN_HandleTypeDef hfdcan1;
 /* USER CODE BEGIN EV */
 
@@ -404,53 +395,6 @@ void FMAC_IRQHandler(void)
   HAL_FMAC_IRQHandler(&hfmac);
 }
 
-<<<<<<< HEAD
-
-
-/**
-  * @brief This function handles TIM2 global interrupt.
-  */
-void TIM2_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM2_IRQn 0 */
-
-  /* USER CODE END TIM2_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim2);
-  /* USER CODE BEGIN TIM2_IRQn 1 */
-
-  /* USER CODE END TIM2_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM8 trigger and commutation interrupts and TIM14 global interrupt.
-  */
-void TIM8_TRG_COM_TIM14_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 0 */
-
-  /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim8);
-  /* USER CODE BEGIN TIM8_TRG_COM_TIM14_IRQn 1 */
-
-  /* USER CODE END TIM8_TRG_COM_TIM14_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM5 global interrupt.
-  */
-void TIM5_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM5_IRQn 0 */
-
-  /* USER CODE END TIM5_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim5);
-  /* USER CODE BEGIN TIM5_IRQn 1 */
-
-  /* USER CODE END TIM5_IRQn 1 */
-}
-
-=======
->>>>>>> 215797d4569e0740eaf3c91a5831b8cae12c3c55
 /**
   * @brief This function handles SPI3 global interrupt.
   */
@@ -466,23 +410,6 @@ void SPI3_IRQHandler(void)
 }
 
 /**
-<<<<<<< HEAD
-  * @brief This function handles TIM7 global interrupt.
-  */
-void TIM7_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM7_IRQn 0 */
-
-  /* USER CODE END TIM7_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim7);
-  /* USER CODE BEGIN TIM7_IRQn 1 */
-
-  /* USER CODE END TIM7_IRQn 1 */
-}
-
-/**
-=======
->>>>>>> 215797d4569e0740eaf3c91a5831b8cae12c3c55
   * @brief This function handles Ethernet global interrupt.
   */
 void ETH_IRQHandler(void)
@@ -538,41 +465,7 @@ void LPTIM3_IRQHandler(void)
   /* USER CODE END LPTIM3_IRQn 1 */
 }
 
-<<<<<<< HEAD
-/**
-  * @brief This function handles TIM23 global interrupt.
-  */
-void TIM23_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM23_IRQn 0 */
-
-  /* USER CODE END TIM23_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim23);
-  /* USER CODE BEGIN TIM23_IRQn 1 */
-
-  /* USER CODE END TIM23_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM24 global interrupt.
-  */
-void TIM24_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM24_IRQn 0 */
-
-  /* USER CODE END TIM24_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim24);
-  /* USER CODE BEGIN TIM24_IRQn 1 */
-
-  /* USER CODE END TIM24_IRQn 1 */
-}
-
-/* USER CODE BEGIN 1 */
-
-/* USER CODE END 1 */
-=======
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
 
->>>>>>> 215797d4569e0740eaf3c91a5831b8cae12c3c55
