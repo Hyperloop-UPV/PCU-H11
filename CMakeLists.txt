@@ -67,7 +67,7 @@ add_executable(${EXECUTABLE}
   ${SOURCE_H}
   ${SOURCE_HPP}
 
-  $<$<BOOL:${CMAKE_CROSSCOMPILING}>:${CMAKE_SOURCE_DIR}/Core/Startup/startup_stm32h723zgtx.s>
+  $<$<BOOL:${CMAKE_CROSSCOMPILING}>:${STLIB_DIR}/startup_stm32h723zgtx.s>
 )
 
 target_link_libraries(${EXECUTABLE} PRIVATE
