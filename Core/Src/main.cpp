@@ -1,8 +1,6 @@
 
 #include "main.h"
 #include "ST-LIB.hpp"
-#include "stm32h7xx_hal.h"
-#include "core_cm7.h"
 
 int main(void) {
 #ifdef SIM_ON
@@ -11,6 +9,7 @@ int main(void) {
     Hard_fault_check();
     DigitalOutput led_on(PB0);
     STLIB::start();
+
     Time::register_low_precision_alarm(100, [&]() { led_on.toggle(); 
     });
 
