@@ -1,6 +1,7 @@
 {
   "version": "0.2.0",
   "configurations": [
+<<<<<<< HEAD
     {
       "type": "cortex-debug",
       "request": "launch",
@@ -43,6 +44,89 @@
       },
       "stm32cubeprogrammer": "/opt/st/stm32cubeclt_1.16.0/STM32CubeProgrammer/bin"
     },
+=======
+        {
+            "name": "Build and Debug STM32H723 (OpenOCD + RTT)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/out/build/latest.elf",
+            "servertype": "openocd",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32h7x.cfg"
+            ],
+            "serverpath": "openocd",
+            "device": "STM32H723ZGTx",
+            "interface": "swd",
+            "runToEntryPoint": "main",
+            "svdFile":"./STM32H723.svd",
+            "showDevDebugOutput": "parsed",
+            "postLaunchCommands": [
+                "monitor rtt setup 0x24000000 0x24080000 \"SEGGER RTT\"",
+                "monitor rtt start",
+                "monitor rtt server start 9090 0"
+            ],
+            "postRestartCommands": [
+                "monitor halt",
+                "monitor rtt setup 0x24000000 0x24080000 \"SEGGER RTT\"",
+                "monitor rtt start",
+                "monitor rtt server start 9090 0"
+            ],
+            "rttConfig": {
+                "enabled": true,
+                "address": "auto",
+                "decoders": [
+                    {
+                        "port": 0,
+                        "type": "console"
+                    }
+                ]
+            },
+            "preLaunchTask": "CMake: build then pre-flash check"
+
+        },
+        {
+            "name": "Debug STM32H723 (OpenOCD + RTT) - No Build",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/out/build/latest.elf",
+            "servertype": "openocd",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32h7x.cfg"
+            ],
+            "serverpath": "openocd",
+            "device": "STM32H723ZGTx",
+            "interface": "swd",
+            "runToEntryPoint": "main",
+            "svdFile":"./STM32H723.svd",
+            "showDevDebugOutput": "parsed",
+            "postLaunchCommands": [
+                "monitor rtt setup 0x24000000 0x24080000 \"SEGGER RTT\"",
+                "monitor rtt start",
+                "monitor rtt server start 9090 0"
+            ],
+            "postRestartCommands": [
+                "monitor halt",
+                "monitor rtt setup 0x24000000 0x24080000 \"SEGGER RTT\"",
+                "monitor rtt start",
+                "monitor rtt server start 9090 0"
+            ],
+            "rttConfig": {
+                "enabled": true,
+                "address": "auto",
+                "decoders": [
+                    {
+                        "port": 0,
+                        "type": "console"
+                    }
+                ]
+            },
+            "preLaunchTask": "Pre-flash check"
+        },
+>>>>>>> 215797d4569e0740eaf3c91a5831b8cae12c3c55
     {
       "name": "Debug simulator on Rosetta",
       "type": "cppdbg",
