@@ -5,7 +5,7 @@ project(template-project LANGUAGES ASM C CXX)
 set(EXECUTABLE ${PROJECT_NAME}.elf)
 set(Board "VCU") # User must change the Board name
 set(STLIB_DIR ${CMAKE_CURRENT_LIST_DIR}/deps/ST-LIB)
-set(LD_SCRIPT ${CMAKE_SOURCE_DIR}/STM32H723ZGTX_FLASH.ld)
+set(LD_SCRIPT  ${STLIB_DIR}/STM32H723ZGTX_FLASH.ld)
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
