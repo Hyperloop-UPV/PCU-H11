@@ -2,7 +2,8 @@
 
 #define TIMES_TO_CREATE_ZERO 1000
 
-void CurrentSensors::read(){
+void CurrentSensors::read()
+{
     sensor_u_a.read();
     sensor_u_b.read();
     sensor_v_a.read();
@@ -11,14 +12,16 @@ void CurrentSensors::read(){
     sensor_w_b.read();
 }
 
-void CurrentSensors::zeroing(){
+void CurrentSensors::zeroing()
+{
     float new_offset_u_a = 0;
     float new_offset_u_b = 0;
     float new_offset_v_a = 0;
     float new_offset_v_b = 0;
     float new_offset_w_a = 0;
     float new_offset_w_b = 0;
-    for(size_t i = 1; i < TIMES_TO_CREATE_ZERO; i++){
+    for(size_t i = 1; i < TIMES_TO_CREATE_ZERO; i++)
+    {
         read();
         new_offset_u_a = (new_offset_u_a * (i - 1) + data_current.actual_current_sensor_u_a)/i;
         new_offset_u_b = (new_offset_u_b * (i - 1) + data_current.actual_current_sensor_u_b)/i;

@@ -6,7 +6,8 @@
 class CurrentSensors{
     public: 
 
-    struct Data_current{
+    struct Data_current
+    {
         public:
         float actual_current_sensor_u_a;
         float actual_current_sensor_u_b;
@@ -27,7 +28,7 @@ class CurrentSensors{
         inline static LinearSensor<float> sensor_w_b{Pinout::Current_sensor_W_B,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&data_current.actual_current_sensor_w_b};
         
     public:
-    
+
     CurrentSensors()=default;
     static void read();
     static void zeroing();

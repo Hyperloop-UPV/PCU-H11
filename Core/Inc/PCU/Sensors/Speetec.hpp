@@ -6,7 +6,8 @@ using SpeetecSensor = EncoderSensor<Sensors_data::encoder_samples>;
 
 class Speetec{
     public:
-    struct Data_speetec{
+    struct Data_speetec
+    {
         public:
         Direction direction_encoder;
         double speed_encoder{};
@@ -30,6 +31,15 @@ class Speetec{
     
     Speetec()=default;
 
-    static void start();
-    static void read();
+    static void start()
+    {
+        sensor_speetec.turn_on();
+    }
+
+
+    static void read()
+    {
+        sensor_speetec.read();
+        data_speetec.speed_km_h_encoder = data_speetec.speed_encoder * 3.6;
+    }
 };

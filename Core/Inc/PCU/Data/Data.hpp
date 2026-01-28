@@ -36,7 +36,8 @@ namespace Pinout{
 using ST_LIB::DigitalInputDomain;
 using ST_LIB::DigitalOutputDomain;
 
-namespace Pinout{
+namespace Pinout
+{
     /*------Leds------*/
     constexpr DigitalOutputDomain::DigitalOutput led_operational = {ST_LIB::PG13};
     constexpr DigitalOutputDomain::DigitalOutput led_fault = {ST_LIB::PG12};    
@@ -98,7 +99,8 @@ namespace Pinout{
 }
 #endif
 
-namespace Current_Control_Data{
+namespace Current_Control_Data
+{
     static constexpr double kp_accelerate = 0.1;
     static constexpr double ki_accelerate = 12.0;
     static constexpr double kp_regenerate = 0.2;
@@ -107,7 +109,8 @@ namespace Current_Control_Data{
     //Esto por ver:
     static constexpr uint32_t microsecond_period = static_cast<uint32_t>(period * 1000000);
 }
-namespace Speed_Control_Data{
+namespace Speed_Control_Data
+{
     static constexpr double kp_accelerate = 4.0;
     static constexpr double ki_accelerate = 1.0;
     static constexpr double kp_regenerate = 4.0;
@@ -116,7 +119,8 @@ namespace Speed_Control_Data{
     static constexpr uint32_t microsecond_period = static_cast<uint32_t>(period * 1000000);
 }
 
-namespace Sensors_data{
+namespace Sensors_data
+{
     constexpr static float slope_current_sensor{96.206615f};
     constexpr static float offset_current_sensor{-159.5747f};
 
