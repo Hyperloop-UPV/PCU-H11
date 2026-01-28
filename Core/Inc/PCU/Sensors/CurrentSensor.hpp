@@ -4,17 +4,21 @@
 
 
 class CurrentSensors{
-    private: 
+    public: 
 
-        struct Data_current{
-            public:
-            float actual_current_sensor_u_a;
-            float actual_current_sensor_u_b;
-            float actual_current_sensor_v_a;
-            float actual_current_sensor_v_b;
-            float actual_current_sensor_w_a;
-            float actual_current_sensor_w_b;
-        };
+    struct Data_current{
+        public:
+        float actual_current_sensor_u_a;
+        float actual_current_sensor_u_b;
+        float actual_current_sensor_v_a;
+        float actual_current_sensor_v_b;
+        float actual_current_sensor_w_a;
+        float actual_current_sensor_w_b;
+    };
+
+    D1_NC inline static Data_current data_current{0,0,0,0,0,0};
+
+    private:
         inline static LinearSensor<float> sensor_u_a{Pinout::Current_sensor_U_A,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&data_current.actual_current_sensor_u_a};
         inline static LinearSensor<float> sensor_u_b{Pinout::Current_sensor_U_B,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&data_current.actual_current_sensor_u_b};
         inline static LinearSensor<float> sensor_v_a{Pinout::Current_sensor_V_A,Sensors_data::slope_current_sensor_inverted,Sensors_data::offset_current_sensor_inverted,&data_current.actual_current_sensor_v_a};
@@ -24,8 +28,6 @@ class CurrentSensors{
         
     public:
     
-    D1_NC inline static Data_current data_current{0,0,0,0,0,0};
-
     CurrentSensors()=default;
     static void read();
     static void zeroing();
