@@ -32,10 +32,10 @@ class Speetec{
     
     #if PCU_H10 == 0
     // static void init(ST_LIB::DigitalOutputDomain::Instance& enable_pin_instance)
-    {
-        // enable_pin = enable_pin_instance;
-        sensor_speetec.turn_on();
-    }
+    // {
+    //     // enable_pin = enable_pin_instance;
+    //     sensor_speetec.turn_on();
+    // }
 
     static void start()
     {
