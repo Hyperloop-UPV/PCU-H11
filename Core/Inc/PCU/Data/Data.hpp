@@ -88,10 +88,11 @@ namespace Pinout
     constexpr DigitalOutputDomain::DigitalOutput Reset_bypass = {ST_LIB::PG5};
 
 
-    //IDK :)
-    static constexpr Pin& Hal_supply_A = PD12;
-    static constexpr Pin& Hal_supply_B = PD11;
-    static constexpr Pin& Speetec_supply = PD10;
+    /*------Supplies------*/
+    constexpr DigitalOutputDomain::DigitalOutput Speetec_supply = {ST_LIB::PD10};
+    constexpr DigitalOutputDomain::DigitalOutput Hall_SupplyA= {ST_LIB::PD12};
+    constexpr DigitalOutputDomain::DigitalOutput Hall_SupplyB= {ST_LIB::PD11};
+
 
 
 
@@ -130,8 +131,8 @@ namespace Sensors_data
     static constexpr float slope_voltage_sensor = 133.31627;
     static constexpr float offset_voltage_sensor = -9.24655;
 
-    static constexpr uint32_t read_sensors_us = 200; 
+    static constexpr uint32_t read_sensors_us = 200; //This speed allows maximum precision with speetec.
     static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; // this has to be the same frequency that the read is done
-    static constexpr double encoder_counter_distance_m = 0.0001;
+    static constexpr double encoder_counter_distance_m = 0.004 mm;
     static constexpr size_t  encoder_samples = 250;
 };
