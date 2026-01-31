@@ -165,6 +165,7 @@ enum class BUFFER_STATE: uint8_t
 using Direction = EncoderSensor<Sensors_data::encoder_samples>::Direction;
 struct Control_Data
 {
+    //SpaceVector:
     PWM_ACTIVE pwm_active{};
     uint32_t actual_frequency{};
     float modulation_frequency{};
@@ -176,7 +177,8 @@ struct Control_Data
     double target_voltage{};
     float time{};
     float imod{};
-    //speed
+
+    //speed:
     float target_speed{};
     double speed_error{};
     float actual_current_ref{};

@@ -14,7 +14,7 @@ enum phase
 class SpaceVector
 {
 private:
-    inline static float VMAX = 163.0;
+    inline static float VMAX{163.0};
     static constexpr uint32_t Period = 200; // this Period is in microseconds
 public:
     inline static float time{0.0f};
@@ -27,14 +27,14 @@ public:
     
 
     SpaceVector()=default;
-    void set_target_voltage(float V_ref);
-    void set_frequency_Modulation(float freq);
-    void calculate_duties();
-    float get_modulation_frequency();
-    float get_actual_time();
-    void set_VMAX(float VMax);
+    static void set_target_voltage(float V_ref);
+    static void set_frequency_Modulation(float freq);
+    static void calculate_duties();
+    static float get_modulation_frequency();
+    static float get_actual_time();
+    static void set_VMAX(float VMax);
     #if MODE_CALCULATE_SIN == 1
-        float calculate_sin_look_up_table(float angle);
-        float calculate_sin_phase(phase p);
+        static float calculate_sin_look_up_table(float angle);
+        static float calculate_sin_phase(phase p);
     #endif
 };
