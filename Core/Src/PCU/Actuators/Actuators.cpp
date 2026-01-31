@@ -12,15 +12,16 @@ void Actuators::disable_buffer()
     buffer_state = BUFFER_STATE::DISABLED;
 }
 
-void Actuators::enable_reset()
+void Actuators::enable_reset_bypass()
 {
-    reset_pin.turn_on();
+    reset_bypass.turn_on();
 }
-void Actuators::disable_reset()
+void Actuators::disable_reset_bypass()
 {
-    reset_pin.turn_off();
+    reset_bypass.turn_off();
 }
 
+#if PCU_H10 == 0
 void Actuators::enable_hall_supply()
 {
     hall_supply_a.turn_on();
@@ -42,7 +43,7 @@ void Actuators::disable_speedtec_supply()
 {
     speedtec_supply.turn_off();
 }
-
+#endif
 
 /*-----Leds----*/
 void Actuators::set_led_operational(bool state)
@@ -66,6 +67,7 @@ void Actuators::set_led_connecting(bool state)
     else
         led_connecting.turn_off();
 }
+#if PCU_H10 == 0
 void Actuators::set_led_accelerating(bool state)
 {
     if(state)
@@ -80,3 +82,4 @@ void Actuators::set_led_braking(bool state)
     else
         led_braking.turn_off();
 }
+#endif

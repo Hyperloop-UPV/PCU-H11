@@ -3,6 +3,7 @@
 
 /*-------Flags-------*/
 #define PCU_H10 0
+#define MODE_CALCULATE_SIN 1
 
 
 #if PCU_H10 == 1
@@ -14,23 +15,25 @@ namespace Pinout{
     static constexpr Pin& W_PWM = PE13;
     static constexpr Pin& W_PWM_NEGATED = PE12;
 
-    static constexpr Pin& ENABLE_BUFFER = PF4; 
-    static constexpr Pin& Reset = PB7;
-    static constexpr Pin& Batt_Voltage_A = PF3;
-    static constexpr Pin& Batt_Voltage_B = PF5;
-    static constexpr Pin& LED_COMMUTATION = PG6;
-    static constexpr Pin& LED_FAULT = PG7;
-    static constexpr Pin& LED_OPERATIONAL = PG8;
+    constexpr DigitalOutputDomain::DigitalOutput Buff_enable{ST_LIB::PF4}; 
+    constexpr DigitalOutputDomain::DigitalOutput Reset_bypass{ST_LIB::PB7};
+
+    static constexpr Pin& Voltage_Battery_A = PF3;
+    static constexpr Pin& Voltage_Battery_B = PF5;
+
+    constexpr DigitalOutputDomain::DigitalOutput led_connecting{ST_LIB::PG6};
+    constexpr DigitalOutputDomain::DigitalOutput led_fault = {ST_LIB::PG7};
+    constexpr DigitalOutputDomain::DigitalOutput led_operational = {ST_LIB::PG8};
     //current sensors
-    static constexpr Pin& CURRENT_SENSOR_U_A = PA0;
-    static constexpr Pin& CURRENT_SENSOR_U_B = PA6;
-    static constexpr Pin& CURRENT_SENSOR_V_A = PA4;
-    static constexpr Pin& CURRENT_SENSOR_V_B = PB0;
-    static constexpr Pin& CURRENT_SENSOR_W_A = PA5;
-    static constexpr Pin& CURRENT_SENSOR_W_B = PB1;
+    static constexpr Pin& Current_sensor_U_A = PA0;
+    static constexpr Pin& Current_sensor_U_B = PA6;
+    static constexpr Pin& Current_sensor_V_A = PA4;
+    static constexpr Pin& Current_sensor_V_B = PB0;
+    static constexpr Pin& Current_sensor_W_A = PA5;
+    static constexpr Pin& Current_sensor_W_B = PB1;
     //Speetec
-    static constexpr Pin& ENCODER_A = PF1;
-    static constexpr Pin& ENCODER_B = PF0;
+    static constexpr Pin& Speetec_A = PF1;
+    static constexpr Pin& Speetec_B = PF0;
 };
 #else 
 using ST_LIB::DigitalInputDomain;
@@ -66,8 +69,8 @@ namespace Pinout
     static constexpr Pin& Speetec_A_outPhase = PF0;
     static constexpr Pin& Speetec_B = PF9;
     static constexpr Pin& Speetec_B_outPhase = PF2;
-    static constexpr Pin& Speetec_C = PE6;
-    static constexpr Pin& Speetec_C_outPhase = PE5;
+    // static constexpr Pin& Speetec_C = PE6;
+    // static constexpr Pin& Speetec_C_outPhase = PE5;
 
     /*------Voltage Battery------*/
     static constexpr Pin& Voltage_Battery_A = PF3;
@@ -79,12 +82,12 @@ namespace Pinout
 
     /*------B2B------*/
     //Imagino que serán DI:
-    constexpr DigitalInputDomain::DigitalInput Fault_A = {ST_LIB::PE14};
-    constexpr DigitalInputDomain::DigitalInput Fault_B = {ST_LIB::PB6};
-    constexpr DigitalInputDomain::DigitalInput Ready_A = {ST_LIB::PB5};
-    constexpr DigitalInputDomain::DigitalInput Ready_B = {ST_LIB::PE14};
-
-    constexpr DigitalOutputDomain::DigitalOutput Buff_enable = {ST_LIB::PF4};
+    // constexpr DigitalInputDomain::DigitalInput Fault_A = {ST_LIB::PE14};
+    // constexpr DigitalInputDomain::DigitalInput Fault_B = {ST_LIB::PB6};
+    // constexpr DigitalInputDomain::DigitalInput Ready_A = {ST_LIB::PB5};
+    // constexpr DigitalInputDomain::DigitalInput Ready_B = {ST_LIB::PE14};
+    //Outputs:
+    constexpr DigitalOutputDomain::DigitalOutput Buff_enable = {ST_LIB::PF4}; //Negado en h10, no se si en h11 si
     constexpr DigitalOutputDomain::DigitalOutput Reset_bypass = {ST_LIB::PG5};
 
 
