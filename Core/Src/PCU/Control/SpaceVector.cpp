@@ -4,11 +4,12 @@ void SpaceVector::set_target_voltage(float V_ref) {
     if (V_ref < 0) V_ref = 0;
     Imodulation = V_ref * 2.0 / VMAX;
     if (Imodulation >= IMAX) Imodulation = IMAX;
+    PCU::control_data.imod = Imodulation;
 }
 
 void SpaceVector::set_frequency_Modulation(float freq) {
     Modulation_frequency = freq;
-    data->modulation_frequency = Modulation_frequency;
+    PCU::control_data.modulation_frequency = Modulation_frequency;
 }
 
 void SpaceVector::calculate_duties() {
@@ -30,16 +31,16 @@ void SpaceVector::calculate_duties() {
     sin_w -= offset;
 #endif
 
-    if (data->Stablished_direction == Direction::FORWARD){
-        actuators->set_duty_u((sin_u / 2.0 + 0.5) * 100.0);
-        actuators->set_duty_v((sin_v / 2.0 + 0.5) * 100.0);
+    if ( PCU::control_data.established_direction == Direction::FORWARD){
+        PWMActuators::set_duty_u((sin_u / 2.0 + 0.5) * 100.0);
+        PWMActuators::set_duty_v((sin_v / 2.0 + 0.5) * 100.0);
     } else {
-        actuators->set_duty_u((sin_v / 2.0 + 0.5) * 100.0);
-        actuators->set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
+        PWMActuators::set_duty_u((sin_v / 2.0 + 0.5) * 100.0);
+        PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
     }
-    actuators->set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
+    PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
     time += Period / 1000000.0;
-    data->time = time;
+    PCU::control_data.time = time;
 }
 
 float SpaceVector::get_modulation_frequency() {
