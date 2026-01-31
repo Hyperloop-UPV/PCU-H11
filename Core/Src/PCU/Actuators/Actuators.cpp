@@ -1,0 +1,82 @@
+#include "PCU/Actuators/Actuators.hpp"
+
+void Actuators::enable_buffer()
+{
+    enable_pin.turn_on();
+    buffer_state = BUFFER_STATE::ENABLED;
+}
+
+void Actuators::disable_buffer()
+{
+    enable_pin.turn_off();
+    buffer_state = BUFFER_STATE::DISABLED;
+}
+
+void Actuators::enable_reset()
+{
+    reset_pin.turn_on();
+}
+void Actuators::disable_reset()
+{
+    reset_pin.turn_off();
+}
+
+void Actuators::enable_hall_supply()
+{
+    hall_supply_a.turn_on();
+    hall_supply_b.turn_on();
+}
+
+void Actuators::disable_hall_supply()
+{
+    hall_supply_a.turn_off();
+    hall_supply_b.turn_off();
+}
+
+void Actuators::enable_speedtec_supply()
+{
+    speedtec_supply.turn_on();
+}
+
+void Actuators::disable_speedtec_supply()
+{
+    speedtec_supply.turn_off();
+}
+
+
+/*-----Leds----*/
+void Actuators::set_led_operational(bool state)
+{
+    if(state)
+        led_operational.turn_on();
+    else
+        led_operational.turn_off();
+}
+void Actuators::set_led_fault(bool state)
+{
+    if(state)
+        led_fault.turn_on();
+    else
+        led_fault.turn_off();
+}
+void Actuators::set_led_connecting(bool state)
+{
+    if(state)
+        led_connecting.turn_on();
+    else
+        led_connecting.turn_off();
+}
+void Actuators::set_led_accelerating(bool state)
+{
+    if(state)
+        led_accelerating.turn_on();
+    else
+        led_accelerating.turn_off();
+}
+void Actuators::set_led_braking(bool state)
+{
+    if(state)
+        led_braking.turn_on();
+    else
+        led_braking.turn_off();
+}

@@ -11,8 +11,7 @@ class CurrentSensors{
     inline static D1_NC float actual_current_sensor_w_a{0.0f};
     inline static D1_NC float actual_current_sensor_w_b{0.0f};
     #if PCU_H10 == 0
-    static ST_LIB::DigitalOutputDomain::Instance& hall_supply_a;
-    static ST_LIB::DigitalOutputDomain::Instance& hall_supply_b;
+    
     inline static bool is_on{false};
     #endif
 
@@ -28,27 +27,7 @@ class CurrentSensors{
     public:
 
     CurrentSensors()=default;
-    #if PCU_H10 == 0
-    static void init(ST_LIB::DigitalOutputDomain::Instance& hall_supply_a_instance,
-                     ST_LIB::DigitalOutputDomain::Instance& hall_supply_b_instance)
-    {
-        hall_supply_a = hall_supply_a_instance;
-        hall_supply_b = hall_supply_b_instance;
-    }
-    static void start()
-    {
-        hall_supply_a.turn_on();
-        hall_supply_b.turn_on();
-        is_on = true;
-    }
 
-    static void stop()
-    {
-        hall_supply_a.turn_off();
-        hall_supply_b.turn_off();
-        is_on = false;
-    }
-    #endif
     static void read();
     static void zeroing();
 
