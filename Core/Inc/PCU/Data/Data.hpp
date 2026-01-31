@@ -2,8 +2,12 @@
 #include "ST-LIB.hpp"
 
 /*-------Flags-------*/
-#define PCU_H10 0
-#define MODE_CALCULATE_SIN 1
+#define PCU_H10 0           // 0 = PCU-H11, 1 = PCU-H10
+#define MODE_CALCULATE_SIN 0 //0 = Normal sin, 1 = Look Up table with direct interpolation
+#define PPU_USING 2     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
+#define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
+#define MOTOR_CENTER_ALIGNED 0 // 0 = Normal dualPWM, 1 = CenterAligned DualPWM
+#define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
 
 
 #if PCU_H10 == 1
@@ -138,4 +142,46 @@ namespace Sensors_data
     static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; // this has to be the same frequency that the read is done
     static constexpr double encoder_counter_distance_m = 0.004; // mm
     static constexpr size_t  encoder_samples = 250;
+};
+
+enum ControlStates{
+    accelerate,
+    regenerate
+};
+
+enum class PWM_ACTIVE: uint8_t
+{
+    NONE = 0,
+    U = 1,
+    V = 2,
+    W = 3
+}; 
+
+enum class BUFFER_STATE: uint8_t
+{
+    DISABLED = 0,
+    ENABLED = 1
+};
+using Direction = EncoderSensor<Sensors_data::encoder_samples>::Direction;
+struct Control_Data
+{
+    PWM_ACTIVE pwm_active{};
+    uint32_t actual_frequency{};
+    float modulation_frequency{};
+    float actual_duty{};
+    BUFFER_STATE buffer_state{};
+
+    double current_error{};
+    double current_Peak{};
+    double target_voltage{};
+    float time{};
+    float imod{};
+    //speed
+    float target_speed{};
+    double speed_error{};
+    float actual_current_ref{};
+    //control
+    ControlStates currentState{ControlStates::accelerate};
+    ControlStates speedState{ControlStates::accelerate};
+    Direction Stablished_direction{Direction::FORWARD};
 };

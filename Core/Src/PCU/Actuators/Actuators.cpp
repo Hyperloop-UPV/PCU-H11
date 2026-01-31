@@ -1,15 +1,53 @@
 #include "PCU/Actuators/Actuators.hpp"
 
+#if PCU_H10 == 0
+void Actuators::init(DigitalOutputInstance& hall_supply_a_instance,
+                     DigitalOutputInstance& hall_supply_b_instance,
+                     DigitalOutputInstance& speedtec_supply_instance,
+                     DigitalOutputInstance& enable_pin_instance,
+                     DigitalOutputInstance& reset_pin_instance)
+{
+    hall_supply_a = hall_supply_a_instance;
+    hall_supply_b = hall_supply_b_instance;
+    speedtec_supply = speedtec_supply_instance;
+    enable_pin = NegatedPin{enable_pin_instance};
+    reset_bypass = reset_pin_instance;
+    enable_pin.turn_off();  //Por ver esta logica
+    reset_bypass.turn_off();
+    PCU::control_data.buffer_state = BUFFER_STATE::DISABLED;
+}
+#else
+void Actuators::init(DigitalOutputInstance& enable_pin_instance,
+                     DigitalOutputInstance& reset_pin_instance,
+                     DigitalOutputInstance& led_operational_instance,
+                     DigitalOutputInstance& led_fault_instance,
+                     DigitalOutputInstance& led_connecting_instance)
+    {
+        enable_pin = NegatedPin{enable_pin_instance};
+        reset_bypass = reset_pin_instance;
+        led_operational = led_operational_instance;
+        led_fault = led_fault_instance;
+        led_connecting = led_connecting_instance;
+
+        enable_pin.turn_off();  
+        reset_pin.turn_on();
+        led_operational.turn_off();
+        led_fault.turn_off();
+        led_connecting.turn_off();
+        PCU::control_data.buffer_state = BUFFER_STATE::DISABLED;
+    }
+#endif
+
 void Actuators::enable_buffer()
 {
     enable_pin.turn_on();
-    buffer_state = BUFFER_STATE::ENABLED;
+    PCU::control_data.buffer_state= BUFFER_STATE::ENABLED;
 }
 
 void Actuators::disable_buffer()
 {
     enable_pin.turn_off();
-    buffer_state = BUFFER_STATE::DISABLED;
+    PCU::control_data.buffer_state = BUFFER_STATE::DISABLED;
 }
 
 void Actuators::enable_reset_bypass()

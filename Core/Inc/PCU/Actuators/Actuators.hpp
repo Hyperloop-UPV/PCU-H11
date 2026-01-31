@@ -1,11 +1,9 @@
 #pragma once
 #include "PCU/Data/Data.hpp"
+#include "PCU/PCU.hpp"
 
-enum class BUFFER_STATE: uint8_t
-{
-    DISABLED = 0,
-    ENABLED = 1
-};
+
+
 
 class Actuators
 {
@@ -39,7 +37,6 @@ class Actuators
     #endif
 
     public:
-    inline static BUFFER_STATE buffer_state{BUFFER_STATE::DISABLED};
     Actuators()=default;
 
     #if PCU_H10 == 0
@@ -47,16 +44,7 @@ class Actuators
                      DigitalOutputInstance& hall_supply_b_instance,
                      DigitalOutputInstance& speedtec_supply_instance,
                      DigitalOutputInstance& enable_pin_instance,
-                     DigitalOutputInstance& reset_pin_instance)
-    {
-        hall_supply_a = hall_supply_a_instance;
-        hall_supply_b = hall_supply_b_instance;
-        speedtec_supply = speedtec_supply_instance;
-        enable_pin = NegatedPin{enable_pin_instance};
-        reset_bypass = reset_bypass_instance;
-        enable_pin.turn_off();  //Por ver esta logica
-        reset_bypass.turn_off();
-    }
+                     DigitalOutputInstance& reset_pin_instance);
 
     static void init_leds(DigitalOutputInstance& led_operational_instance,
                           DigitalOutputInstance& led_fault_instance,
@@ -81,20 +69,7 @@ class Actuators
                      DigitalOutputInstance& reset_pin_instance,
                      DigitalOutputInstance& led_operational_instance,
                      DigitalOutputInstance& led_fault_instance,
-                     DigitalOutputInstance& led_connecting_instance)
-    {
-        enable_pin = NegatedPin{enable_pin_instance};
-        reset_bypass = reset_pin_instance;
-        led_operational = led_operational_instance;
-        led_fault = led_fault_instance;
-        led_connecting = led_connecting_instance;
-
-        enable_pin.turn_off();  
-        reset_pin.turn_on();
-        led_operational.turn_off();
-        led_fault.turn_off();
-        led_connecting.turn_off();
-    }
+                     DigitalOutputInstance& led_connecting_instance);
     #endif
 
     static void enable_buffer();

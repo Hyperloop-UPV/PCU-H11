@@ -3,8 +3,6 @@
 static constexpr uint32_t initial_frequency = 10000;
 static constexpr std::chrono::nanoseconds dead_time_ns(300);
 
-PWM_ACTIVE PWMActuators::active_pwm = PWM_ACTIVE::NONE;
-
 void PWMActuators::init()
 {
     U_Dual.set_frequency(initial_frequency);
@@ -19,7 +17,7 @@ void PWMActuators::init()
     V_Dual.set_duty_cycle(0.0f);
     W_Dual.set_duty_cycle(0.0f);
 
-    active_pwm = PWM_ACTIVE::NONE;
+    PCU::control_data.pwm_active = PWM_ACTIVE::NONE;
 }
 
 
@@ -40,36 +38,36 @@ void PWMActuators::stop()
     V_Dual.set_duty_cycle(0.0f);
     W_Dual.set_duty_cycle(0.0f);
 
-    active_pwm = PWM_ACTIVE::NONE;
-    current_duty_cycle = 0.0f;
-    current_frequency = 0;
+    PCU::control_data.pwm_active = PWM_ACTIVE::NONE;
+    PCU::control_data.actual_duty = 0.0f;
+    PCU::control_data.actual_frequency = 0;
 }
 
 void PWMActuators::turn_off_u()
 {
     U_Dual.set_duty_cycle(0.0f);
-    active_pwm = PWM_ACTIVE::NONE;
-    current_duty_cycle = 0.0f;
-    current_frequency = 0;
+    PCU::control_data.pwm_active = PWM_ACTIVE::NONE;
+    PCU::control_data.actual_duty = 0.0f;
+    PCU::control_data.actual_frequency = 0;
 }
 void PWMActuators::turn_off_w()
 {
     W_Dual.set_duty_cycle(0.0f);
-    active_pwm = PWM_ACTIVE::NONE;
-    current_duty_cycle = 0.0f;
-    current_frequency = 0;
+    PCU::control_data.pwm_active = PWM_ACTIVE::NONE;
+    PCU::control_data.actual_duty = 0.0f;
+    PCU::control_data.actual_frequency = 0;
 }
 void PWMActuators::turn_off_v()
 {
     V_Dual.set_duty_cycle(0.0f);
-    active_pwm = PWM_ACTIVE::NONE;
-    current_duty_cycle = 0.0f;
-    current_frequency = 0;
+    PCU::control_data.pwm_active = PWM_ACTIVE::NONE;
+    PCU::control_data.actual_duty = 0.0f;
+    PCU::control_data.actual_frequency = 0;
 }
 
 void PWMActuators::turn_off_active_pwm() 
 {
-    switch (active_pwm) {
+    switch (PCU::control_data.pwm_active) {
         case PWM_ACTIVE::NONE:
             return;
         case PWM_ACTIVE::U:
@@ -93,13 +91,13 @@ void PWMActuators::set_duty_u(float duty_cycle)
         duty_cycle = 100.0;
 
     U_Dual.set_duty_cycle(duty_cycle);
-    current_duty_cycle = get_duty_u();
-    active_pwm = PWM_ACTIVE::U;
+    PCU::control_data.actual_duty = get_duty_u();
+    PCU::control_data.pwm_active = PWM_ACTIVE::U;
 }
 void PWMActuators::set_frequency_u(uint32_t frequency)
 {
     U_Dual.set_frequency(frequency);
-    current_frequency = get_frequency_u();
+    PCU::control_data.actual_frequency = get_frequency_u();
 }
 
 
@@ -112,13 +110,13 @@ void PWMActuators::set_duty_v(float duty_cycle)
         duty_cycle = 100.0;
 
     V_Dual.set_duty_cycle(duty_cycle);
-    current_duty_cycle = get_duty_v();
-    active_pwm = PWM_ACTIVE::V;
+    PCU::control_data.actual_duty = get_duty_v();
+    PCU::control_data.pwm_active = PWM_ACTIVE::V;
 }
 void PWMActuators::set_frequency_v(uint32_t frequency)
 {
     V_Dual.set_frequency(frequency);
-    current_frequency = get_frequency_v();
+    PCU::control_data.actual_frequency = get_frequency_v();
 }
 
 
@@ -129,15 +127,15 @@ void PWMActuators::set_duty_w(float duty_cycle)
         duty_cycle = 0.0;
     else if (duty_cycle > 100.0)
         duty_cycle = 100.0;
-        
+
     W_Dual.set_duty_cycle(duty_cycle);
-    current_duty_cycle = get_duty_w();
-    active_pwm = PWM_ACTIVE::W;
+    PCU::control_data.actual_duty = get_duty_w();
+    PCU::control_data.pwm_active = PWM_ACTIVE::W;
 }
 void PWMActuators::set_frequency_w(uint32_t frequency)
 {
     W_Dual.set_frequency(frequency);
-    current_frequency = get_frequency_w();
+    PCU::control_data.actual_frequency = get_frequency_w();
 }
 
 
@@ -152,5 +150,5 @@ void PWMActuators::set_three_frequencies(uint32_t frequency)
     {
         //manejar error??
     }
-    current_frequency = frequency;
+    PCU::control_data.actual_frequency = frequency;
 }

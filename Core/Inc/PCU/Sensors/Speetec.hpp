@@ -1,5 +1,6 @@
 #pragma once
 #include "PCU/Data/Data.hpp"
+#include "PCU/PCU.hpp"
 
 using Direction = EncoderSensor<Sensors_data::encoder_samples>::Direction;
 using SpeetecSensor = EncoderSensor<Sensors_data::encoder_samples>;
@@ -7,7 +8,6 @@ using SpeetecSensor = EncoderSensor<Sensors_data::encoder_samples>;
 class Speetec{
     public:
 
-    inline static D1_NC Direction direction_encoder{Direction::FORWARD};
     inline static D1_NC double speed_encoder{0.0f};
     inline static D1_NC double speed_km_h_encoder{0.0f};
     inline static D1_NC double acceleration_encoder{0.0f};
@@ -17,7 +17,7 @@ class Speetec{
                                         Pinout::Speetec_B,
                                         Sensors_data::encoder_counter_distance_m,
                                         Sensors_data::encoder_sample_time_s,
-                                        &direction_encoder,
+                                        &PCU::control_data.Stablished_direction,
                                         &position_encoder,
                                         &speed_encoder,
                                         &acceleration_encoder};

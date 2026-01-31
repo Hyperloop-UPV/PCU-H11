@@ -1,13 +1,9 @@
 #pragma once
 #include "PCU/Data/Data.hpp"
+#include "PCU/PCU.hpp"
 
-enum class PWM_ACTIVE: uint8_t
-{
-    NONE = 0,
-    U = 1,
-    V = 2,
-    W = 3
-}; 
+
+
 class PWMActuators{
 
     private:
@@ -17,9 +13,6 @@ class PWMActuators{
         inline static DualPWM W_Dual{Pinout::W_PWM, Pinout::W_PWM_NEGATED};
 
     public:
-        D1_NC static PWM_ACTIVE active_pwm;
-        D1_NC inline static uint32_t current_frequency{0};
-        D1_NC inline static float current_duty_cycle{0.0f};
         PWMActuators()=default;
 
     static void init();

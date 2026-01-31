@@ -14,6 +14,9 @@ enum phase
 class SpaceVector
 {
 private:
+    inline static float VMAX = 163.0;
+    static constexpr uint32_t Period = 200; // this Period is in microseconds
+public:
     inline static float time{0.0f};
     static float Imodulation;
     static double Modulation_frequency;
@@ -21,9 +24,7 @@ private:
     static constexpr float IMAX = 1.1547;
 
 
-public:
-    inline static float VMAX = 163.0;
-    static constexpr uint32_t Period = 200; // this Period is in microseconds
+    
 
     SpaceVector()=default;
     void set_target_voltage(float V_ref);
