@@ -11,16 +11,16 @@ find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
 set(GENERATOR_SCRIPT "${CMAKE_SOURCE_DIR}/Core/Inc/Code_generation/Generator.py")
 
-add_custom_target(run_generator ALL
-    COMMAND ${Python3_EXECUTABLE} ${GENERATOR_SCRIPT} ${Board}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-)
-
 if(CMAKE_HOST_WIN32 )
   set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/Scripts/python)
 else()
   set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/bin/python)
 endif()
+
+add_custom_target(run_generator ALL
+    COMMAND ${VENV_PYTHON} ${GENERATOR_SCRIPT} ${Board}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
 
 add_custom_target(
     my_custom_target_that_always_runs ALL

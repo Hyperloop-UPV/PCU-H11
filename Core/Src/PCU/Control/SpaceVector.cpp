@@ -1,4 +1,5 @@
 #include "PCU/Control/SpaceVector.hpp"
+#include "PCU/PCU.hpp"
 
 void SpaceVector::set_target_voltage(float V_ref) {
     if (V_ref < 0) V_ref = 0;

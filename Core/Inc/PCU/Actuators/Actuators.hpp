@@ -1,6 +1,5 @@
 #pragma once
 #include "PCU/Data/Data.hpp"
-#include "PCU/PCU.hpp"
 
 
 
@@ -10,30 +9,32 @@ class Actuators
     private:
     struct NegatedPin
     {
-        ST_LIB::DigitalOutputDomain::Instance& pin;
-        void turn_on(){pin.turn_off();}
-        void turn_off(){pin.turn_on();}
+        ST_LIB::DigitalOutputDomain::Instance* pin;
+        NegatedPin() : pin(nullptr) {}
+        NegatedPin(ST_LIB::DigitalOutputDomain::Instance& p) : pin(&p) {}
+        void turn_on(){if(pin) pin->turn_off();}
+        void turn_off(){if(pin) pin->turn_on();}
     };
 
     using DigitalOutputInstance = ST_LIB::DigitalOutputDomain::Instance;
 
     /*------Control outputs-------*/
     #if PCU_H10 == 0
-    static DigitalOutputInstance& speedtec_supply;
-    static DigitalOutputInstance& hall_supply_a;
-    static DigitalOutputInstance& hall_supply_b;
+    static inline DigitalOutputInstance* speedtec_supply = nullptr;
+    static inline DigitalOutputInstance* hall_supply_a = nullptr;
+    static inline DigitalOutputInstance* hall_supply_b = nullptr;
     #endif
-    static NegatedPin enable_pin;
-    static DigitalOutputInstance& reset_bypass;
+    static inline NegatedPin enable_pin;
+    static inline DigitalOutputInstance* reset_bypass = nullptr;
 
     /*-----Leds----*/
-    static DigitalOutputInstance& led_operational;
-    static DigitalOutputInstance& led_fault;
-    static DigitalOutputInstance& led_connecting;
+    static inline DigitalOutputInstance* led_operational = nullptr;
+    static inline DigitalOutputInstance* led_fault = nullptr;
+    static inline DigitalOutputInstance* led_connecting = nullptr;
 
     #if PCU_H10 == 0
-    static DigitalOutputInstance& led_accelerating;
-    static DigitalOutputInstance& led_braking;
+    static inline DigitalOutputInstance* led_accelerating = nullptr;
+    static inline DigitalOutputInstance* led_braking = nullptr;
     #endif
 
     public:
@@ -52,17 +53,17 @@ class Actuators
                           DigitalOutputInstance& led_accelerating_instance,
                           DigitalOutputInstance& led_braking_instance)
     {
-        led_operational = led_operational_instance;
-        led_fault = led_fault_instance;
-        led_connecting = led_connecting_instance;
-        led_accelerating = led_accelerating_instance;
-        led_braking = led_braking_instance;
+        led_operational = &led_operational_instance;
+        led_fault = &led_fault_instance;
+        led_connecting = &led_connecting_instance;
+        led_accelerating = &led_accelerating_instance;
+        led_braking = &led_braking_instance;
 
-        led_operational.turn_off();
-        led_fault.turn_off();
-        led_connecting.turn_off();
-        led_accelerating.turn_off();
-        led_braking.turn_off();
+        if(led_operational) led_operational->turn_off();
+        if(led_fault) led_fault->turn_off();
+        if(led_connecting) led_connecting->turn_off();
+        if(led_accelerating) led_accelerating->turn_off();
+        if(led_braking) led_braking->turn_off();
     }
     #else
     static void init(DigitalOutputInstance& enable_pin_instance,

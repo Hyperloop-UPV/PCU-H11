@@ -1,8 +1,10 @@
 #pragma once
-#include "Actuators/Actuators.hpp"
+#include "PCU/Actuators/Actuators.hpp"
+#include "PCU/Actuators/PWMActuators.hpp"
+#include "PCU/Data/Data.hpp"
 
 #if MODE_CALCULATE_SIN == 1
-#include "Look_up_table.hpp"
+#include "PCU/Control/LookUpTable.hpp"
 enum phase
 {
     U,

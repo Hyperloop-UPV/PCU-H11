@@ -1,4 +1,6 @@
 #include "PCU/Actuators/PWMActuators.hpp"
+#include "PCU/PCU.hpp"
+
 
 static constexpr uint32_t initial_frequency = 10000;
 static constexpr std::chrono::nanoseconds dead_time_ns(300);
