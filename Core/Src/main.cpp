@@ -1,26 +1,22 @@
+#include "Examples/ExampleMPU.cpp"
+#include "Examples/ExamplesHardFault.cpp"
+
 #include "main.h"
 #include "ST-LIB.hpp"
 
-int main(void) {
-#ifdef SIM_ON
-    SharedMemory::start();
-#endif
+int main(void) { 
+  Hard_fault_check();
+  STLIB::start();
 
-    DigitalOutput led_on(PB0);
-    STLIB::start();
+  using myBoard = ST_LIB::Board<>;
+  myBoard::init();
 
-    Time::register_low_precision_alarm(100, [&]() { led_on.toggle(); 
-    });
-
-    while (1) {
-        STLIB::update();
-    }
+  while (1) {
+    STLIB::update();
+  }
 }
-
 void Error_Handler(void) {
     ErrorHandler("HAL error handler triggered");
     while (1) {
     }
 }
-
-

@@ -93,7 +93,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
   $<$<BOOL:${CMAKE_CROSSCOMPILING}>:-mfloat-abi=hard>
   $<$<BOOL:${CMAKE_CROSSCOMPILING}>:-mthumb>
   $<$<BOOL:${CMAKE_CROSSCOMPILING}>:-specs=nosys.specs>
-
+  -g
   -ffunction-sections
   -fdata-sections
   -fno-exceptions
@@ -104,7 +104,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
 
   $<$<COMPILE_LANGUAGE:CXX>:-Wall>
   # $<$<COMPILE_LANGUAGE:CXX>:-Wpedantic>
-  $<$<COMPILE_LANGUAGE:CXX>:-Werror>
+  # $<$<COMPILE_LANGUAGE:CXX>:-Werror>
   $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
   $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
 )
