@@ -182,6 +182,7 @@ struct Control_Data
     float target_speed{};
     double speed_error{};
     float actual_current_ref{};
+    float speed_km_h_encoder{};
     //control
     ControlStates currentState{ControlStates::accelerate};
     ControlStates speedState{ControlStates::accelerate};

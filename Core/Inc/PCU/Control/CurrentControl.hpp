@@ -69,6 +69,7 @@ private:
     inline static bool should_be_running{false};
 
 public:
+    static void init();
     CurrentControl()=default;
     static void set_current_ref(float cur_ref);
     static double calculate_peak();

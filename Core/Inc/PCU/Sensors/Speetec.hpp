@@ -28,6 +28,6 @@ class Speetec{
     static void read()
     {
         sensor_speetec.read();
-        speed_km_h_encoder = speed_encoder * 3.6;
+        PCU::control_data.speed_km_h_encoder = speed_encoder * 3.6;
     }
 };

@@ -3,6 +3,11 @@
 
 double Max_Peak::modulation_frequency = 0.0;
 
+void CurrentControl::init(){
+    current_PI.reset();
+    current_regenerate_PI.reset();
+}
+
 void CurrentControl::set_current_ref(float cur_ref){
     current_ref = cur_ref;
 }
