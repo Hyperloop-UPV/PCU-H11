@@ -37,4 +37,7 @@ class Comms
     inline static bool on_send_reference_speed{false};
     inline static bool on_start_precharge{false};
 
+    inline static OrderPackets order_packets{};
+    inline static DataPackets data_packets{};
+
 };
