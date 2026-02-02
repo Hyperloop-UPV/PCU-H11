@@ -16,7 +16,11 @@ add_custom_target(run_generator ALL
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/bin/python)
+if(CMAKE_HOST_WIN32 )
+  set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/Scripts/python)
+else()
+  set(VENV_PYTHON ${CMAKE_SOURCE_DIR}/virtual/bin/python)
+endif()
 
 add_custom_target(
     my_custom_target_that_always_runs ALL
@@ -99,6 +103,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
   $<$<COMPILE_LANGUAGE:C>:-w>
 
   $<$<COMPILE_LANGUAGE:CXX>:-Wall>
+  $<$<COMPILE_LANGUAGE:CXX>:-Wpedantic>
   $<$<COMPILE_LANGUAGE:CXX>:-Werror>
   $<$<COMPILE_LANGUAGE:CXX>:-fno-use-cxa-atexit>
   $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
