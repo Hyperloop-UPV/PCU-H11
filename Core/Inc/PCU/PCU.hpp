@@ -21,6 +21,9 @@ class PCU
     inline static bool speed_control_on{false};
     inline static bool current_control_on{false};
 
+    inline static bool flag_update_speed_control{false};
+    inline static bool flag_update_current_control{false};
+
 
 
 
@@ -64,6 +67,54 @@ class PCU
         }}
 
     );
+
+    static constexpr auto nested_accelerating_state = make_state(Operational_States_PCU::Accelerating,
+        Transition<Operational_States_PCU>{Operational_States_PCU::Idle,[]()
+        {
+            return !space_vector_on;
+        }}
+    );
+
+    static constinit auto Operational_State_Machine = [nested_idle_state,nested_sending_pwm_state,nested_accelerating_state]() consteval
+    {
+        auto sm= make_state_machine(Operational_States_PCU::Idle,
+            nested_idle_state,
+            nested_sending_pwm_state,
+            nested_accelerating_state
+        );
+        using namespace std::chrono_literals;
+        sm.add_cyclic_action([]()
+        {
+            flag_update_speed_control = true;
+        }, us(Speed_Control_Data::microsecond_period) , Operational_States_PCU::Accelerating);
+
+        sm.add_cyclic_action([]()
+        {
+            flag_update_current_control = true;
+        }, us(Current_Control_Data::microsecond_period) , Operational_States_PCU::Accelerating);
+
+        
+        sm.add_enter_action([]()
+        {
+            #if PCU_H10 == 0
+            Actuators::set_led_accelerating(true);
+            Actuators::enable_hall_supply();
+            Actuators::enable_speedtec_supply(); //No se si poner esto en operational o aqui.
+            #endif
+            Actuators::enable_buffer();
+        }, Operational_States_PCU::Accelerating);
+
+        sm.add_exit_action([]()
+        {
+            #if PCU_H10 == 0
+            Actuators::set_led_accelerating(false);
+            Actuators::disable_hall_supply();
+            Actuators::disable_speedtec_supply();
+            #endif
+            Actuators::disable_buffer();
+        }, Operational_States_PCU::Accelerating);
+        return sm;
+    }();
 
     
     

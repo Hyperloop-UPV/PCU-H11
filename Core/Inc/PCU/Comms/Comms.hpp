@@ -1,6 +1,20 @@
 #include "Communications/Packets/OrderPackets.hpp"
 #include "Communications/Packets/DataPackets.hpp"
 
+class Comms
+{
+    public:
+    inline static bool on_start_svpwm{false};
+    inline static bool on_stop_motor{false};
+    inline static bool on_send_reference_current{false};
+    inline static bool on_zeroing{false};
+    inline static bool on_send_reference_speed{false};
+    inline static bool on_start_precharge{false};
+
+    inline static OrderPackets order_packets{};
+    inline static DataPackets data_packets{};
+
+};
 
 void Start_SVPWM_cb()
 {
@@ -26,18 +40,3 @@ void Start_Precharge_cb()
 {
     Comms::on_start_precharge = true;
 }
-
-class Comms
-{
-    public:
-    inline static bool on_start_svpwm{false};
-    inline static bool on_stop_motor{false};
-    inline static bool on_send_reference_current{false};
-    inline static bool on_zeroing{false};
-    inline static bool on_send_reference_speed{false};
-    inline static bool on_start_precharge{false};
-
-    inline static OrderPackets order_packets{};
-    inline static DataPackets data_packets{};
-
-};
