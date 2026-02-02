@@ -154,7 +154,6 @@ namespace Sensors_data
 
 using States_PCU = DataPackets::general_state_machine;
 using Operational_States_PCU = DataPackets::operational_state_machine;
-using RunState = DataPackets::run_state;
 using EncoderDirection = DataPackets::encoder_direction;
 using DirectionState = DataPackets::Direction_State;
 using ControlStates = DataPackets::Speed_Control_State;
@@ -209,9 +208,8 @@ struct Control_Data
 
     bool current_control_active{false};
     bool speed_control_active{false};
+    bool space_vector_active{false};
 
-    RunState state_run{RunState::NOTHING};
-    RunMode run_mode{RunMode::DEFAULT};
     
     bool received_stop_motor{false};
     bool received_motor_brake_order{false};

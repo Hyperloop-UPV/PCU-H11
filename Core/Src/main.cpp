@@ -7,7 +7,7 @@
 int main(void) { 
   Hard_fault_check();
   STLIB::start();
-
+  //Pasar todos los pines aqui y inicializar todo
   using myBoard = ST_LIB::Board<>;
   myBoard::init();
 

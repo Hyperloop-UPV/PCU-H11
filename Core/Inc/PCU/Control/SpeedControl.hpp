@@ -8,10 +8,9 @@ private:
     inline static float reference_speed{};
     inline static PI<IntegratorType::Trapezoidal> speed_PI{Speed_Control_Data::kp_accelerate,Speed_Control_Data::ki_accelerate,Speed_Control_Data::period};
     inline static PI<IntegratorType::Trapezoidal> regenerate_PI{Speed_Control_Data::kp_regenerate,Speed_Control_Data::ki_regenerate,Speed_Control_Data::period};
-    
-    inline static bool running{false};
 
 public:
+    inline static bool running{false};
     inline static float current_ref{};
     SpeedControl()=default;
     static void init();

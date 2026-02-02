@@ -12,7 +12,7 @@
 #include "PCU/Control/SpeedControl.hpp"
 #include "Communications/Packets/DataPackets.hpp"
 #include "Communications/Packets/OrderPackets.hpp"
-#include "PCU/Control/Runs.hpp"
+#include "PCU/Comms/Comms.hpp"
 
 #define MODULATION_FREQUENCY_DEFAULT 10
 #define Protecction_Voltage 325.0f 
@@ -26,12 +26,16 @@ class PCU
 
     inline static bool flag_update_speed_control{false};
     inline static bool flag_update_current_control{false};
+    inline static bool flag_execute_space_vector_control{false};
 
     static void start();
     static void update();
-
-
-
+    
+    private:
+    static void stop_motors();
+    static void start_precharge();
+    static void motor_brake();
+    public:
 
 
 /*-----State Machine declaration------*/
@@ -84,6 +88,8 @@ static constexpr auto nested_accelerating_state = make_state(Operational_States_
     }}
 );
 
+//Por hacer regenerativo
+
 static inline constinit auto Operational_State_Machine = []() consteval
 {
     auto sm= make_state_machine(Operational_States_PCU::IDLE,
@@ -93,14 +99,25 @@ static inline constinit auto Operational_State_Machine = []() consteval
         nested_sending_pwm_state
     );
     using namespace std::chrono_literals;
-    sm.add_cyclic_action([]()
+
+    sm.add_enter_action([]()
     {
-        flag_update_speed_control = true;
-    }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
+        stop_motors();
+        //PRecarga?
+    },nested_idle_state);
 
     sm.add_cyclic_action([]()
     {
-        flag_update_current_control = true;
+        if(SpeedControl::running)
+        {
+        flag_update_speed_control = true;
+        }
+    }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
+
+    sm.add_cyclic_action([]()
+    {   
+        flag_execute_space_vector_control = true;
+        if(CurrentControl::is_running())flag_update_current_control = true;
     }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
 
     
@@ -154,30 +171,39 @@ static inline constinit auto PCU_State_Machine = []() consteval
         Actuators::set_led_fault(true);
     }, operational_state);
 
+    sm.add_exit_action([]()
+    {
+        stop_motors();
+        Actuators::set_led_operational(false);
+    }, operational_state);
+
     sm.add_enter_action([]()
     {
-        PWMActuators::stop();
-        Actuators::disable_buffer();
-        Actuators::disable_reset_bypass();
-        
+        stop_motors();
+
         Actuators::set_led_operational(false);
         Actuators::set_led_connecting(false);
         Actuators::set_led_fault(true);
+        //Propagar fault
     }, fault_state);
 
     return sm;
 }();
 
 
-inline static DataPackets data_packets{control_data.actual_frequency,control_data.modulation_frequency,PWMActuators::duty_cycle_u,PWMActuators::duty_cycle_v,PWMActuators::duty_cycle_w,
+inline static DataPackets data_packets{
+    control_data.actual_frequency,control_data.modulation_frequency,PWMActuators::duty_cycle_u,PWMActuators::duty_cycle_v,PWMActuators::duty_cycle_w,
     VoltageSensors::actual_voltage_battery_a,VoltageSensors::actual_voltage_battery_b,
-    CurrentSensors::actual_current_sensor_u_a,CurrentSensors::actual_current_sensor_v_a,CurrentSensors::actual_current_sensor_w_a,CurrentSensors::actual_current_sensor_u_b,CurrentSensors::actual_current_sensor_v_b,CurrentSensors::actual_current_sensor_w_b,control_data.current_Peak,control_data.current_error,
+    CurrentSensors::actual_current_sensor_u_a,CurrentSensors::actual_current_sensor_v_a,CurrentSensors::actual_current_sensor_w_a,
+    CurrentSensors::actual_current_sensor_u_b,CurrentSensors::actual_current_sensor_v_b,CurrentSensors::actual_current_sensor_w_b,control_data.current_Peak,control_data.current_error,
     control_data.target_voltage,SpaceVector::time,control_data.imod,
     PCU_State_Machine.current_state,Operational_State_Machine.current_state,
-    control_data.state_run,space_vector_on,current_control_on,speed_control_on,
+    space_vector_on,current_control_on,speed_control_on,
     Speetec::position_encoder,control_data.established_direction,Speetec::speed_encoder,control_data.speed_km_h_encoder,Speetec::acceleration_encoder,control_data.target_speed,control_data.speed_error,
     control_data.actual_current_ref,control_data.direction_state,control_data.speedState,
     Sensors::gd_fault_a,Sensors::gd_fault_b,Sensors::gd_ready_a,Sensors::gd_ready_b};
     
-    
+inline static OrderPackets order_packets{Comms::frequency_space_vector_received,Comms::frequency_received,Comms::ref_voltage_space_vector_received,Comms::Vmax_control_received,Comms::frequency_space_vector_received,Comms::frequency_received,Comms::current_reference_received,Comms::speed_reference_received};
+
+
 };
