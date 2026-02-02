@@ -14,7 +14,7 @@ void Actuators::init(DigitalOutputInstance& hall_supply_a_instance,
     speedtec_supply = &speedtec_supply_instance;
     enable_pin = NegatedPin{enable_pin_instance};
     reset_bypass = &reset_pin_instance;
-    enable_pin.turn_off();  //Por ver esta logica
+    enable_pin.turn_off();  
     reset_bypass->turn_off();
     PCU::control_data.buffer_state = BUFFER_STATE::DISABLED;
 }

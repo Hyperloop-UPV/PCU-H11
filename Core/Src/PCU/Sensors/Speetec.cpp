@@ -11,3 +11,8 @@ SpeetecSensor Speetec::sensor_speetec(
     &speed_encoder,
     &acceleration_encoder);
 
+void Speetec::read()
+{
+    sensor_speetec.read();
+    PCU::control_data.speed_km_h_encoder = speed_encoder * 3.6;
+}

@@ -6,6 +6,9 @@
 #include "PCU/Sensors/Speetec.hpp"
 #include "PCU/Actuators/Actuators.hpp"
 #include "PCU/Actuators/PWMActuators.hpp"
+#include "PCU/Control/SpaceVector.hpp"
+#include "PCU/Control/CurrentControl.hpp"
+#include "PCU/Control/SpeedControl.hpp"
 class PCU
 {
     public:

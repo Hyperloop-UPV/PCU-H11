@@ -2,13 +2,15 @@
 #include "ST-LIB.hpp"
 
 /*-------Flags-------*/
-#define PCU_H10 0           // 0 = PCU-H11, 1 = PCU-H10
+#define PCU_H10 1           // 0 = PCU-H11, 1 = PCU-H10
 #define MODE_CALCULATE_SIN 1 //0 = Normal sin, 1 = Look Up table with direct interpolation
 #define PPU_USING 1     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
 #define MOTOR_CENTER_ALIGNED 0 // 0 = Normal dualPWM, 1 = CenterAligned DualPWM
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
 
+using ST_LIB::DigitalInputDomain;
+using ST_LIB::DigitalOutputDomain;
 
 #if PCU_H10 == 1
 namespace Pinout{
@@ -40,8 +42,7 @@ namespace Pinout{
     static constexpr Pin& Speetec_B = PF0;
 };
 #else 
-using ST_LIB::DigitalInputDomain;
-using ST_LIB::DigitalOutputDomain;
+
 
 namespace Pinout
 {
