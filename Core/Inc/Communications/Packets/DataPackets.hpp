@@ -75,14 +75,13 @@ class DataPackets{
         static inline HeapPacket* Speed_data{};
         static inline HeapPacket* Control_State{};
         static inline HeapPacket* GateDriverReporting{};
-        static inline HeapPacket* OperationalState{};
         
 
         static inline ServerSocket* control_station_tcp = nullptr;
         static inline DatagramSocket* control_station_udp = nullptr;
         
         
-    DataPackets(uint32_t &frequency,float &modulation_frequency,float &duty_u,float &duty_v,float &duty_w,float &Voltage_Battery_A,float &Voltage_Battery_B,float &current_sensor_u_a,float &current_sensor_v_a,float &current_sensor_w_a,float &current_sensor_u_b,float &current_sensor_v_b,float &current_sensor_w_b,float64 &current_Peak,float64 &Error_PI,float64 &Target_Voltage,float &SVPWM_Time,float &imod,general_state_machine &general_state_machine,operational_state_machine &operational_state_machine,run_state &run_state,space_vector_active &space_vector_active,current_control_active &current_control_active,speed_control_active &speed_control_active,float64 &encoder_position,encoder_direction &encoder_direction,float64 &encoder_speed,float64 &encoder_speed_km_h,float64 &encoder_acceleration,float &target_speed,float64 &speed_error,float &actual_current_ref,Direction_State &Direction_State,Speed_Control_State &Speed_Control_State,bool &gd_fault_a,bool &gd_fault_b,bool &gd_ready_a,bool &gd_ready_b,operational_state_machine &operational_state_machine)
+    DataPackets(uint32_t &frequency,float &modulation_frequency,float &duty_u,float &duty_v,float &duty_w,float &Voltage_Battery_A,float &Voltage_Battery_B,float &current_sensor_u_a,float &current_sensor_v_a,float &current_sensor_w_a,float &current_sensor_u_b,float &current_sensor_v_b,float &current_sensor_w_b,double &current_Peak,double &Error_PI,double &Target_Voltage,float &SVPWM_Time,float &imod,general_state_machine &general_state_machine,operational_state_machine &operational_state_machine,run_state &run_state,space_vector_active &space_vector_active,current_control_active &current_control_active,speed_control_active &speed_control_active,double &encoder_position,encoder_direction &encoder_direction,double &encoder_speed,double &encoder_speed_km_h,double &encoder_acceleration,float &target_speed,double &speed_error,float &actual_current_ref,Direction_State &Direction_State,Speed_Control_State &Speed_Control_State,bool &gd_fault_a,bool &gd_fault_b,bool &gd_ready_a,bool &gd_ready_b)
 {   
     control_station_tcp = new ServerSocket("192.168.1.5",50500);
     
@@ -105,8 +104,6 @@ class DataPackets{
 
     GateDriverReporting = new HeapPacket(static_cast<uint16_t>(558),&gd_fault_a,&gd_fault_b,&gd_ready_a,&gd_ready_b);
 
-    OperationalState = new HeapPacket(static_cast<uint16_t>(64),&operational_state_machine);
-
     
     Scheduler::register_task(16670.0,+[](){
         
@@ -118,7 +115,6 @@ class DataPackets{
         DataPackets::control_station_udp->send_packet(*Speed_data);
         DataPackets::control_station_udp->send_packet(*Control_State);
         DataPackets::control_station_udp->send_packet(*GateDriverReporting);
-        DataPackets::control_station_udp->send_packet(*OperationalState);
         
         
     });

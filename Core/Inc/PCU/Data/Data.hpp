@@ -2,7 +2,7 @@
 #include "ST-LIB.hpp"
 
 /*-------Flags-------*/
-#define PCU_H10 1           // 0 = PCU-H11, 1 = PCU-H10
+#define PCU_H10 0         // 0 = PCU-H11, 1 = PCU-H10
 #define MODE_CALCULATE_SIN 1 //0 = Normal sin, 1 = Look Up table with direct interpolation
 #define PPU_USING 1     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active

@@ -24,6 +24,10 @@ class PCU
     inline static bool flag_update_speed_control{false};
     inline static bool flag_update_current_control{false};
 
+    static void start();
+    static void update();
+
+
 
 
 
@@ -75,7 +79,7 @@ class PCU
         }}
     );
 
-    static constinit auto Operational_State_Machine = [nested_idle_state,nested_sending_pwm_state,nested_accelerating_state]() consteval
+    static inline constinit auto Operational_State_Machine = []() consteval
     {
         auto sm= make_state_machine(Operational_States_PCU::Idle,
             nested_idle_state,
@@ -86,12 +90,12 @@ class PCU
         sm.add_cyclic_action([]()
         {
             flag_update_speed_control = true;
-        }, us(Speed_Control_Data::microsecond_period) , Operational_States_PCU::Accelerating);
+        }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
 
         sm.add_cyclic_action([]()
         {
             flag_update_current_control = true;
-        }, us(Current_Control_Data::microsecond_period) , Operational_States_PCU::Accelerating);
+        }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
 
         
         sm.add_enter_action([]()
@@ -102,20 +106,61 @@ class PCU
             Actuators::enable_speedtec_supply(); //No se si poner esto en operational o aqui.
             #endif
             Actuators::enable_buffer();
-        }, Operational_States_PCU::Accelerating);
+        }, nested_accelerating_state);
 
         sm.add_exit_action([]()
         {
             #if PCU_H10 == 0
+            Actuators::set_led_braking(true);
             Actuators::set_led_accelerating(false);
-            Actuators::disable_hall_supply();
-            Actuators::disable_speedtec_supply();
+            // Actuators::disable_hall_supply();
+            // Actuators::disable_speedtec_supply();
             #endif
+            PWMActuators::stop();
             Actuators::disable_buffer();
-        }, Operational_States_PCU::Accelerating);
+        }, nested_accelerating_state);
         return sm;
     }();
 
+    static inline constinit auto PCU_State_Machine = []() consteval
+    {
+        auto sm = make_state_machine(States_PCU::Connecting,
+            connecting_state,
+            operational_state,
+            fault_state
+        );
+
+        sm.add_exit_action([]()
+        {
+            Actuators::set_led_connecting(false);
+        }, connecting_state);
+
+        sm.add_enter_action([]()
+        {
+            CurrentSensors::zeroing();
+            Actuators::set_led_connecting(true);
+        }, connecting_state);
+
+        sm.add_enter_action([]()
+        {
+            Actuators::set_led_connecting(false);
+            Actuators::set_led_operational(true);
+            Actuators::set_led_fault(true);
+        }, operational_state);
+
+        sm.add_enter_action([]()
+        {
+            PWMActuators::stop();
+            Actuators::disable_buffer();
+            Actuators::disable_reset_bypass();
+            
+            Actuators::set_led_operational(false);
+            Actuators::set_led_connecting(false);
+            Actuators::set_led_fault(true);
+        }, fault_state);
+
+        return sm;
+    }();
     
     
 };
