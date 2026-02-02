@@ -57,7 +57,8 @@ def Get_data_context(board:BoardDescription):
                     Packets.append(aux_packet)
                     for measurement in packet_instance.measurements:
                         aux_data = {"type": measurement.type, "name": measurement.id.replace(" ", "_").replace("-", "_")}
-                        totaldata.append(aux_data)
+                        if not any(x["name"] == aux_data["name"] for x in totaldata):
+                            totaldata.append(aux_data)
         
         return Packets,totaldata
     
@@ -124,7 +125,7 @@ def Get_order_context(board:BoardDescription):
                     Packets.append(aux_packet)
                     for measurement in packet_instance.measurements:
                         aux_data = {"type": measurement.type, "name": measurement.id}
-                        if aux_data not in totaldata:
+                        if not any(x["name"] == aux_data["name"] for x in totaldata):
                             totaldata.append(aux_data)
         
         return Packets,totaldata
