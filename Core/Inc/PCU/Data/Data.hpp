@@ -145,6 +145,18 @@ namespace Sensors_data
     static constexpr size_t  encoder_samples = 250;
 };
 
+enum State_PCU: uint8_t{
+    Connecting,
+    Operational,
+    Fault
+};
+
+enum Operational_State_PCU: uint8_t{
+    Idle,
+    Sending_PWM,
+    Accelerating
+};
+
 enum ControlStates{
     accelerate,
     regenerate
