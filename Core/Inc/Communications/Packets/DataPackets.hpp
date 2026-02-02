@@ -19,6 +19,13 @@ class DataPackets{
     Regenerative=3
     };
 
+    enum class run_state:uint8_t
+    {
+    NOTHING=0,
+    MOVING=1,
+    BRAKING=2
+    };
+
     enum class space_vector_active:uint8_t
     {
     DISABLE=0,
@@ -43,6 +50,18 @@ class DataPackets{
     Backward=1
     };
 
+    enum class Direction_State:uint8_t
+    {
+    Forward=0,
+    Backward=1
+    };
+
+    enum class Speed_Control_State:uint8_t
+    {
+    Cruise_Mode=0,
+    Regenerate_Mode=1
+    };
+
     
 
     private:
@@ -54,6 +73,7 @@ class DataPackets{
         static inline HeapPacket* StateMachine_states{};
         static inline HeapPacket* Speetec_data{};
         static inline HeapPacket* Speed_data{};
+        static inline HeapPacket* Control_State{};
         static inline HeapPacket* GateDriverReporting{};
         
 
@@ -61,7 +81,7 @@ class DataPackets{
         static inline DatagramSocket* control_station_udp = nullptr;
         
         
-    DataPackets(uint32_t &frequency,float &modulation_frequency,float &duty_u,float &duty_v,float &duty_w,float &Voltage_Battery_A,float &Voltage_Battery_B,float &current_sensor_u_a,float &current_sensor_v_a,float &current_sensor_w_a,float &current_sensor_u_b,float &current_sensor_v_b,float &current_sensor_w_b,double &current_Peak,double &Error_PI,double &Target_Voltage,float &SVPWM_Time,float &imod,general_state_machine &general_state_machine,operational_state_machine &operational_state_machine,space_vector_active &space_vector_active,current_control_active &current_control_active,speed_control_active &speed_control_active,double &encoder_position,encoder_direction &encoder_direction,double &encoder_speed,double &encoder_speed_km_h,double &encoder_acceleration,float &target_speed,double &speed_error,float &actual_current_ref,bool &gd_fault_a,bool &gd_fault_b,bool &gd_ready_a,bool &gd_ready_b)
+    DataPackets(uint32_t &frequency,float &modulation_frequency,float &duty_u,float &duty_v,float &duty_w,float &Voltage_Battery_A,float &Voltage_Battery_B,float &current_sensor_u_a,float &current_sensor_v_a,float &current_sensor_w_a,float &current_sensor_u_b,float &current_sensor_v_b,float &current_sensor_w_b,double &current_Peak,double &Error_PI,double &Target_Voltage,float &SVPWM_Time,float &imod,general_state_machine &general_state_machine,operational_state_machine &operational_state_machine,run_state &run_state,space_vector_active &space_vector_active,current_control_active &current_control_active,speed_control_active &speed_control_active,double &encoder_position,encoder_direction &encoder_direction,double &encoder_speed,double &encoder_speed_km_h,double &encoder_acceleration,float &target_speed,double &speed_error,float &actual_current_ref,Direction_State &Direction_State,Speed_Control_State &Speed_Control_State,bool &gd_fault_a,bool &gd_fault_b,bool &gd_ready_a,bool &gd_ready_b)
 {   
     control_station_tcp = new ServerSocket("192.168.1.5",50500);
     
@@ -74,11 +94,13 @@ class DataPackets{
 
     Current_sensors = new HeapPacket(static_cast<uint16_t>(552),&current_sensor_u_a,&current_sensor_v_a,&current_sensor_w_a,&current_sensor_u_b,&current_sensor_v_b,&current_sensor_w_b,&current_Peak,&Error_PI,&Target_Voltage,&SVPWM_Time,&imod);
 
-    StateMachine_states = new HeapPacket(static_cast<uint16_t>(553),&general_state_machine,&operational_state_machine,&space_vector_active,&current_control_active,&speed_control_active);
+    StateMachine_states = new HeapPacket(static_cast<uint16_t>(553),&general_state_machine,&operational_state_machine,&run_state,&space_vector_active,&current_control_active,&speed_control_active);
 
     Speetec_data = new HeapPacket(static_cast<uint16_t>(554),&encoder_position,&encoder_direction,&encoder_speed,&encoder_speed_km_h,&encoder_acceleration);
 
     Speed_data = new HeapPacket(static_cast<uint16_t>(555),&target_speed,&speed_error,&actual_current_ref);
+
+    Control_State = new HeapPacket(static_cast<uint16_t>(556),&Direction_State,&Speed_Control_State);
 
     GateDriverReporting = new HeapPacket(static_cast<uint16_t>(558),&gd_fault_a,&gd_fault_b,&gd_ready_a,&gd_ready_b);
 
@@ -91,6 +113,7 @@ class DataPackets{
         DataPackets::control_station_udp->send_packet(*StateMachine_states);
         DataPackets::control_station_udp->send_packet(*Speetec_data);
         DataPackets::control_station_udp->send_packet(*Speed_data);
+        DataPackets::control_station_udp->send_packet(*Control_State);
         DataPackets::control_station_udp->send_packet(*GateDriverReporting);
         
         

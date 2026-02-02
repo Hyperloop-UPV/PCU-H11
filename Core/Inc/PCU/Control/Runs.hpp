@@ -2,6 +2,7 @@
 #include "PCU/Data/Data.hpp"
 #include "PCU/Control/SpeedControl.hpp"
 
+#define BRAKING_DISTANCE 30
 class RUNS
 {
     private:

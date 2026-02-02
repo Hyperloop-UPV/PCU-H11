@@ -32,7 +32,7 @@ void SpaceVector::calculate_duties() {
     sin_w -= offset;
 #endif
 
-    if ( PCU::control_data.established_direction == Direction::FORWARD){
+    if ( PCU::control_data.established_direction == EncoderDirection::Forward){
         PWMActuators::set_duty_u((sin_u / 2.0 + 0.5) * 100.0);
         PWMActuators::set_duty_v((sin_v / 2.0 + 0.5) * 100.0);
     } else {

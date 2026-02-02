@@ -26,7 +26,7 @@ void SpeedControl::control_action(){
     PCU::control_data.speed_error = speed_error;
     float actual_current_ref;
     
-    if(PCU::control_data.speedState == ControlStates::accelerate){
+    if(PCU::control_data.speedState == ControlStates::Cruise_Mode){
         speed_PI.input(speed_error);
         speed_PI.execute(); 
         actual_current_ref = speed_PI.output_value;

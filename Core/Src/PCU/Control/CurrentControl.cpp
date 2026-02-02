@@ -24,7 +24,7 @@ float CurrentControl::get_current_ref(){
 }
 
 double CurrentControl::calculate_frequency_modulation(){
-    return (PCU::control_data.speedState == ControlStates::accelerate) ? 
+    return (PCU::control_data.speedState == ControlStates::Cruise_Mode) ? 
             exp_follower(a * PCU::control_data.speed_km_h_encoder + b) : 
             exp_follower(a * PCU::control_data.speed_km_h_encoder + b - PCU::control_data.speed_km_h_encoder/1.2);
 }
@@ -71,7 +71,7 @@ void CurrentControl::control_action(){
     PCU::control_data.current_Peak = current_peak;
     PCU::control_data.current_error = current_error;
     
-    if(PCU::control_data.currentState == ControlStates::accelerate){
+    if(PCU::control_data.currentState == ControlStates::Cruise_Mode){
         #if SATURATOR_PI
         float integrator_temp = current_PI.integrator.output_value;
         #endif

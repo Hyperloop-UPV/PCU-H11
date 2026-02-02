@@ -3,7 +3,7 @@
 
 void RUNS::init()
 {
-    PCU::control_data.state_run = RunState::IDLE;
+    PCU::control_data.state_run = RunState::NOTHING;
     PCU::control_data.received_stop_motor = false;
     PCU::control_data.received_motor_brake_order = false;
     vel_ref = 0.0;

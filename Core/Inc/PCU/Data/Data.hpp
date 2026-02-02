@@ -150,22 +150,15 @@ namespace Sensors_data
     static constexpr size_t  encoder_samples = 250;
 };
 
-enum class States_PCU: uint8_t{
-    Connecting =0,
-    Operational =1,
-    Fault =2
-};
+#include "Communications/Packets/DataPackets.hpp"
 
-enum class Operational_States_PCU: uint8_t{
-    Idle =0,
-    Sending_PWM =1,
-    Accelerating =2
-};
+using States_PCU = DataPackets::general_state_machine;
+using Operational_States_PCU = DataPackets::operational_state_machine;
+using RunState = DataPackets::run_state;
+using EncoderDirection = DataPackets::encoder_direction;
+using DirectionState = DataPackets::Direction_State;
+using ControlStates = DataPackets::Speed_Control_State;
 
-enum class ControlStates:uint8_t{
-    accelerate,
-    regenerate
-};
 
 enum class PWM_ACTIVE: uint8_t
 {
@@ -175,11 +168,6 @@ enum class PWM_ACTIVE: uint8_t
     W = 3
 }; 
 
-enum class RunState : uint8_t {
-    IDLE = 0,
-    MOVING = 1,
-    BRAKING = 2
-};
 
 enum class RunMode: uint8_t{
     DEFAULT =1
@@ -190,7 +178,6 @@ enum class BUFFER_STATE: uint8_t
     DISABLED = 0,
     ENABLED = 1
 };
-using Direction = EncoderSensor<Sensors_data::encoder_samples>::Direction;
 struct Control_Data
 {
     //SpaceVector:
@@ -210,19 +197,20 @@ struct Control_Data
     float target_speed{};
     double speed_error{};
     float actual_current_ref{};
-    float speed_km_h_encoder{};
+    double speed_km_h_encoder{};
     
     double position_encoder{}; 
 
     //control
-    ControlStates currentState{ControlStates::accelerate};
-    ControlStates speedState{ControlStates::accelerate};
-    Direction established_direction{Direction::FORWARD};
+    ControlStates currentState{ControlStates::Cruise_Mode};
+    ControlStates speedState{ControlStates::Cruise_Mode};
+    EncoderDirection established_direction{EncoderDirection::Forward};
+    DirectionState direction_state{DirectionState::Forward};
 
     bool current_control_active{false};
     bool speed_control_active{false};
 
-    RunState state_run{RunState::IDLE};
+    RunState state_run{RunState::NOTHING};
     RunMode run_mode{RunMode::DEFAULT};
     
     bool received_stop_motor{false};

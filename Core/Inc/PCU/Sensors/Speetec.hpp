@@ -2,7 +2,7 @@
 #include "ST-LIB.hpp"
 #include "PCU/Data/Data.hpp"
 
-using Direction = EncoderSensor<Sensors_data::encoder_samples>::Direction;
+using SpeetecDirection = EncoderSensor<Sensors_data::encoder_samples>::Direction;
 using SpeetecSensor = EncoderSensor<Sensors_data::encoder_samples>;
 
 class Speetec{
@@ -12,6 +12,8 @@ class Speetec{
     inline static D1_NC double speed_km_h_encoder{0.0f};
     inline static D1_NC double acceleration_encoder{0.0f};
     inline static D1_NC double position_encoder{0.0f};
+    inline static D1_NC SpeetecDirection internal_direction{SpeetecDirection::FORWARD};
+
     private:
         static SpeetecSensor sensor_speetec;
 
