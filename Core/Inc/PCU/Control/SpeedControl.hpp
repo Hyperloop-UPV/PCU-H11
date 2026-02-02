@@ -5,12 +5,11 @@
 
 class SpeedControl{
 private:
-    inline static float a = 1.3;
-    inline static float b = 8.4;
     inline static float reference_speed{};
     inline static PI<IntegratorType::Trapezoidal> speed_PI{Speed_Control_Data::kp_accelerate,Speed_Control_Data::ki_accelerate,Speed_Control_Data::period};
     inline static PI<IntegratorType::Trapezoidal> regenerate_PI{Speed_Control_Data::kp_regenerate,Speed_Control_Data::ki_regenerate,Speed_Control_Data::period};
-    inline static double calculate_frequency_modulation();
+    
+    inline static bool running{false};
 
 public:
     inline static float current_ref{};
@@ -22,4 +21,7 @@ public:
     static void change_mode(ControlStates state);
     static void control_action();
     static void reset_PI();
+    
+    static void start();
+    static void stop();
 };

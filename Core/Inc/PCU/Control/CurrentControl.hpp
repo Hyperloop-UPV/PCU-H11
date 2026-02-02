@@ -3,7 +3,7 @@
 #include "PCU/Sensors/CurrentSensor.hpp"
 #include "PCU/Control/SpaceVector.hpp"
 
-
+#define USE_VF_CONTROL 1 
 #define NANOSECOND 1000000000
 class Max_Peak{
     private:
@@ -53,9 +53,13 @@ class Max_Peak{
 };
 class CurrentControl{
 private:
+    inline static float a = 1.3;
+    inline static float b = 8.4;
+
     inline static float current_ref{0.0f};
     inline static PI<IntegratorType::Trapezoidal> current_PI{Current_Control_Data::kp_accelerate,Current_Control_Data::ki_accelerate,Current_Control_Data::period};
     inline static PI<IntegratorType::Trapezoidal> current_regenerate_PI{Current_Control_Data::kp_regenerate,Current_Control_Data::ki_regenerate,Current_Control_Data::period};
+    
     #if PPU_USING != 1
         inline static Max_Peak current_u_a{CurrentSensors::actual_current_sensor_u_a};
         inline static Max_Peak current_v_a{CurrentSensors::actual_current_sensor_v_a};
@@ -66,7 +70,10 @@ private:
         inline static Max_Peak current_v_b{CurrentSensors::actual_current_sensor_v_b};
         inline static Max_Peak current_w_b{CurrentSensors::actual_current_sensor_w_b};
     #endif
+    
     inline static bool should_be_running{false};
+
+    static double calculate_frequency_modulation();
 
 public:
     static void init();

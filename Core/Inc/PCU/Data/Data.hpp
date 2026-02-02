@@ -40,6 +40,11 @@ namespace Pinout{
     //Speetec
     static constexpr Pin& Speetec_A = PF1;
     static constexpr Pin& Speetec_B = PF0;
+
+    constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_A = {ST_LIB::PB6};
+    constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_B = {ST_LIB::PE15};
+    constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_A = {ST_LIB::PB5};
+    constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_B = {ST_LIB::PE14};
 };
 #else 
 
@@ -87,11 +92,11 @@ namespace Pinout
 
     /*------B2B------*/
     //Imagino que serán DI:
-    // constexpr DigitalInputDomain::DigitalInput Fault_A = {ST_LIB::PE14};
-    // constexpr DigitalInputDomain::DigitalInput Fault_B = {ST_LIB::PB6};
-    // constexpr DigitalInputDomain::DigitalInput Ready_A = {ST_LIB::PB5};
-    // constexpr DigitalInputDomain::DigitalInput Ready_B = {ST_LIB::PE14};
-    //Outputs:
+    constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_A = {ST_LIB::PE14};
+    constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_B = {ST_LIB::PB6};
+    constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_A = {ST_LIB::PB5};
+    constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_B = {ST_LIB::PE14};
+    // Outputs:
     constexpr DigitalOutputDomain::DigitalOutput Buff_enable = {ST_LIB::PF4}; //Negado en h10, no se si en h11 si
     constexpr DigitalOutputDomain::DigitalOutput Reset_bypass = {ST_LIB::PG5};
 
@@ -157,7 +162,7 @@ enum class Operational_States_PCU: uint8_t{
     Accelerating =2
 };
 
-enum ControlStates{
+enum class ControlStates:uint8_t{
     accelerate,
     regenerate
 };
@@ -169,6 +174,16 @@ enum class PWM_ACTIVE: uint8_t
     V = 2,
     W = 3
 }; 
+
+enum class RunState : uint8_t {
+    IDLE = 0,
+    MOVING = 1,
+    BRAKING = 2
+};
+
+enum class RunMode: uint8_t{
+    DEFAULT =1
+};
 
 enum class BUFFER_STATE: uint8_t
 {
@@ -196,8 +211,20 @@ struct Control_Data
     double speed_error{};
     float actual_current_ref{};
     float speed_km_h_encoder{};
+    
+    double position_encoder{}; 
+
     //control
     ControlStates currentState{ControlStates::accelerate};
     ControlStates speedState{ControlStates::accelerate};
     Direction established_direction{Direction::FORWARD};
+
+    bool current_control_active{false};
+    bool speed_control_active{false};
+
+    RunState state_run{RunState::IDLE};
+    RunMode run_mode{RunMode::DEFAULT};
+    
+    bool received_stop_motor{false};
+    bool received_motor_brake_order{false};
 };
