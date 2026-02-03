@@ -39,62 +39,7 @@ struct DataPackets{
     
 
 private:
-    inline static uint32_t id{0};
-    inline static bool send_flag_0 = false;
-public:
-    inline static HeapPacket *pwm_packet{nullptr};
-    inline static HeapPacket *Batteries_Voltage{nullptr};
-    inline static HeapPacket *Current_sensors{nullptr};
-    inline static HeapPacket *StateMachine_states{nullptr};
-    inline static HeapPacket *Speetec_data{nullptr};
-    inline static HeapPacket *Speed_data{nullptr};
-    inline static HeapPacket *GateDriverReporting{nullptr};
     
-    inline static ServerSocket *control_station_tcp{nullptr};
-    inline static DatagramSocket *control_station_udp{nullptr};
-    
-        
-    static void start()
-    {   
-        control_station_tcp = new ServerSocket("192.168.1.5",50500);
-        control_station_udp = new DatagramSocket("192.168.1.5",50400,"192.168.0.9",50400);
-        
-        
-        Scheduler::register_task(16670, +[](){
-            DataPackets::send_flag_0 = true;
-        });
-    }
-
-    static void update()
-    {
-        if(DataPackets::send_flag_0){
-            DataPackets::send_flag_0 = false;
-            
-            if(DataPackets::pwm_packet){
-                DataPackets::control_station_udp->send_packet(*DataPackets::pwm_packet);
-            }
-            if(DataPackets::Batteries_Voltage){
-                DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage);
-            }
-            if(DataPackets::Current_sensors){
-                DataPackets::control_station_udp->send_packet(*DataPackets::Current_sensors);
-            }
-            if(DataPackets::StateMachine_states){
-                DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states);
-            }
-            if(DataPackets::Speetec_data){
-                DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data);
-            }
-            if(DataPackets::Speed_data){
-                DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data);
-            }
-            if(DataPackets::GateDriverReporting){
-                DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting);
-            }
-            
-        }
-    }
-
     static void pwm_packet_init(uint32_t &frequency, float &modulation_frequency, float &duty_u, float &duty_v, float &duty_w)
     {
         pwm_packet = new HeapPacket(static_cast<uint16_t>(550), &frequency, &modulation_frequency, &duty_u, &duty_v, &duty_w);
@@ -123,4 +68,92 @@ public:
     {
         GateDriverReporting = new HeapPacket(static_cast<uint16_t>(558), &gd_fault_a, &gd_fault_b, &gd_ready_a, &gd_ready_b);
     }
+    
+    
+    using FlagsType = uint32_t;
+    #define CTZ_FUNC __builtin_ctz
+    
+
+    inline static volatile FlagsType send_flags{0};
+
+    
+    static void send_task_0() {
+        
+        DataPackets::control_station_udp->send_packet(*DataPackets::pwm_packet);
+        DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage);
+        DataPackets::control_station_udp->send_packet(*DataPackets::Current_sensors);
+        DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states);
+        DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data);
+        DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data);
+        DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting);
+        
+    }
+    
+
+    using SendAction = void(*)();
+    static inline SendAction send_actions[] = {
+        
+        send_task_0,
+        
     };
+
+public:
+    inline static HeapPacket *pwm_packet{nullptr};
+    inline static HeapPacket *Batteries_Voltage{nullptr};
+    inline static HeapPacket *Current_sensors{nullptr};
+    inline static HeapPacket *StateMachine_states{nullptr};
+    inline static HeapPacket *Speetec_data{nullptr};
+    inline static HeapPacket *Speed_data{nullptr};
+    inline static HeapPacket *GateDriverReporting{nullptr};
+    
+    inline static ServerSocket *control_station_tcp{nullptr};
+    inline static DatagramSocket *control_station_udp{nullptr};
+    
+        
+    static void start()
+    {   
+        if (pwm_packet == nullptr) {
+            ErrorHandler("Packet pwm_packet not initialized");
+        }
+        if (Batteries_Voltage == nullptr) {
+            ErrorHandler("Packet Batteries_Voltage not initialized");
+        }
+        if (Current_sensors == nullptr) {
+            ErrorHandler("Packet Current_sensors not initialized");
+        }
+        if (StateMachine_states == nullptr) {
+            ErrorHandler("Packet StateMachine_states not initialized");
+        }
+        if (Speetec_data == nullptr) {
+            ErrorHandler("Packet Speetec_data not initialized");
+        }
+        if (Speed_data == nullptr) {
+            ErrorHandler("Packet Speed_data not initialized");
+        }
+        if (GateDriverReporting == nullptr) {
+            ErrorHandler("Packet GateDriverReporting not initialized");
+        }
+        
+
+        control_station_tcp = new ServerSocket("192.168.1.5",50500);
+        control_station_udp = new DatagramSocket("192.168.1.5",50400,"192.168.0.9",50400);
+        
+        
+        Scheduler::register_task(16670, +[](){
+            DataPackets::send_flags |= (static_cast<FlagsType>(1) << 0);
+        });
+    }
+
+    static void update()
+    {
+        while(DataPackets::send_flags) {
+            uint8_t index = CTZ_FUNC(DataPackets::send_flags);
+            DataPackets::send_flags &= ~(static_cast<FlagsType>(1) << index);
+            if (index < 1) {
+                DataPackets::send_actions[index]();
+            }
+        }
+    }
+
+   
+};

@@ -144,8 +144,8 @@ namespace Sensors_data
     static constexpr float slope_voltage_sensor = 133.31627;
     static constexpr float offset_voltage_sensor = -9.24655;
 
-    static constexpr uint32_t read_sensors_us = 200; 
-    static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; 
+    static constexpr uint32_t read_sensors_us = 200; //This speed allows maximum precision with speetec.
+    static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; // this has to be the same frequency that the read is done
     static constexpr double encoder_counter_distance_m = 0.004; // mm
     static constexpr size_t  encoder_samples = 250;
 };
@@ -156,18 +156,6 @@ using States_PCU = DataPackets::general_state_machine;
 using Operational_States_PCU = DataPackets::operational_state_machine;
 using EncoderDirection = DataPackets::encoder_direction;
 using DirectionState = DataPackets::Direction_State;
-using ControlStates = DataPackets::Speed_Control_State;
-
-
-enum class PWM_ACTIVE: uint8_t
-{
-    NONE = 0,
-    U = 1,
-    V = 2,
-    W = 3
-}; 
-
-
 
 enum class BUFFER_STATE: uint8_t
 {
@@ -207,4 +195,13 @@ struct Control_Data
     bool speed_control_active{false};
     bool space_vector_active{false};
 
+ion_state{DirectionState::Forward};
+
+    bool current_control_active{false};
+    bool speed_control_active{false};
+    bool space_vector_active{false};
+
+    
+    bool received_stop_motor{false};
+    bool received_motor_brake_order{false};
 };
