@@ -7,6 +7,7 @@
 extern void {{packet.name}}_cb();
 {% endfor %}
 class OrderPackets{
+public:
     {% for enum in enums -%}
     enum class {{enum.name}} : uint8_t {
     {%- for value in enum["values"] %}
@@ -15,17 +16,15 @@ class OrderPackets{
     };
     {% endfor %}
 
-private:
-    uint32_t id{0};
-public:
+    OrderPackets() = default;
+
     {% for packet in packets -%}
-    HeapOrder *{{packet.name}};
+    static HeapOrder *{{packet.name}};
     {% endfor %}
     
-    OrderPackets({%for value in data %}{{value.type}} &{{value.name}}{%if not loop.last%},{%endif%}{%endfor%})
-    {
-        {% for packet in packets -%}
-        {{packet.name}} = new HeapOrder({{packet.id}}, &{{packet.name}}_cb{% if packet.data %}, {{packet.data}}{% endif %});
-        {% endfor %}
+    {% for packet in packets -%}
+    static void {{packet.name}}_init({% for variable in packet.variables %}{{variable.type}} &{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %}){
+        {{packet.name}} = new HeapOrder({{packet.id}}, &{{packet.name}}_cb{% if packet.variables %}, {% for variable in packet.variables %}&{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %});
     }
+    {% endfor %}
 };

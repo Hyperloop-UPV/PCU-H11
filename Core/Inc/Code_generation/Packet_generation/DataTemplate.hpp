@@ -15,13 +15,13 @@ private:
     inline static uint32_t id{0};
 public:
     {%for packet in packets -%}
-    static inline HeapPacket *{{packet.name}}{};
+    static HeapPacket *{{packet.name}};
     {% endfor %}
     {% for socket in sockets -%}
     static inline {{socket.type}} *{{socket.name}} = nullptr;
     {% endfor %}
         
-    DataPackets({%for value in data %}{{value.type}} &{{value.name}}{%if not loop.last%},{%endif%}{%endfor%})
+    static void start()
     {   
         {% for socket in ServerSockets -%}
         {{socket.name}} = new ServerSocket("{{socket.board_ip}}",{{socket.port}});
@@ -32,21 +32,26 @@ public:
         {% for socket in Sockets -%}
         {{socket.name}} = new Socket("{{socket.board_ip}}",{{socket.local_port}},"{{socket.remote_ip}}",{{socket.remote_port}});
         {% endfor %}
-        {% for packet in packets -%}
-        {{packet.name}} = new HeapPacket(static_cast<uint16_t>({{packet.id}}){% if packet.data%},{{packet.data}}
-        {%- endif %});
-
-        {% endfor -%}
         
         {%- for packet in sending_packets %}
         Scheduler::register_task({% if packet.period_type == "ms" %}{{(packet.period*1000)}}{% else %}{{packet.period}}{% endif %}, +[](){
             {% if packet.name is string -%}
-            DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{packet.name}});
+            if(DataPackets::{{packet.name}}){
+                DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{packet.name}});
+            }
             {% else %}
             {% for name in packet.name -%}
-            DataPackets::{{packet.socket}}->send_packet(*{{name}});
+            if(DataPackets::{{name}}){
+                DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{name}});
+            }
             {% endfor -%}
             {%- endif %}
         }); {%- endfor %}
     }
+
+    {% for packet in packets -%}
+    static void {{packet.name}}_init({% for variable in packet.variables %}{{variable.type}} &{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %}){
+        {{packet.name}} = new HeapPacket(static_cast<uint16_t>({{packet.id}}){% if packet.variables %}, {% for variable in packet.variables %}&{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %});
+    }
+    {% endfor -%}
 };
