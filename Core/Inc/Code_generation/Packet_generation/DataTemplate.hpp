@@ -11,14 +11,15 @@ struct DataPackets{
     };
     {% endfor %}
 
-    private:
-        inline static uint32_t id{0};
-    public:
-        {%for packet in packets%}static inline HeapPacket* {{packet.name}}{};
-        {% endfor %}
-
-        {% for socket in sockets %}static inline {{socket.type}}* {{socket.name}} = nullptr;
-        {% endfor %}
+private:
+    inline static uint32_t id{0};
+public:
+    {%for packet in packets -%}
+    static inline HeapPacket *{{packet.name}}{};
+    {% endfor %}
+    {% for socket in sockets -%}
+    static inline {{socket.type}} *{{socket.name}} = nullptr;
+    {% endfor %}
         
     DataPackets({%for value in data %}{{value.type}} &{{value.name}}{%if not loop.last%},{%endif%}{%endfor%})
     {   

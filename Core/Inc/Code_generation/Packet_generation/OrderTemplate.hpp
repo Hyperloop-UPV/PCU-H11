@@ -14,12 +14,13 @@ class OrderPackets{
     {%- endfor %}
     };
     {% endfor %}
-    private:
-        uint32_t id{0};
-    public:
-        {% for packet in packets -%}
-        HeapOrder *{{packet.name}};
-        {% endfor %}
+
+private:
+    uint32_t id{0};
+public:
+    {% for packet in packets -%}
+    HeapOrder *{{packet.name}};
+    {% endfor %}
     
     OrderPackets({%for value in data %}{{value.type}} &{{value.name}}{%if not loop.last%},{%endif%}{%endfor%})
     {
