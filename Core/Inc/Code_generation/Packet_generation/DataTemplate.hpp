@@ -14,9 +14,39 @@ struct DataPackets{
 
 private:
     inline static uint32_t id{0};
-    {%- for packet in sending_packets %}
-    inline static bool send_flag_{{loop.index0}} = false;
-    {%- endfor %}
+    
+    {% set sending_count = sending_packets|length %}
+    {% if sending_count <= 32 %}
+    using FlagsType = uint32_t;
+    #define CTZ_FUNC __builtin_ctz
+    {% elif sending_count <= 64 %}
+    using FlagsType = uint64_t;
+    #define CTZ_FUNC __builtin_ctzll
+    {% else %}
+    #error "Too many sending tasks (>64)"
+    {% endif %}
+
+    inline static volatile FlagsType send_flags{0};
+
+    {% for packet in sending_packets %}
+    static void send_task_{{loop.index0}}() {
+        {% if packet.name is string -%}
+        DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{packet.name}});
+        {% else %}
+        {% for name in packet.name -%}
+        DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{name}});
+        {% endfor -%}
+        {%- endif %}
+    }
+    {% endfor %}
+
+    using SendAction = void(*)();
+    static inline SendAction send_actions[] = {
+        {% for packet in sending_packets %}
+        send_task_{{loop.index0}},
+        {% endfor %}
+    };
+
 public:
     {%for packet in packets -%}
     inline static HeapPacket *{{packet.name}}{nullptr};
@@ -27,6 +57,12 @@ public:
         
     static void start()
     {   
+        {% for packet in packets -%}
+        if ({{packet.name}} == nullptr) {
+            ErrorHandler("Packet {{packet.name}} not initialized");
+        }
+        {% endfor %}
+
         {% for socket in ServerSockets -%}
         {{socket.name}} = new ServerSocket("{{socket.board_ip}}",{{socket.port}});
         {%- endfor %}
@@ -39,28 +75,19 @@ public:
         
         {%- for packet in sending_packets %}
         Scheduler::register_task({% if packet.period_type == "ms" %}{{ (packet.period*1000)|round|int }}{% else %}{{ packet.period|round|int }}{% endif %}, +[](){
-            DataPackets::send_flag_{{loop.index0}} = true;
+            DataPackets::send_flags |= (static_cast<FlagsType>(1) << {{loop.index0}});
         }); {%- endfor %}
     }
 
     static void update()
     {
-        {%- for packet in sending_packets %}
-        if(DataPackets::send_flag_{{loop.index0}}){
-            DataPackets::send_flag_{{loop.index0}} = false;
-            {% if packet.name is string -%}
-            if(DataPackets::{{packet.name}}){
-                DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{packet.name}});
+        while(DataPackets::send_flags) {
+            uint8_t index = CTZ_FUNC(DataPackets::send_flags);
+            DataPackets::send_flags &= ~(static_cast<FlagsType>(1) << index);
+            if (index < {{sending_count}}) {
+                DataPackets::send_actions[index]();
             }
-            {% else %}
-            {% for name in packet.name -%}
-            if(DataPackets::{{name}}){
-                DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{name}});
-            }
-            {% endfor -%}
-            {%- endif %}
         }
-        {%- endfor %}
     }
 
     {% for packet in packets -%}
