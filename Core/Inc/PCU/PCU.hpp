@@ -191,19 +191,4 @@ static inline constinit auto PCU_State_Machine = []() consteval
 }();
 
 
-inline static DataPackets data_packets{
-    control_data.actual_frequency,control_data.modulation_frequency,PWMActuators::duty_cycle_u,PWMActuators::duty_cycle_v,PWMActuators::duty_cycle_w,
-    VoltageSensors::actual_voltage_battery_a,VoltageSensors::actual_voltage_battery_b,
-    CurrentSensors::actual_current_sensor_u_a,CurrentSensors::actual_current_sensor_v_a,CurrentSensors::actual_current_sensor_w_a,
-    CurrentSensors::actual_current_sensor_u_b,CurrentSensors::actual_current_sensor_v_b,CurrentSensors::actual_current_sensor_w_b,control_data.current_Peak,control_data.current_error,
-    control_data.target_voltage,SpaceVector::time,control_data.imod,
-    PCU_State_Machine.current_state,Operational_State_Machine.current_state,
-    space_vector_on,current_control_on,speed_control_on,
-    Speetec::position_encoder,control_data.established_direction,Speetec::speed_encoder,control_data.speed_km_h_encoder,Speetec::acceleration_encoder,control_data.target_speed,control_data.speed_error,
-    control_data.actual_current_ref,control_data.direction_state,control_data.speedState,
-    Sensors::gd_fault_a,Sensors::gd_fault_b,Sensors::gd_ready_a,Sensors::gd_ready_b};
-    
-inline static OrderPackets order_packets{Comms::frequency_space_vector_received,Comms::frequency_received,Comms::ref_voltage_space_vector_received,Comms::Vmax_control_received,Comms::frequency_space_vector_received,Comms::frequency_received,Comms::current_reference_received,Comms::speed_reference_received};
-
-
 };
