@@ -13,8 +13,14 @@ struct DataPackets{
     {% endfor %}
 
 private:
-    inline static uint32_t id{0};
     
+    {% for packet in packets -%}
+    static void {{packet.name}}_init({% for variable in packet.variables %}{{variable.type}} &{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %})
+    {
+        {{packet.name}} = new HeapPacket(static_cast<uint16_t>({{packet.id}}){% if packet.variables %}, {% for variable in packet.variables %}&{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %});
+    }
+    {% endfor -%}
+
     {% set sending_count = sending_packets|length %}
     {% if sending_count <= 32 %}
     using FlagsType = uint32_t;
@@ -90,10 +96,5 @@ public:
         }
     }
 
-    {% for packet in packets -%}
-    static void {{packet.name}}_init({% for variable in packet.variables %}{{variable.type}} &{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %})
-    {
-        {{packet.name}} = new HeapPacket(static_cast<uint16_t>({{packet.id}}){% if packet.variables %}, {% for variable in packet.variables %}&{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %});
-    }
-    {% endfor -%}
+   
 };
