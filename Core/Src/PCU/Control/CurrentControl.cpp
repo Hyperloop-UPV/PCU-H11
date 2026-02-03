@@ -71,7 +71,7 @@ void CurrentControl::control_action(){
     PCU::control_data.current_Peak = current_peak;
     PCU::control_data.current_error = current_error;
     
-    if(PCU::control_data.currentState == ControlStates::Cruise_Mode){
+    // if(PCU::control_data.currentState == ControlStates::Cruise_Mode){
         #if SATURATOR_PI
         float integrator_temp = current_PI.integrator.output_value;
         #endif
@@ -84,11 +84,11 @@ void CurrentControl::control_action(){
         }
         #endif
     }
-    else{
-        current_regenerate_PI.input(current_error);
-        current_regenerate_PI.execute();
-        target_voltage = current_regenerate_PI.output_value;
-    }
+    // else{  Del frenado regenerativo
+    //     current_regenerate_PI.input(current_error);
+    //     current_regenerate_PI.execute();
+    //     target_voltage = current_regenerate_PI.output_value;
+    // }
 
     PCU::control_data.target_voltage = (target_voltage <= SpaceVector::VMAX) ? 
                             (target_voltage < 0.0) ? 0.0 : target_voltage 
@@ -98,22 +98,19 @@ void CurrentControl::control_action(){
 
 void CurrentControl::start() {
     should_be_running = true;
-    PCU::control_data.current_control_active = true; 
+    PCU::control_data.current_control_active = CurrentControlState::ACTIVE; 
     reset_PI();
 }
 
 void CurrentControl::stop() {
     should_be_running = false;
-    PCU::control_data.current_control_active = false; 
+    PCU::control_data.current_control_active = CurrentControlState::DISABLE; 
 }
 
 bool CurrentControl::is_running(){
     return should_be_running;
 }
 
-void CurrentControl::change_mode(ControlStates state){
-    PCU::control_data.currentState = state;
-}
 
 void CurrentControl::reset_PI(){
     current_PI.reset();

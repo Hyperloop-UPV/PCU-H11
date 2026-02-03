@@ -26,15 +26,15 @@ void SpeedControl::control_action(){
     PCU::control_data.speed_error = speed_error;
     float actual_current_ref;
     
-    if(PCU::control_data.speedState == ControlStates::Cruise_Mode){
+    // if(PCU::control_data.speedState == ControlStates::Cruise_Mode){
         speed_PI.input(speed_error);
         speed_PI.execute(); 
         actual_current_ref = speed_PI.output_value;
-    }else{
-        regenerate_PI.input(speed_error);
-        regenerate_PI.execute();
-        actual_current_ref = regenerate_PI.output_value;
-    }
+    // }else{
+    //     regenerate_PI.input(speed_error);
+    //     regenerate_PI.execute();
+    //     actual_current_ref = regenerate_PI.output_value;
+    // }
     
     actual_current_ref = (actual_current_ref > CURRENT_LIMIT || actual_current_ref < -30.0) ? CURRENT_LIMIT : actual_current_ref;
         
@@ -42,13 +42,6 @@ void SpeedControl::control_action(){
     CurrentControl::set_current_ref(actual_current_ref);
 }
 
-ControlStates SpeedControl::get_controlState(){
-    return PCU::control_data.speedState;
-}
-
-void SpeedControl::change_mode(ControlStates state){
-    PCU::control_data.speedState = state;
-}
 
 void SpeedControl::reset_PI(){
     speed_PI.reset();
@@ -58,10 +51,10 @@ void SpeedControl::reset_PI(){
 
 void SpeedControl::start(){
     running = true;
-    PCU::control_data.speed_control_active = true;
+    PCU::control_data.speed_control_active = SpeedControlState::ACTIVE;
 }
 
 void SpeedControl::stop(){
     running = false;
-    PCU::control_data.speed_control_active = false;
+    PCU::control_data.speed_control_active = SpeedControlState::DISABLE;
 }

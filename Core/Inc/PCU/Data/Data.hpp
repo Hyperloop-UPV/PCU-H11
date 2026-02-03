@@ -155,7 +155,10 @@ namespace Sensors_data
 using States_PCU = DataPackets::general_state_machine;
 using Operational_States_PCU = DataPackets::operational_state_machine;
 using EncoderDirection = DataPackets::encoder_direction;
-using DirectionState = DataPackets::Direction_State;
+using PWM_ACTIVE = DataPackets::space_vector_active;
+using SpeedControlState = DataPackets::speed_control_active;
+using CurrentControlState = DataPackets::current_control_active;
+
 
 enum class BUFFER_STATE: uint8_t
 {
@@ -167,41 +170,27 @@ struct Control_Data
     //SpaceVector:
     PWM_ACTIVE pwm_active{};
     uint32_t actual_frequency{};
-    float modulation_frequency{};
-    float actual_duty{};
-    BUFFER_STATE buffer_state{};
+    float modulation_frequency{0.0f};
+    float duty_cycle_u{0.0f};
+    float duty_cycle_v{0.0f};
+    float duty_cycle_w{0.0f};
+    BUFFER_STATE buffer_state{BUFFER_STATE::DISABLED};
 
-    double current_error{};
-    double current_Peak{};
-    double target_voltage{};
-    float time{};
-    float imod{};
-
+    double current_error{0.0f};
+    double current_Peak{0.0f};
+    double target_voltage{0.0f};
+    float time{0.0f};
+    float imod{0.0f};
     //speed:
-    float target_speed{};
-    double speed_error{};
-    float actual_current_ref{};
-    double speed_km_h_encoder{};
+    float target_speed{0.0f};
+    double speed_error{0.0f};
+    float actual_current_ref{0.0f};
+    double speed_km_h_encoder{0.0f};
     
-    double position_encoder{}; 
+    double position_encoder{0.0f}; 
 
-    //control
-    ControlStates currentState{ControlStates::Cruise_Mode};
-    ControlStates speedState{ControlStates::Cruise_Mode};
     EncoderDirection established_direction{EncoderDirection::Forward};
-    DirectionState direction_state{DirectionState::Forward};
+    SpeedControlState speed_control_active{false};
+    CurrentControlState current_control_active{false};
 
-    bool current_control_active{false};
-    bool speed_control_active{false};
-    bool space_vector_active{false};
-
-ion_state{DirectionState::Forward};
-
-    bool current_control_active{false};
-    bool speed_control_active{false};
-    bool space_vector_active{false};
-
-    
-    bool received_stop_motor{false};
-    bool received_motor_brake_order{false};
 };

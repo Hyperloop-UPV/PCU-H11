@@ -85,6 +85,5 @@ public:
     static void start();
     static void stop();
     static bool is_running();
-    static void change_mode(ControlStates state);
     static void reset_PI();
 };

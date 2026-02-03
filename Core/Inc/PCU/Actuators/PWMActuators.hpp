@@ -14,10 +14,6 @@ class PWMActuators{
     public:
         PWMActuators()=default;
 
-        inline static float duty_cycle_u{0.0f};
-        inline static float duty_cycle_v{0.0f};
-        inline static float duty_cycle_w{0.0f};
-
     static void init();
 
     /*------Getters PWM------*/

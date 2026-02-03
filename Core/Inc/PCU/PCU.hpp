@@ -20,9 +20,6 @@ class PCU
 {
     public:
     D1_NC inline static Control_Data control_data{};
-    inline static DataPackets::space_vector_active space_vector_on{DataPackets::space_vector_active::DISABLE};
-    inline static DataPackets::speed_control_active speed_control_on{DataPackets::speed_control_active::DISABLE};
-    inline static DataPackets::current_control_active current_control_on{DataPackets::current_control_active::DISABLE};
 
     inline static bool flag_update_speed_control{false};
     inline static bool flag_update_current_control{false};

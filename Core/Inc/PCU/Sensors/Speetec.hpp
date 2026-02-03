@@ -27,4 +27,5 @@ class Speetec{
     }
     
     static void read();
+    static bool is_going_backwards();
 };

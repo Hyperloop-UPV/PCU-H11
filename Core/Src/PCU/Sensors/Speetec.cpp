@@ -20,3 +20,15 @@ void Speetec::read()
     else
         PCU::control_data.established_direction = EncoderDirection::Backward;
 }
+
+bool Speetec::is_going_backwards()
+{
+    static double prev_position_encoder = 0;
+    bool ret = false;
+    if((PCU::control_data.position_encoder - prev_position_encoder) < 0.0)
+    {
+        ret = true;
+    }
+    prev_position_encoder = PCU::control_data.position_encoder;
+    return ret;
+}
