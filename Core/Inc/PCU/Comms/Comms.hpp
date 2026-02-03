@@ -12,4 +12,7 @@ class Comms{
     inline static float Vmax_control_received{0.0f};
     inline static float speed_reference_received{0.0f};
 
+    static void start();
+    static void update();
+
 };
