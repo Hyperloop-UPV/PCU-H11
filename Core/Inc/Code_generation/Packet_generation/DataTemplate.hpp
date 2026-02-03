@@ -14,6 +14,9 @@ struct DataPackets{
 
 private:
     inline static uint32_t id{0};
+    {%- for packet in sending_packets %}
+    inline static bool send_flag_{{loop.index0}} = false;
+    {%- endfor %}
 public:
     {%for packet in packets -%}
     inline static HeapPacket *{{packet.name}}{nullptr};
@@ -36,6 +39,15 @@ public:
         
         {%- for packet in sending_packets %}
         Scheduler::register_task({% if packet.period_type == "ms" %}{{ (packet.period*1000)|round|int }}{% else %}{{ packet.period|round|int }}{% endif %}, +[](){
+            DataPackets::send_flag_{{loop.index0}} = true;
+        }); {%- endfor %}
+    }
+
+    static void update()
+    {
+        {%- for packet in sending_packets %}
+        if(DataPackets::send_flag_{{loop.index0}}){
+            DataPackets::send_flag_{{loop.index0}} = false;
             {% if packet.name is string -%}
             if(DataPackets::{{packet.name}}){
                 DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{packet.name}});
@@ -47,7 +59,8 @@ public:
             }
             {% endfor -%}
             {%- endif %}
-        }); {%- endfor %}
+        }
+        {%- endfor %}
     }
 
     {% for packet in packets -%}
