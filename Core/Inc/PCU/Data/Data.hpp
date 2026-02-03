@@ -168,9 +168,6 @@ enum class PWM_ACTIVE: uint8_t
 }; 
 
 
-enum class RunMode: uint8_t{
-    DEFAULT =1
-};
 
 enum class BUFFER_STATE: uint8_t
 {
@@ -210,7 +207,4 @@ struct Control_Data
     bool speed_control_active{false};
     bool space_vector_active{false};
 
-    
-    bool received_stop_motor{false};
-    bool received_motor_brake_order{false};
 };
