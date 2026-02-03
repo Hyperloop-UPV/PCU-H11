@@ -19,7 +19,7 @@ void PWMActuators::init()
     V_Dual.set_duty_cycle(0.0f);
     W_Dual.set_duty_cycle(0.0f);
 
-    PCU::control_data.pwm_active = PWM_ACTIVE::NONE;
+    PCU::control_data.pwm_active = PWM_ACTIVE::DISABLE;
 }
 
 

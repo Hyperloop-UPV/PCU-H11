@@ -24,9 +24,10 @@ float CurrentControl::get_current_ref(){
 }
 
 double CurrentControl::calculate_frequency_modulation(){
-    return (PCU::control_data.speedState == ControlStates::Cruise_Mode) ? 
-            exp_follower(a * PCU::control_data.speed_km_h_encoder + b) : 
-            exp_follower(a * PCU::control_data.speed_km_h_encoder + b - PCU::control_data.speed_km_h_encoder/1.2);
+    // return (PCU::control_data.speedState == ControlStates::Cruise_Mode) ? 
+    //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b) : 
+    //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b - PCU::control_data.speed_km_h_encoder/1.2);
+    return exp_follower(a * PCU::control_data.speed_km_h_encoder + b);
 }
 
 double CurrentControl::calculate_peak(){
@@ -83,16 +84,19 @@ void CurrentControl::control_action(){
             current_PI.integrator.output_value = integrator_temp;
         }
         #endif
-    }
+    // }
     // else{  Del frenado regenerativo
     //     current_regenerate_PI.input(current_error);
     //     current_regenerate_PI.execute();
     //     target_voltage = current_regenerate_PI.output_value;
     // }
 
-    PCU::control_data.target_voltage = (target_voltage <= SpaceVector::VMAX) ? 
-                            (target_voltage < 0.0) ? 0.0 : target_voltage 
-                            : SpaceVector::VMAX;
+    if(PCU::control_data.target_voltage > SpaceVector::VMAX){
+        PCU::control_data.target_voltage = SpaceVector::VMAX;
+    }
+    if(PCU::control_data.target_voltage < 0.0){
+        PCU::control_data.target_voltage = 0.0;
+    }
     SpaceVector::set_target_voltage(PCU::control_data.target_voltage);
 }
 
