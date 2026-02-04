@@ -7,29 +7,21 @@ using SpeetecDirection = ST_LIB::EncoderSensor<Pinout::encoder_timer, Sensors_da
 class Speetec{
     public:
 
-    inline static D1_NC double speed_encoder{0.0f};
-    inline static D1_NC double speed_km_h_encoder{0.0f};
-    inline static D1_NC double acceleration_encoder{0.0f};
-    inline static D1_NC double position_encoder{0.0f};
-    inline static D1_NC SpeetecDirection internal_direction{SpeetecDirection::FORWARD};
+    inline static double speed_encoder{0.0f};
+    inline static double speed_km_h_encoder{0.0f};
+    inline static double acceleration_encoder{0.0f};
+    inline static double position_encoder{0.0f};
+    [[maybe-unused]] inline static SpeetecDirection internal_direction{SpeetecDirection::FORWARD};
 
     private:
-        inline static ST_LIB::EncoderSensor<Pinout::encoder_timer,Sensors_data::encoder_samples> sensor_speetec(
-            Sensors_data::encoder_counter_distance_m,
-            Sensors_data::encoder_sample_time_s,
-            &internal_direction,
-            &position_encoder,
-            &speed_encoder,
-            &acceleration_encoder);
+        inline static ST_LIB::Encoder<Pinout::encoder_timer>* encoder_instance{};
 
+        static ST_LIB::EncoderSensor<Pinout::encoder_timer,Sensors_data::encoder_samples> sensor_speetec;
     public:
     
     Speetec()=default;
     
-    static void init()
-    {
-        sensor_speetec.turn_on();
-    }
+    static void init(ST_LIB::Encoder<Pinout::encoder_timer>* encoder_ptr);
     
     static void read();
     static bool is_going_backwards();
