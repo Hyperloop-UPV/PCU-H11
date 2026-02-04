@@ -11,6 +11,7 @@
 
 using ST_LIB::DigitalInputDomain;
 using ST_LIB::DigitalOutputDomain;
+using ST_LIB::TimerDomain;
 
 #if PCU_H10 == 1
 namespace Pinout{
@@ -79,6 +80,13 @@ namespace Pinout
     static constexpr Pin& Speetec_A_outPhase = PF0;
     static constexpr Pin& Speetec_B = PF9;
     static constexpr Pin& Speetec_B_outPhase = PF2;
+
+    constexpr ST_LIB::TimerDomain::Timer encoder_timer{
+    ST_LIB::TimerRequest::GeneralPurpose32bit_2, 
+    {'e', 'n', 'c', 'o', 'd', 'e', 'r', '\0'},    
+    ST_LIB::TimerPin{ST_LIB::TimerAF::Encoder, ST_LIB::PF1, ST_LIB::TimerChannel::CHANNEL_1},
+    ST_LIB::TimerPin{ST_LIB::TimerAF::Encoder, ST_LIB::PF9, ST_LIB::TimerChannel::CHANNEL_2}
+    };
     // static constexpr Pin& Speetec_C = PE6;
     // static constexpr Pin& Speetec_C_outPhase = PE5;
 

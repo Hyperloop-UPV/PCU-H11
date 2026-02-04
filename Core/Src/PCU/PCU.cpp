@@ -5,7 +5,7 @@ static const string PCU_MASK= "255.255.0.0";
 
 void PCU::start()
 {
-    STLIB::start(PCU_MAC,PCU_IP,PCU_MASK);
+    STLIB::start(PCU_MAC,PCU_IP,PCU_MASK); //POr cambiar a lo nuevo
     Scheduler::start();
 
 
@@ -21,10 +21,10 @@ void PCU::stop_motors()
     Actuators::disable_buffer();
 }
 
-void PCU::start_precharge()
-{
+// void PCU::start_precharge()
+// {
 
-}
+// }
 
 void PCU::motor_brake()
 {
