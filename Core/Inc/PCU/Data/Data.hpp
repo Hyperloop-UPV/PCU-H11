@@ -68,12 +68,49 @@ namespace Pinout
     static constexpr Pin& Current_sensor_W_B = PB1;
     
     /*------PWM------*/
-    static constexpr Pin& U_PWM = PE9;
-    static constexpr Pin& U_PWM_NEGATED = PE8;
-    static constexpr Pin& V_PWM = PE11;
-    static constexpr Pin& V_PWM_NEGATED = PE10;
-    static constexpr Pin& W_PWM = PE13;
-    static constexpr Pin& W_PWM_NEGATED = PE12;
+    inline constexpr ST_LIB::TimerPin U_PWM_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE9,
+    .channel = ST_LIB::TimerChannel::CHANNEL_1,
+    };
+
+    inline constexpr ST_LIB::TimerPin U_PWM_negated_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE8,
+    .channel = ST_LIB::TimerChannel::CHANNEL_1_NEGATED,
+    };
+
+
+    inline constexpr ST_LIB::TimerPin V_PWM_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE11,
+    .channel = ST_LIB::TimerChannel::CHANNEL_2,
+    };
+
+    inline constexpr ST_LIB::TimerPin V_PWM_negated_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE10,
+    .channel = ST_LIB::TimerChannel::CHANNEL_2_NEGATED,
+    };
+
+    
+    inline constexpr ST_LIB::TimerPin W_PWM_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE13,
+    .channel = ST_LIB::TimerChannel::CHANNEL_3,
+    };
+
+    inline constexpr ST_LIB::TimerPin W_PWM_negated_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE12,
+    .channel = ST_LIB::TimerChannel::CHANNEL_3_NEGATED,
+    };
+
+    inline constexpr ST_LIB::TimerDomain::Timer tim_decl{{
+    .request = ST_LIB::TimerRequest::Advanced_1,
+    }, U_PWM_pin, U_PWM_negated_pin};
+
+
 
     /*------Encoder------*/
     static constexpr Pin& Speetec_A = PF1;
@@ -81,12 +118,12 @@ namespace Pinout
     static constexpr Pin& Speetec_B = PF9;
     static constexpr Pin& Speetec_B_outPhase = PF2;
 
-    constexpr ST_LIB::TimerDomain::Timer encoder_timer{
-    ST_LIB::TimerRequest::GeneralPurpose32bit_2, 
-    {'e', 'n', 'c', 'o', 'd', 'e', 'r', '\0'},    
-    ST_LIB::TimerPin{ST_LIB::TimerAF::Encoder, ST_LIB::PF1, ST_LIB::TimerChannel::CHANNEL_1},
-    ST_LIB::TimerPin{ST_LIB::TimerAF::Encoder, ST_LIB::PF9, ST_LIB::TimerChannel::CHANNEL_2}
-    };
+    // static constexpr ST_LIB::TimerDomain::Timer encoder_timer{
+    // ST_LIB::TimerRequest::GeneralPurpose32bit_23, 
+    // {'e', 'n', 'c', 'o', 'd', 'e', 'r', '\0'},    
+    // ST_LIB::TimerPin{ST_LIB::TimerAF::Encoder, ST_LIB::PF1, ST_LIB::TimerChannel::CHANNEL_2},
+    // ST_LIB::TimerPin{ST_LIB::TimerAF::Encoder, ST_LIB::PF9, ST_LIB::TimerChannel::CHANNEL_4}
+    // };
     // static constexpr Pin& Speetec_C = PE6;
     // static constexpr Pin& Speetec_C_outPhase = PE5;
 

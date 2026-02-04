@@ -4,17 +4,18 @@
 
 
 class PWMActuators{
-
+;
     private:
-    //por cambiar a tiempo de compilacion;
-        inline static DualPWM U_Dual{Pinout::U_PWM, Pinout::U_PWM_NEGATED};
-        inline static DualPWM V_Dual{Pinout::V_PWM, Pinout::V_PWM_NEGATED};
-        inline static DualPWM W_Dual{Pinout::W_PWM, Pinout::W_PWM_NEGATED};
+        inline static ST_LIB::DualPWM<Pinout::tim_decl,Pinout::U_PWM_pin,Pinout::U_PWM_negated_pin>* U_Dual {nullptr};
+        inline static ST_LIB::DualPWM<Pinout::tim_decl,Pinout::V_PWM_pin,Pinout::V_PWM_negated_pin>* V_Dual {nullptr};
+        inline static ST_LIB::DualPWM<Pinout::tim_decl,Pinout::W_PWM_pin,Pinout::W_PWM_negated_pin>* W_Dual {nullptr};
 
     public:
         PWMActuators()=default;
 
-    static void init();
+    static void init(ST_LIB::DualPWM<Pinout::tim_decl,Pinout::U_PWM_pin,Pinout::U_PWM_negated_pin>& pwm_u,
+                     ST_LIB::DualPWM<Pinout::tim_decl,Pinout::V_PWM_pin,Pinout::V_PWM_negated_pin>& pwm_v,
+                     ST_LIB::DualPWM<Pinout::tim_decl,Pinout::W_PWM_pin,Pinout::W_PWM_negated_pin>& pwm_w);
 
     /*------Getters PWM------*/
     static float get_duty_u();
