@@ -25,6 +25,10 @@ void PWMActuators::init(ST_LIB::DualPWM<Pinout::tim_decl,Pinout::U_PWM_pin,Pinou
     U_Dual->set_duty_cycle(0.0f);
     V_Dual->set_duty_cycle(0.0f);
     W_Dual->set_duty_cycle(0.0f);
+
+    U_Dual->turn_on();
+    V_Dual->turn_on();
+    W_Dual->turn_on();
     PCU::control_data.pwm_active = PWM_ACTIVE::DISABLE;
 }
 

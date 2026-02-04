@@ -13,6 +13,7 @@ class Comms{
     inline static float current_reference_received{0.0f};
     inline static float Vmax_control_received{0.0f};
     inline static float speed_reference_received{0.0f};
+    inline static bool reset_bypass_received{false};
 
     static void start();
     static void update();

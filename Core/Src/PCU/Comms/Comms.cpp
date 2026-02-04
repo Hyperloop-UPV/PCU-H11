@@ -59,4 +59,35 @@ void Comms::start()
         Sensors::gd_ready_b
     );
     DataPackets::start();
+
+    OrderPackets::Reset_Bypass_init(reset_bypass_received);
+
+    OrderPackets::Send_Reference_Current_init(
+        frequency_space_vector_received,
+        frequency_received,
+        current_reference_received,
+        Vmax_control_received
+    );
+
+    OrderPackets::Send_Reference_Speed_init(
+        speed_reference_received,
+        frequency_received,
+        Vmax_control_received
+    );
+
+    OrderPackets::Start_SVPWM_init(
+        frequency_space_vector_received,
+        frequency_received,
+        Vmax_control_received,
+        Vmax_control_received
+    );
+
+    OrderPackets::Zeroing_init();
+    OrderPackets::Stop_Motor_init();
+
+}
+
+void Comms::update()
+{
+    DataPackets::update();
 }
