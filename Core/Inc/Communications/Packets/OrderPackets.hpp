@@ -15,7 +15,6 @@ public:
     inline static bool Zeroing_flag{false};
     inline static bool Reset_Bypass_flag{false};
     inline static bool Send_Reference_Speed_flag{false};
-    inline static bool Start_Precharge_flag{false};
     
 
     OrderPackets() = default;
@@ -26,7 +25,6 @@ public:
     inline static HeapOrder *Zeroing{nullptr};
     inline static HeapOrder *Reset_Bypass{nullptr};
     inline static HeapOrder *Send_Reference_Speed{nullptr};
-    inline static HeapOrder *Start_Precharge{nullptr};
     
     
     static void Start_SVPWM_init(float &frequency_to_send_svpwm, float &frequency_to_send_PWM, float &V_Ref, float &VMax)
@@ -52,10 +50,6 @@ public:
     static void Send_Reference_Speed_init(float &Speed_Ref, float &freq_to_send_PWM, float &VMax)
     {
         Send_Reference_Speed = new HeapOrder(511, &Send_Reference_Speed_cb, &Speed_Ref, &freq_to_send_PWM, &VMax);
-    }
-    static void Start_Precharge_init(float &freq_to_send_PWM)
-    {
-        Start_Precharge = new HeapOrder(512, &Start_Precharge_cb, &freq_to_send_PWM);
     }
     
 
@@ -83,10 +77,6 @@ private:
     static void Send_Reference_Speed_cb()
     {
         Send_Reference_Speed_flag = true;
-    }
-    static void Start_Precharge_cb()
-    {
-        Start_Precharge_flag = true;
     }
     
 };

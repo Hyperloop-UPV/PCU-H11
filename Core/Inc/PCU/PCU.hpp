@@ -90,14 +90,13 @@ static inline constinit auto Operational_State_Machine = []() consteval
     sm.add_enter_action([]()
     {
         stop_motors();
-        //PRecarga?
     },nested_idle_state);
 
     sm.add_cyclic_action([]()
     {
         if(SpeedControl::running)
         {
-        flag_update_speed_control = true;
+            flag_update_speed_control = true;
         }
     }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
 
@@ -171,8 +170,9 @@ static inline constinit auto PCU_State_Machine = []() consteval
         Actuators::set_led_operational(false);
         Actuators::set_led_connecting(false);
         Actuators::set_led_fault(true);
-        //Propagar fault
     }, fault_state);
+
+    sm.add_state_machine(Operational_State_Machine, operational_state);
 
     return sm;
 }();

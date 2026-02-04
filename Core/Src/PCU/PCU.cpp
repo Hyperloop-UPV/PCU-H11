@@ -6,8 +6,7 @@ static const string PCU_MASK= "255.255.0.0";
 void PCU::start()
 {
     STLIB::start(PCU_MAC,PCU_IP,PCU_MASK); //POr cambiar a lo nuevo
-    Scheduler::start();
-
+    Comms::start();
 
 }
 
@@ -21,26 +20,19 @@ void PCU::stop_motors()
     Actuators::disable_buffer();
 }
 
-// void PCU::start_precharge()
-// {
-
-// }
-
-void PCU::motor_brake()
-{
-    
-}
-
 void PCU::update()
 {
-    current_state_pcu = PCU_State_Machine.current_state;
-    current_operational_state_pcu = Operational_State_Machine.current_state;
+    PCU_State_Machine.check_transitions();
+
     if(OrderPackets::Stop_Motor_flag == true)
     {
         OrderPackets::Stop_Motor_flag=false;
         stop_motors();
     }
-    else if(OrderPackets::Start_SVPWM_flag == true)
+    current_state_pcu = PCU_State_Machine.current_state;
+    current_operational_state_pcu = Operational_State_Machine.current_state;
+    
+    if(OrderPackets::Start_SVPWM_flag == true)
     {
         OrderPackets::Start_SVPWM_flag=false;
         control_data.space_vector_active=SpaceVectorState::ACTIVE;
@@ -80,5 +72,38 @@ void PCU::update()
         CurrentControl::start();
         SpeedControl::start();
 
+    }
+
+    if(OrderPackets::Reset_Bypass_flag==true)
+    {
+        OrderPackets::Reset_Bypass_flag=false;
+        if(Comms::reset_bypass_received==false)
+            Actuators::disable_reset_bypass();
+        else
+        Actuators::enable_reset_bypass();
+    }
+
+    if(OrderPackets::Zeroing_flag==true)
+    {
+        OrderPackets::Zeroing_flag=false;
+        CurrentSensors::zeroing();
+    }
+
+    if(flag_update_speed_control)
+    {
+        flag_update_speed_control=false;
+        SpeedControl::control_action();
+    }
+
+    if(flag_update_current_control)
+    {
+        flag_update_current_control=false;
+        CurrentControl::control_action();
+    }
+
+    if(flag_execute_space_vector_control)
+    {
+        flag_execute_space_vector_control=false;
+        SpaceVector::calculate_duties();
     }
 }

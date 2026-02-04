@@ -2,7 +2,7 @@
 #include "ST-LIB.hpp"
 
 /*-------Flags-------*/
-#define PCU_H10 0         // 0 = PCU-H11, 1 = PCU-H10
+#define PCU_H10 0        // 0 = PCU-H11, 1 = PCU-H10
 #define MODE_CALCULATE_SIN 1 //0 = Normal sin, 1 = Look Up table with direct interpolation
 #define PPU_USING 1     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
@@ -15,12 +15,47 @@ using ST_LIB::TimerDomain;
 
 #if PCU_H10 == 1
 namespace Pinout{
-    static constexpr Pin& U_PWM = PE9;
-    static constexpr Pin& U_PWM_NEGATED = PE8; 
-    static constexpr Pin& V_PWM = PE11;
-    static constexpr Pin& V_PWM_NEGATED = PE10; 
-    static constexpr Pin& W_PWM = PE13;
-    static constexpr Pin& W_PWM_NEGATED = PE12;
+    inline constexpr ST_LIB::TimerPin U_PWM_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE9,
+    .channel = ST_LIB::TimerChannel::CHANNEL_1,
+    };
+
+    inline constexpr ST_LIB::TimerPin U_PWM_negated_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE8,
+    .channel = ST_LIB::TimerChannel::CHANNEL_1_NEGATED,
+    };
+
+
+    inline constexpr ST_LIB::TimerPin V_PWM_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE11,
+    .channel = ST_LIB::TimerChannel::CHANNEL_2,
+    };
+
+    inline constexpr ST_LIB::TimerPin V_PWM_negated_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE10,
+    .channel = ST_LIB::TimerChannel::CHANNEL_2_NEGATED,
+    };
+
+    
+    inline constexpr ST_LIB::TimerPin W_PWM_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE13,
+    .channel = ST_LIB::TimerChannel::CHANNEL_3,
+    };
+
+    inline constexpr ST_LIB::TimerPin W_PWM_negated_pin {
+    .af = ST_LIB::TimerAF::PWM,
+    .pin = ST_LIB::PE12,
+    .channel = ST_LIB::TimerChannel::CHANNEL_3_NEGATED,
+    };
+
+    inline constexpr ST_LIB::TimerDomain::Timer tim_decl{{
+    .request = ST_LIB::TimerRequest::Advanced_1,
+    }, U_PWM_pin, U_PWM_negated_pin};
 
     constexpr DigitalOutputDomain::DigitalOutput Buff_enable{ST_LIB::PF4}; 
     constexpr DigitalOutputDomain::DigitalOutput Reset_bypass{ST_LIB::PB7};
