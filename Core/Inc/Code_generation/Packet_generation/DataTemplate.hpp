@@ -18,6 +18,7 @@ public:
     {
         {{packet.name}} = new HeapPacket(static_cast<uint16_t>({{packet.id}}){% if packet.variables %}, {% for variable in packet.variables %}&{{variable.name}}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %});
     }
+    
     {% endfor -%}
     
 public:
