@@ -33,6 +33,8 @@ void PCU::motor_brake()
 
 void PCU::update()
 {
+    current_state_pcu = PCU_State_Machine.current_state;
+    current_operational_state_pcu = Operational_State_Machine.current_state;
     if(OrderPackets::Stop_Motor_flag == true)
     {
         OrderPackets::Stop_Motor_flag=false;
@@ -41,7 +43,7 @@ void PCU::update()
     else if(OrderPackets::Start_SVPWM_flag == true)
     {
         OrderPackets::Start_SVPWM_flag=false;
-        control_data.space_vector_active=true;
+        control_data.space_vector_active=SpaceVectorState::ACTIVE;
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_frequency_Modulation(Comms::frequency_space_vector_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
@@ -62,7 +64,7 @@ void PCU::update()
         PWMActuators::set_three_frequencies(20000);
         SpaceVector::set_frequency_Modulation(8.3);
 
-        control_data.space_vector_active = true;
+        control_data.space_vector_active = SpaceVectorState::ACTIVE;
         SpeedControl::stop();
         CurrentControl::start();
     }
@@ -74,7 +76,7 @@ void PCU::update()
         SpeedControl::set_reference_speed(Comms::speed_reference_received);
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
-        control_data.space_vector_active = true;
+        control_data.space_vector_active = SpaceVectorState::ACTIVE;
         CurrentControl::start();
         SpeedControl::start();
 

@@ -1,5 +1,7 @@
 #pragma once
 #include "PCU/Data/Data.hpp"
+#include "Communications/Packets/DataPackets.hpp"
+#include "Communications/Packets/OrderPackets.hpp"
 
 class Comms{
     Comms()=default;

@@ -12,6 +12,7 @@
 #include "PCU/Control/SpeedControl.hpp"
 #include "Communications/Packets/DataPackets.hpp"
 #include "Communications/Packets/OrderPackets.hpp"
+#include "PCU/Sensors/Sensors.hpp"
 #include "PCU/Comms/Comms.hpp"
 
 #define MODULATION_FREQUENCY_DEFAULT 10
@@ -25,8 +26,12 @@ class PCU
     inline static bool flag_update_current_control{false};
     inline static bool flag_execute_space_vector_control{false};
 
+    inline static States_PCU current_state_pcu{States_PCU::Connecting};
+    inline static Operational_States_PCU current_operational_state_pcu{Operational_States_PCU::IDLE};
+
     static void start();
     static void update();
+
     
     private:
     static void stop_motors();
@@ -58,30 +63,17 @@ static constexpr auto operational_state = make_state(States_PCU::Operational,
 static constexpr auto fault_state = make_state(States_PCU::Fault);
 
 static constexpr auto nested_idle_state = make_state(Operational_States_PCU::IDLE,
-    Transition<Operational_States_PCU>{Operational_States_PCU::Regenerative,[]()
-    {
-        return control_data.pwm_active != PWM_ACTIVE::NONE && control_data.buffer_state == BUFFER_STATE::ENABLED;
-    }},
     Transition<Operational_States_PCU>{Operational_States_PCU::Accelerating,[]()
     {
-        return space_vector_on == DataPackets::space_vector_active::ACTIVE;
+        return control_data.space_vector_active == SpaceVectorState::ACTIVE;
     }}
 );
 
-static constexpr auto nested_braking_state = make_state(Operational_States_PCU::Braking); //Me imagino que llegará orden de la vcu, por ahora ahi se queda.
-
-static constexpr auto nested_sending_pwm_state = make_state(Operational_States_PCU::Regenerative,
-    Transition<Operational_States_PCU>{Operational_States_PCU::IDLE,[]()
-    {
-        return control_data.pwm_active == PWM_ACTIVE::NONE || control_data.buffer_state == BUFFER_STATE::DISABLED;
-    }}
-
-);
 
 static constexpr auto nested_accelerating_state = make_state(Operational_States_PCU::Accelerating,
     Transition<Operational_States_PCU>{Operational_States_PCU::IDLE,[]()
     {
-        return space_vector_on == DataPackets::space_vector_active::DISABLE;
+        return control_data.space_vector_active == SpaceVectorState::DISABLE;
     }}
 );
 
@@ -91,9 +83,7 @@ static inline constinit auto Operational_State_Machine = []() consteval
 {
     auto sm= make_state_machine(Operational_States_PCU::IDLE,
         nested_idle_state,
-        nested_braking_state,
-        nested_accelerating_state,
-        nested_sending_pwm_state
+        nested_accelerating_state
     );
     using namespace std::chrono_literals;
 

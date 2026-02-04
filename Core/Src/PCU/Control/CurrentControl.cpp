@@ -91,10 +91,10 @@ void CurrentControl::control_action(){
     //     target_voltage = current_regenerate_PI.output_value;
     // }
 
-    if(PCU::control_data.target_voltage > SpaceVector::VMAX){
+    if(target_voltage > SpaceVector::VMAX){
         PCU::control_data.target_voltage = SpaceVector::VMAX;
     }
-    if(PCU::control_data.target_voltage < 0.0){
+    if(target_voltage < 0.0){
         PCU::control_data.target_voltage = 0.0;
     }
     SpaceVector::set_target_voltage(PCU::control_data.target_voltage);

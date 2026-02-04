@@ -15,10 +15,10 @@ void Speetec::read()
 {
     sensor_speetec.read();
     PCU::control_data.speed_km_h_encoder = speed_encoder * 3.6;
-    if(internal_direction == SpeetecDirection::FORWARD)
-        PCU::control_data.established_direction = EncoderDirection::Forward;
-    else
+    if(is_going_backwards())
         PCU::control_data.established_direction = EncoderDirection::Backward;
+    else
+        PCU::control_data.established_direction = EncoderDirection::Forward;
 }
 
 bool Speetec::is_going_backwards()

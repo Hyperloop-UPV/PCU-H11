@@ -158,7 +158,7 @@ using EncoderDirection = DataPackets::encoder_direction;
 using PWM_ACTIVE = DataPackets::space_vector_active;
 using SpeedControlState = DataPackets::speed_control_active;
 using CurrentControlState = DataPackets::current_control_active;
-
+using SpaceVectorState = DataPackets::space_vector_active;
 
 enum class BUFFER_STATE: uint8_t
 {
@@ -192,5 +192,5 @@ struct Control_Data
     EncoderDirection established_direction{EncoderDirection::Forward};
     SpeedControlState speed_control_active{false};
     CurrentControlState current_control_active{false};
-
+    SpaceVectorState space_vector_active{false};
 };

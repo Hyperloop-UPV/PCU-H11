@@ -16,8 +16,6 @@ public:
     static void init();
     static void set_reference_speed(float speed_ref);
     static float get_reference_speed();
-    static ControlStates get_controlState();
-    static void change_mode(ControlStates state);
     static void control_action();
     static void reset_PI();
     
