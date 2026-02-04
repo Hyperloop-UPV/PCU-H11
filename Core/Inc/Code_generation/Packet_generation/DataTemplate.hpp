@@ -49,14 +49,10 @@ public:
         {%- for packet in sending_packets %}
         Scheduler::register_task({% if packet.period_type == "ms" %}{{ (packet.period*1000)|round|int }}{% else %}{{ packet.period|round|int }}{% endif %}, +[](){
             {% if packet.name is string -%}
-            if(DataPackets::{{packet.name}}){
-                DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{packet.name}});
-            }
+            DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{packet.name}});
             {% else %}
             {% for name in packet.name -%}
-            if(DataPackets::{{name}}){
-                DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{name}});
-            }
+            DataPackets::{{packet.socket}}->send_packet(*DataPackets::{{name}});
             {% endfor -%}
             {%- endif %}
         }); {%- endfor %}
