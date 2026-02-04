@@ -87,7 +87,3 @@ void Comms::start()
 
 }
 
-void Comms::update()
-{
-    DataPackets::update();
-}

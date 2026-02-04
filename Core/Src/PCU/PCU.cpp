@@ -89,6 +89,7 @@ void PCU::update()
         CurrentSensors::zeroing();
     }
 
+    //Control updates:
     if(flag_update_speed_control)
     {
         flag_update_speed_control=false;
