@@ -71,6 +71,8 @@ int main(void) {
                 ready_inverter_a, ready_inverter_b);
 
   PCU::start();
+  CurrentSensors::init();
+  VoltageSensors::init();
   Scheduler::start();
 
   while (1) {
