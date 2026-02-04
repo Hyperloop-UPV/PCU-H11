@@ -3,10 +3,8 @@
 
 void Speetec::init(ST_LIB::Encoder<Pinout::encoder_timer>* encoder_ptr)
 {
-    encoder_instance = encoder_ptr;
-
     sensor_speetec={
-            encoder_instance,
+            encoder_ptr,
             Sensors_data::encoder_counter_distance_m,
             Sensors_data::encoder_sample_time_s,
             &internal_direction,
