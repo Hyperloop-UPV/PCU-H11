@@ -1,6 +1,9 @@
 #include "PCU/Control/SpaceVector.hpp"
 #include "PCU/PCU.hpp"
 
+float SpaceVector::Imodulation = 0.0f;
+double SpaceVector::Modulation_frequency = 0.0;
+
 void SpaceVector::set_target_voltage(float V_ref) {
     if (V_ref < 0) V_ref = 0;
     Imodulation = V_ref * 2.0 / VMAX;

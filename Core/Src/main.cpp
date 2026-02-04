@@ -36,9 +36,7 @@ int main(void) {
   auto& buff_enable = myBoard::instance_of<Pinout::Buff_enable>();
 
   Actuators::init(buff_enable, reset_bypass,
-                  led_connecting, led_fault, led_operational,
-                  fault_inverter_a, fault_inverter_b,
-                  ready_inverter_a, ready_inverter_b);
+                  led_connecting, led_fault, led_operational);
 
   #else
   auto& led_connecting = myBoard::instance_of<Pinout::led_connecting>();

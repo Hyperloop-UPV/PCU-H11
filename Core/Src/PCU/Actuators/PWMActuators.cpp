@@ -116,9 +116,16 @@ void PWMActuators::set_frequency_w(uint32_t frequency)
 
 void PWMActuators::set_three_frequencies(uint32_t frequency) 
 {
+    float previous_duty_cycle_u = get_duty_u();
+    float previous_duty_cycle_v = get_duty_v();
+    float previous_duty_cycle_w = get_duty_w();
     U_Dual->set_timer_frequency(frequency);
     V_Dual->set_timer_frequency(frequency);
     W_Dual->set_timer_frequency(frequency);
+    //Temporary fix for dual pwm problem:
+    U_Dual->set_duty_cycle(previous_duty_cycle_u);
+    V_Dual->set_duty_cycle(previous_duty_cycle_v);
+    W_Dual->set_duty_cycle(previous_duty_cycle_w);
 
     PCU::control_data.actual_frequency = frequency;
 }
