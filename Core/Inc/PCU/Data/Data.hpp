@@ -8,6 +8,7 @@
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
 #define MOTOR_CENTER_ALIGNED 0 // 0 = Normal dualPWM, 1 = CenterAligned DualPWM
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
+#define PWM_TEST_MODE 1 // 0 = Normal mode, 1 = PWM test mode
 
 using ST_LIB::DigitalInputDomain;
 using ST_LIB::DigitalOutputDomain;
@@ -55,7 +56,7 @@ namespace Pinout{
 
     inline constexpr ST_LIB::TimerDomain::Timer tim_decl{{
     .request = ST_LIB::TimerRequest::Advanced_1,
-    }, U_PWM_pin, U_PWM_negated_pin};
+    }, U_PWM_pin, U_PWM_negated_pin, V_PWM_pin, V_PWM_negated_pin, W_PWM_pin, W_PWM_negated_pin};
 
     constexpr DigitalOutputDomain::DigitalOutput Buff_enable{ST_LIB::PF4}; 
     constexpr DigitalOutputDomain::DigitalOutput Reset_bypass{ST_LIB::PB7};

@@ -70,6 +70,13 @@ int main(void) {
   Sensors::init(fault_inverter_a, fault_inverter_b,
                 ready_inverter_a, ready_inverter_b);
 
+  //  #if PWM_TEST_MODE == 1
+  //    PWMActuators::set_three_frequencies(3000);
+  //   PWMActuators::set_duty_u(50.0f);
+  //   PWMActuators::set_duty_v(50.0f);
+  //   PWMActuators::set_duty_w(50.0f);
+  //   while(1);
+  //   #endif
   PCU::start();
   CurrentSensors::init();
   VoltageSensors::init();

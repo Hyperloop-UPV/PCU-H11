@@ -70,12 +70,6 @@ void PWMActuators::set_duty_u(float duty_cycle)
     U_Dual->set_duty_cycle(duty_cycle);
     PCU::control_data.duty_cycle_u = get_duty_u();
 }
-void PWMActuators::set_frequency_u(uint32_t frequency)
-{
-    U_Dual->set_timer_frequency(frequency);
-    PCU::control_data.actual_frequency = get_frequency_u();
-}
-
 
 
 void PWMActuators::set_duty_v(float duty_cycle)
@@ -88,12 +82,6 @@ void PWMActuators::set_duty_v(float duty_cycle)
     V_Dual->set_duty_cycle(duty_cycle);
     PCU::control_data.duty_cycle_v = get_duty_v();
 }
-void PWMActuators::set_frequency_v(uint32_t frequency)
-{
-    V_Dual->set_timer_frequency(frequency);
-    PCU::control_data.actual_frequency = get_frequency_v();
-}
-
 
 
 void PWMActuators::set_duty_w(float duty_cycle)
@@ -106,26 +94,12 @@ void PWMActuators::set_duty_w(float duty_cycle)
     W_Dual->set_duty_cycle(duty_cycle);
     PCU::control_data.duty_cycle_w = get_duty_w();
 }
-void PWMActuators::set_frequency_w(uint32_t frequency)
-{
-    W_Dual->set_timer_frequency(frequency);
-    PCU::control_data.actual_frequency = get_frequency_w();
-}
 
 
 
 void PWMActuators::set_three_frequencies(uint32_t frequency) 
 {
-    float previous_duty_cycle_u = get_duty_u();
-    float previous_duty_cycle_v = get_duty_v();
-    float previous_duty_cycle_w = get_duty_w();
     U_Dual->set_timer_frequency(frequency);
-    V_Dual->set_timer_frequency(frequency);
-    W_Dual->set_timer_frequency(frequency);
-    //Temporary fix for dual pwm problem:
-    U_Dual->set_duty_cycle(previous_duty_cycle_u);
-    V_Dual->set_duty_cycle(previous_duty_cycle_v);
-    W_Dual->set_duty_cycle(previous_duty_cycle_w);
-
+    PCU::control_data.pwm_active = PWM_ACTIVE::ACTIVE;
     PCU::control_data.actual_frequency = frequency;
 }

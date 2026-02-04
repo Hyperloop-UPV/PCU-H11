@@ -7,6 +7,8 @@ void PCU::start()
 {
     STLIB::start(PCU_MAC,PCU_IP,PCU_MASK); //POr cambiar a lo nuevo
     Comms::start();
+    CurrentControl::init();
+    SpeedControl::init();
 
 }
 
@@ -89,7 +91,7 @@ void PCU::update()
         CurrentSensors::zeroing();
     }
 
-    //Control updates:
+    // Control updates:
     if(flag_update_speed_control)
     {
         flag_update_speed_control=false;

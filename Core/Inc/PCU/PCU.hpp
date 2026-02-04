@@ -102,7 +102,7 @@ static inline constinit auto Operational_State_Machine = []() consteval
 
     sm.add_cyclic_action([]()
     {   
-        flag_execute_space_vector_control = true;
+        if(control_data.space_vector_active == SpaceVectorState::ACTIVE)flag_execute_space_vector_control = true;
         if(CurrentControl::is_running())flag_update_current_control = true;
     }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
 
@@ -114,6 +114,7 @@ static inline constinit auto Operational_State_Machine = []() consteval
         Actuators::enable_hall_supply();
         Actuators::enable_speedtec_supply(); //No se si poner esto en operational o aqui.
         #endif
+        
         Actuators::enable_buffer();
     }, nested_accelerating_state);
 

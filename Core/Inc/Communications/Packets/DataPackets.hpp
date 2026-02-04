@@ -109,27 +109,13 @@ public:
         
         Scheduler::register_task(16670, +[](){
             
-            if(DataPackets::pwm_packet){
-                DataPackets::control_station_udp->send_packet(*DataPackets::pwm_packet);
-            }
-            if(DataPackets::Batteries_Voltage){
-                DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage);
-            }
-            if(DataPackets::Current_sensors){
-                DataPackets::control_station_udp->send_packet(*DataPackets::Current_sensors);
-            }
-            if(DataPackets::StateMachine_states){
-                DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states);
-            }
-            if(DataPackets::Speetec_data){
-                DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data);
-            }
-            if(DataPackets::Speed_data){
-                DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data);
-            }
-            if(DataPackets::GateDriverReporting){
-                DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting);
-            }
+            DataPackets::control_station_udp->send_packet(*DataPackets::pwm_packet);
+            DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage);
+            DataPackets::control_station_udp->send_packet(*DataPackets::Current_sensors);
+            DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states);
+            DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data);
+            DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data);
+            DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting);
             
         });
     }
