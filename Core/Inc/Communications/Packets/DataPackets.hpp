@@ -65,38 +65,7 @@ public:
     {
         GateDriverReporting = new HeapPacket(static_cast<uint16_t>(558), &gd_fault_a, &gd_fault_b, &gd_ready_a, &gd_ready_b);
     }
-    private:
-
-    
-    
-    using FlagsType = uint32_t;
-    #define CTZ_FUNC __builtin_ctz
-    
-
-    inline static volatile FlagsType send_flags{0};
-
-    
-    static void send_task_0() {
-        
-        DataPackets::control_station_udp->send_packet(*DataPackets::pwm_packet);
-        DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage);
-        DataPackets::control_station_udp->send_packet(*DataPackets::Current_sensors);
-        DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states);
-        DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data);
-        DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data);
-        DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting);
-        
-    }
-    
-
-    using SendAction = void(*)();
-    static inline SendAction send_actions[] = {
-        
-        send_task_0,
-        
-    };
-
-public:
+    public:
     inline static HeapPacket *pwm_packet{nullptr};
     inline static HeapPacket *Batteries_Voltage{nullptr};
     inline static HeapPacket *Current_sensors{nullptr};
@@ -139,20 +108,32 @@ public:
         
         
         Scheduler::register_task(16670, +[](){
-            DataPackets::send_flags |= (static_cast<FlagsType>(1) << 0);
+            
+            if(DataPackets::pwm_packet){
+                DataPackets::control_station_udp->send_packet(*DataPackets::pwm_packet);
+            }
+            if(DataPackets::Batteries_Voltage){
+                DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage);
+            }
+            if(DataPackets::Current_sensors){
+                DataPackets::control_station_udp->send_packet(*DataPackets::Current_sensors);
+            }
+            if(DataPackets::StateMachine_states){
+                DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states);
+            }
+            if(DataPackets::Speetec_data){
+                DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data);
+            }
+            if(DataPackets::Speed_data){
+                DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data);
+            }
+            if(DataPackets::GateDriverReporting){
+                DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting);
+            }
+            
         });
     }
 
-    static void update()
-    {
-        while(DataPackets::send_flags) {
-            uint8_t index = CTZ_FUNC(DataPackets::send_flags);
-            DataPackets::send_flags &= ~(static_cast<FlagsType>(1) << index);
-            if (index < 1) {
-                DataPackets::send_actions[index]();
-            }
-        }
-    }
 
    
 };
