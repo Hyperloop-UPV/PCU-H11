@@ -3,7 +3,7 @@
 
 /*-------Flags-------*/
 #define PCU_H10 1        // 0 = PCU-H11, 1 = PCU-H10
-#define MODE_CALCULATE_SIN 1 //0 = Normal sin, 1 = Look Up table with direct interpolation
+#define MODE_CALCULATE_SIN 0 //0 = Normal sin, 1 = Look Up table with direct interpolation
 #define PPU_USING 1     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
 #define MOTOR_CENTER_ALIGNED 0 // 0 = Normal dualPWM, 1 = CenterAligned DualPWM
@@ -78,6 +78,24 @@ namespace Pinout{
     static constexpr Pin& Speetec_A = PF1;
     static constexpr Pin& Speetec_B = PF0;
 
+constexpr ST_LIB::TimerPin Encoder_Pin_A {
+    .af = ST_LIB::TimerAF::Encoder,
+    .pin = ST_LIB::PF1,
+    .channel = ST_LIB::TimerChannel::CHANNEL_2,
+};
+
+constexpr ST_LIB::TimerPin Encoder_Pin_B {
+    .af = ST_LIB::TimerAF::Encoder,
+    .pin = ST_LIB::PF0,
+    .channel = ST_LIB::TimerChannel::CHANNEL_1,
+};
+
+constexpr ST_LIB::TimerDomain::Timer tim_encoder_decl {
+    { .request = ST_LIB::TimerRequest::GeneralPurpose32bit_23 }, 
+    Encoder_Pin_A, 
+    Encoder_Pin_B
+};
+
     constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_A = {ST_LIB::PB6};
     constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_B = {ST_LIB::PE15};
     constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_A = {ST_LIB::PB5};
@@ -144,7 +162,7 @@ namespace Pinout
 
     inline constexpr ST_LIB::TimerDomain::Timer tim_decl{{
     .request = ST_LIB::TimerRequest::Advanced_1,
-    }, U_PWM_pin, U_PWM_negated_pin};
+    }, U_PWM_pin, U_PWM_negated_pin, V_PWM_pin, V_PWM_negated_pin, W_PWM_pin, W_PWM_negated_pin};
 
 
 

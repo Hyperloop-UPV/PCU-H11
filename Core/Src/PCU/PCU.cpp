@@ -31,8 +31,8 @@ void PCU::update()
         OrderPackets::Stop_Motor_flag=false;
         stop_motors();
     }
-    current_state_pcu = PCU_State_Machine.current_state;
-    current_operational_state_pcu = Operational_State_Machine.current_state;
+    current_state_pcu = PCU_State_Machine.get_current_state();
+    current_operational_state_pcu = Operational_State_Machine.get_current_state();
     
     if(OrderPackets::Start_SVPWM_flag == true)
     {
@@ -54,7 +54,7 @@ void PCU::update()
         OrderPackets::Send_Reference_Current_flag = false;
         SpeedControl::reset_PI();
         SpaceVector::set_VMAX(237); //Ni idea por que hacen esto
-        CurrentControl::set_current_ref(62.5f);
+        CurrentControl::set_current_ref(62.5f); //Vale hay que quitar esto, que está harcodeado
         PWMActuators::set_three_frequencies(20000);
         SpaceVector::set_frequency_Modulation(8.3);
 

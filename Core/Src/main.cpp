@@ -8,11 +8,14 @@
 int main(void) { 
   Hard_fault_check();
   #if PCU_H10 == 1
-  using myBoard = ST_LIB::Board<Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+  using myBoard = ST_LIB::Board<Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                                Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B>;
-  
+    // using myBoard = ST_LIB::Board<Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+                              //  Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
+                              //  Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
+                              //  Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B>;
   #else
   using myBoard = ST_LIB::Board<Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational, Pinout::led_accelerating, Pinout::led_braking,
@@ -66,6 +69,13 @@ int main(void) {
   ST_LIB::DualPWM<Pinout::tim_decl,Pinout::V_PWM_pin,Pinout::V_PWM_negated_pin> pwm_v= timer.get_dual_pwm<Pinout::V_PWM_pin, Pinout::V_PWM_negated_pin>();
   ST_LIB::DualPWM<Pinout::tim_decl,Pinout::W_PWM_pin,Pinout::W_PWM_negated_pin> pwm_w= timer.get_dual_pwm<Pinout::W_PWM_pin, Pinout::W_PWM_negated_pin>();
   PWMActuators::init(pwm_u, pwm_v, pwm_w);
+
+  // auto timer = get_timer_instance(myBoard, Pinout::tim_encoder_decl);
+    
+  // [[maybe_unused]] ST_LIB::Encoder<Pinout::tim_encoder_decl, Pinout::Encoder_Pin_A, Pinout::Encoder_Pin_B> my_encoder = 
+  //       timer.get_encoder<Pinout::Encoder_Pin_A, Pinout::Encoder_Pin_B>();
+
+  // auto timer2 = get_timer_instance(myBoard, Pinout::tim_encoder_decl);
   
   Sensors::init(fault_inverter_a, fault_inverter_b,
                 ready_inverter_a, ready_inverter_b);
@@ -81,6 +91,7 @@ int main(void) {
   CurrentSensors::init();
   VoltageSensors::init();
   Scheduler::start();
+
 
   while (1) {
     PCU::update();

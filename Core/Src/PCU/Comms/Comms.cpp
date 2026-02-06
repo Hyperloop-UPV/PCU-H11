@@ -78,8 +78,9 @@ void Comms::start()
     OrderPackets::Start_SVPWM_init(
         frequency_space_vector_received,
         frequency_received,
-        Vmax_control_received,
+        ref_voltage_space_vector_received,
         Vmax_control_received
+        
     );
 
     OrderPackets::Zeroing_init();
