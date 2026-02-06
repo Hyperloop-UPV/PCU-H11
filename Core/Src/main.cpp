@@ -1,11 +1,10 @@
 #include "Examples/ExampleMPU.cpp"
 #include "Examples/ExamplesHardFault.cpp"
 
-#include "main.h"
 #include "ST-LIB.hpp"
 #include "PCU/PCU.hpp"
 
-int main(void) { 
+int main(void) {
   Hard_fault_check();
   #if PCU_H10 == 1
   using myBoard = ST_LIB::Board<Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
@@ -93,6 +92,7 @@ int main(void) {
   Scheduler::start();
 
 
+  led_instance->turn_on();
   while (1) {
     PCU::update();
     Scheduler::update();
@@ -100,7 +100,7 @@ int main(void) {
   }
 }
 void Error_Handler(void) {
-    ErrorHandler("HAL error handler triggered");
-    while (1) {
-    }
+  ErrorHandler("HAL error handler triggered");
+  while (1) {
+  }
 }
