@@ -41,7 +41,7 @@ void Comms::start()
     DataPackets::Speetec_data_init(
         PCU::control_data.position_encoder,
         PCU::control_data.established_direction,
-        Speetec::speed_encoder,
+        PCU::control_data.speed_encoder,
         PCU::control_data.speed_km_h_encoder,
         Speetec::acceleration_encoder
     );

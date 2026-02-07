@@ -19,37 +19,37 @@ public:
 
     OrderPackets() = default;
 
-    inline static HeapOrder *Start_SVPWM{nullptr};
-    inline static HeapOrder *Stop_Motor{nullptr};
-    inline static HeapOrder *Send_Reference_Current{nullptr};
-    inline static HeapOrder *Zeroing{nullptr};
-    inline static HeapOrder *Reset_Bypass{nullptr};
-    inline static HeapOrder *Send_Reference_Speed{nullptr};
+    inline static HeapOrder *Start_SVPWM_order{nullptr};
+    inline static HeapOrder *Stop_Motor_order{nullptr};
+    inline static HeapOrder *Send_Reference_Current_order{nullptr};
+    inline static HeapOrder *Zeroing_order{nullptr};
+    inline static HeapOrder *Reset_Bypass_order{nullptr};
+    inline static HeapOrder *Send_Reference_Speed_order{nullptr};
     
     
     static void Start_SVPWM_init(float &frequency_to_send_svpwm, float &frequency_to_send_PWM, float &V_Ref, float &VMax)
     {
-        Start_SVPWM = new HeapOrder(507, &Start_SVPWM_cb, &frequency_to_send_svpwm, &frequency_to_send_PWM, &V_Ref, &VMax);
+        Start_SVPWM_order = new HeapOrder(507, &Start_SVPWM_cb, &frequency_to_send_svpwm, &frequency_to_send_PWM, &V_Ref, &VMax);
     }
     static void Stop_Motor_init()
     {
-        Stop_Motor = new HeapOrder(508, &Stop_Motor_cb);
+        Stop_Motor_order = new HeapOrder(508, &Stop_Motor_cb);
     }
     static void Send_Reference_Current_init(float &freq_to_send_svpwm, float &freq_to_send_PWM, float &Current_Ref, float &VMax)
     {
-        Send_Reference_Current = new HeapOrder(509, &Send_Reference_Current_cb, &freq_to_send_svpwm, &freq_to_send_PWM, &Current_Ref, &VMax);
+        Send_Reference_Current_order = new HeapOrder(509, &Send_Reference_Current_cb, &freq_to_send_svpwm, &freq_to_send_PWM, &Current_Ref, &VMax);
     }
     static void Zeroing_init()
     {
-        Zeroing = new HeapOrder(510, &Zeroing_cb);
+        Zeroing_order = new HeapOrder(510, &Zeroing_cb);
     }
     static void Reset_Bypass_init(bool &reset_bypass)
     {
-        Reset_Bypass = new HeapOrder(513, &Reset_Bypass_cb, &reset_bypass);
+        Reset_Bypass_order = new HeapOrder(513, &Reset_Bypass_cb, &reset_bypass);
     }
     static void Send_Reference_Speed_init(float &Speed_Ref, float &freq_to_send_PWM, float &VMax)
     {
-        Send_Reference_Speed = new HeapOrder(511, &Send_Reference_Speed_cb, &Speed_Ref, &freq_to_send_PWM, &VMax);
+        Send_Reference_Speed_order = new HeapOrder(511, &Send_Reference_Speed_cb, &Speed_Ref, &freq_to_send_PWM, &VMax);
     }
     
 

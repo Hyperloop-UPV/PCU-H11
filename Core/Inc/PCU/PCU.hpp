@@ -25,6 +25,8 @@ class PCU
     inline static bool flag_update_speed_control{false};
     inline static bool flag_update_current_control{false};
     inline static bool flag_execute_space_vector_control{false};
+    inline static bool flag_sensors_update{false};
+
 
     inline static States_PCU current_state_pcu{States_PCU::Connecting};
     inline static Operational_States_PCU current_operational_state_pcu{Operational_States_PCU::IDLE};
@@ -37,6 +39,7 @@ class PCU
     static void stop_motors();
     static void start_precharge();
     static void motor_brake();
+    
     public:
 
 
@@ -106,13 +109,12 @@ static inline constinit auto Operational_State_Machine = []() consteval
         if(CurrentControl::is_running())flag_update_current_control = true;
     }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
 
+
     
     sm.add_enter_action([]()
     {
         #if PCU_H10 == 0
         Actuators::set_led_accelerating(true);
-        Actuators::enable_hall_supply();
-        Actuators::enable_speedtec_supply(); //No se si poner esto en operational o aqui.
         #endif
         
         Actuators::enable_buffer();
@@ -123,8 +125,6 @@ static inline constinit auto Operational_State_Machine = []() consteval
         #if PCU_H10 == 0
         Actuators::set_led_braking(true);
         Actuators::set_led_accelerating(false);
-        // Actuators::disable_hall_supply();
-        // Actuators::disable_speedtec_supply();
         #endif
         PWMActuators::stop();
         Actuators::disable_buffer();
@@ -157,6 +157,11 @@ static inline constinit auto PCU_State_Machine = []() consteval
         Actuators::set_led_operational(true);
         Actuators::set_led_fault(true);
     }, operational_state);
+
+    sm.add_cyclic_action([]()
+    {
+        flag_sensors_update = true;
+    }, ms(1),operational_state);
 
     sm.add_exit_action([]()
     {

@@ -2,21 +2,42 @@
 #include "Examples/ExamplesHardFault.cpp"
 
 #include "ST-LIB.hpp"
+#include "main.h"
 #include "PCU/PCU.hpp"
 
+using ST_LIB::EthernetDomain;
+
+#if defined(USE_PHY_LAN8742)
+constexpr auto eth =
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "00:80:e1:55:01:07",
+                             "192.168.1.5", "255.255.0.0");
+#elif defined(USE_PHY_LAN8700)
+constexpr auto eth =
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "00:80:e1:55:01:07",
+                             "192.168.1.5", "255.255.0.0");
+#elif defined(USE_PHY_KSZ8041)
+constexpr auto eth =
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "00:80:e1:55:01:07",
+                             "192.168.1.5", "255.255.0.0");
+#else
+#error "Ethernet PHY not defined"
+
+#endif
+
 int main(void) {
+
   Hard_fault_check();
   #if PCU_H10 == 1
-  using myBoard = ST_LIB::Board<Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+  using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                                Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B>;
-    // using myBoard = ST_LIB::Board<Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+    // using myBoard = ST_LIB::Board<eth,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                               //  Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
                               //  Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                               //  Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B>;
   #else
-  using myBoard = ST_LIB::Board<Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+  using myBoard = ST_LIB::Board<eth,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational, Pinout::led_accelerating, Pinout::led_braking,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                                Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B,
@@ -69,34 +90,31 @@ int main(void) {
   ST_LIB::DualPWM<Pinout::tim_decl,Pinout::W_PWM_pin,Pinout::W_PWM_negated_pin> pwm_w= timer.get_dual_pwm<Pinout::W_PWM_pin, Pinout::W_PWM_negated_pin>();
   PWMActuators::init(pwm_u, pwm_v, pwm_w);
 
-  // auto timer = get_timer_instance(myBoard, Pinout::tim_encoder_decl);
+  auto timer2 = get_timer_instance(myBoard, Pinout::tim_encoder_decl);
     
-  // [[maybe_unused]] ST_LIB::Encoder<Pinout::tim_encoder_decl, Pinout::Encoder_Pin_A, Pinout::Encoder_Pin_B> my_encoder = 
-  //       timer.get_encoder<Pinout::Encoder_Pin_A, Pinout::Encoder_Pin_B>();
+  ST_LIB::Encoder<Pinout::tim_encoder_decl> encoder = 
+        timer2.get_encoder();
 
-  // auto timer2 = get_timer_instance(myBoard, Pinout::tim_encoder_decl);
+  Speetec::init(&encoder);
+
   
   Sensors::init(fault_inverter_a, fault_inverter_b,
                 ready_inverter_a, ready_inverter_b);
 
-  //  #if PWM_TEST_MODE == 1
-  //    PWMActuators::set_three_frequencies(3000);
-  //   PWMActuators::set_duty_u(50.0f);
-  //   PWMActuators::set_duty_v(50.0f);
-  //   PWMActuators::set_duty_w(50.0f);
-  //   while(1);
-  //   #endif
+
+  auto eth_instance = &myBoard::instance_of<eth>();
   PCU::start();
   CurrentSensors::init();
   VoltageSensors::init();
   Scheduler::start();
 
 
-  led_instance->turn_on();
   while (1) {
     PCU::update();
     Scheduler::update();
     STLIB::update();
+    eth_instance->update();
+
   }
 }
 void Error_Handler(void) {

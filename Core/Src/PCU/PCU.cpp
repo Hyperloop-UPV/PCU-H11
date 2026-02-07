@@ -9,6 +9,10 @@ void PCU::start()
     Comms::start();
     CurrentControl::init();
     SpeedControl::init();
+    #if PCU_H10 == 0
+    Actuators::enable_hall_supply();
+    Actuators::enable_speedtec_supply();
+    #endif
 
 }
 
@@ -25,6 +29,11 @@ void PCU::stop_motors()
 void PCU::update()
 {
     PCU_State_Machine.check_transitions();
+
+    if(current_state_pcu == States_PCU::Fault)
+    {
+        return;
+    }
 
     if(OrderPackets::Stop_Motor_flag == true)
     {
@@ -52,13 +61,14 @@ void PCU::update()
     if(OrderPackets::Send_Reference_Current_flag == true)
     {
         OrderPackets::Send_Reference_Current_flag = false;
-        SpeedControl::reset_PI();
-        SpaceVector::set_VMAX(237); //Ni idea por que hacen esto
-        CurrentControl::set_current_ref(62.5f); //Vale hay que quitar esto, que está harcodeado
-        PWMActuators::set_three_frequencies(20000);
-        SpaceVector::set_frequency_Modulation(8.3);
-
         control_data.space_vector_active = SpaceVectorState::ACTIVE;
+        SpeedControl::reset_PI();
+        CurrentControl::reset_PI();
+        SpaceVector::set_VMAX(Comms::Vmax_control_received);
+        CurrentControl::set_current_ref(Comms::current_reference_received);
+        PWMActuators::set_three_frequencies(Comms::frequency_received);
+        SpaceVector::set_frequency_Modulation(Comms::frequency_space_vector_received);
+
         SpeedControl::stop();
         CurrentControl::start();
     }
@@ -66,11 +76,12 @@ void PCU::update()
     if(OrderPackets::Send_Reference_Speed_flag==true)
     {
         OrderPackets::Send_Reference_Speed_flag=false;
+        control_data.space_vector_active = SpaceVectorState::ACTIVE;
         SpeedControl::reset_PI();
+        CurrentControl::reset_PI();
         SpeedControl::set_reference_speed(Comms::speed_reference_received);
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
-        control_data.space_vector_active = SpaceVectorState::ACTIVE;
         CurrentControl::start();
         SpeedControl::start();
 
@@ -89,6 +100,16 @@ void PCU::update()
     {
         OrderPackets::Zeroing_flag=false;
         CurrentSensors::zeroing();
+    }
+
+    if(flag_sensors_update)
+    {
+        flag_sensors_update=false;
+        Sensors::read();
+        VoltageSensors::read();
+        CurrentSensors::read();
+        Speetec::read();
+
     }
 
     // Control updates:

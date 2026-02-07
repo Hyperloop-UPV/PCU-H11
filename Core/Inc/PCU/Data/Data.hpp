@@ -8,7 +8,6 @@
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
 #define MOTOR_CENTER_ALIGNED 0 // 0 = Normal dualPWM, 1 = CenterAligned DualPWM
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
-#define PWM_TEST_MODE 1 // 0 = Normal mode, 1 = PWM test mode
 
 using ST_LIB::DigitalInputDomain;
 using ST_LIB::DigitalOutputDomain;
@@ -90,7 +89,7 @@ constexpr ST_LIB::TimerPin Encoder_Pin_B {
     .channel = ST_LIB::TimerChannel::CHANNEL_1,
 };
 
-constexpr ST_LIB::TimerDomain::Timer tim_encoder_decl {
+inline constexpr ST_LIB::TimerDomain::Timer tim_encoder_decl {
     { .request = ST_LIB::TimerRequest::GeneralPurpose32bit_23 }, 
     Encoder_Pin_A, 
     Encoder_Pin_B
@@ -245,7 +244,7 @@ namespace Sensors_data
 
     static constexpr uint32_t read_sensors_us = 200; //This speed allows maximum precision with speetec.
     static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; // this has to be the same frequency that the read is done
-    static constexpr double encoder_counter_distance_m = 0.004; // mm
+    static constexpr double encoder_counter_distance_m = 0.0001; // mm
     static constexpr size_t  encoder_samples = 250;
 };
 
@@ -287,6 +286,7 @@ struct Control_Data
     double speed_km_h_encoder{0.0f};
     
     double position_encoder{0.0f}; 
+    double speed_encoder{0.0f};
 
     EncoderDirection established_direction{EncoderDirection::Forward};
     SpeedControlState speed_control_active{false};
