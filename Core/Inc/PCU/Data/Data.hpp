@@ -2,7 +2,7 @@
 #include "ST-LIB.hpp"
 
 /*-------Flags-------*/
-#define PCU_H10 1        // 0 = PCU-H11, 1 = PCU-H10
+#define PCU_H10 0        // 0 = PCU-H11, 1 = PCU-H10
 #define MODE_CALCULATE_SIN 0 //0 = Normal sin, 1 = Look Up table with direct interpolation
 #define PPU_USING 1     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
@@ -166,19 +166,28 @@ namespace Pinout
 
 
     /*------Encoder------*/
-    static constexpr Pin& Speetec_A = PF1;
-    static constexpr Pin& Speetec_A_outPhase = PF0;
-    static constexpr Pin& Speetec_B = PF9;
-    static constexpr Pin& Speetec_B_outPhase = PF2;
+    // static constexpr Pin& Speetec_A = PF1;
+    // static constexpr Pin& Speetec_A_outPhase = PF0;
+    // static constexpr Pin& Speetec_B = PF9;
+    // static constexpr Pin& Speetec_B_outPhase = PF2;
+    constexpr ST_LIB::TimerPin Encoder_Pin_A {
+    .af = ST_LIB::TimerAF::Encoder,
+    .pin = ST_LIB::PF1,
+    .channel = ST_LIB::TimerChannel::CHANNEL_2,
+    };
 
-    // static constexpr ST_LIB::TimerDomain::Timer encoder_timer{
-    // ST_LIB::TimerRequest::GeneralPurpose32bit_23, 
-    // {'e', 'n', 'c', 'o', 'd', 'e', 'r', '\0'},    
-    // ST_LIB::TimerPin{ST_LIB::TimerAF::Encoder, ST_LIB::PF1, ST_LIB::TimerChannel::CHANNEL_2},
-    // ST_LIB::TimerPin{ST_LIB::TimerAF::Encoder, ST_LIB::PF9, ST_LIB::TimerChannel::CHANNEL_4}
-    // };
-    // static constexpr Pin& Speetec_C = PE6;
-    // static constexpr Pin& Speetec_C_outPhase = PE5;
+    constexpr ST_LIB::TimerPin Encoder_Pin_B {
+    .af = ST_LIB::TimerAF::Encoder,
+    .pin = ST_LIB::PF9,
+    .channel = ST_LIB::TimerChannel::CHANNEL_1,
+    };
+
+    inline constexpr ST_LIB::TimerDomain::Timer tim_encoder_decl {
+    { .request = ST_LIB::TimerRequest::GeneralPurpose32bit_23 }, 
+    Encoder_Pin_A, 
+    Encoder_Pin_B
+    };
+
 
     /*------Voltage Battery------*/
     static constexpr Pin& Voltage_Battery_A = PF3;

@@ -112,8 +112,8 @@ int main(void) {
   while (1) {
     PCU::update();
     Scheduler::update();
-    STLIB::update();
     eth_instance->update();
+    STLIB::update();
 
   }
 }
