@@ -48,7 +48,7 @@ class PCU
 static constexpr auto connecting_state = make_state(States_PCU::Connecting,
     Transition<States_PCU>{States_PCU::Operational,[]()
     {
-        return DataPackets::control_station_tcp->is_connected();
+        return OrderPackets::control_station_tcp->is_connected();
     }},
     Transition<States_PCU>{States_PCU::Fault,[]()
     {
@@ -59,7 +59,7 @@ static constexpr auto connecting_state = make_state(States_PCU::Connecting,
 static constexpr auto operational_state = make_state(States_PCU::Operational,
     Transition<States_PCU>{States_PCU::Fault,[]()
     {
-        return !DataPackets::control_station_tcp->is_connected() || (VoltageSensors::actual_voltage_battery_a > Protecction_Voltage) || (VoltageSensors::actual_voltage_battery_b > Protecction_Voltage);
+        return !OrderPackets::control_station_tcp->is_connected() || (VoltageSensors::actual_voltage_battery_a > Protecction_Voltage) || (VoltageSensors::actual_voltage_battery_b > Protecction_Voltage);
     }}
 );
 

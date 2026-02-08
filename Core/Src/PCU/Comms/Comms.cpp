@@ -86,5 +86,7 @@ void Comms::start()
     OrderPackets::Zeroing_init();
     OrderPackets::Stop_Motor_init();
 
+    OrderPackets::start();
+
 }
 

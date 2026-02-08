@@ -53,6 +53,36 @@ public:
     }
     
 
+    
+    inline static ServerSocket *control_station_tcp{nullptr};
+    
+
+    static void start()
+    {
+        if (Start_SVPWM_order == nullptr) {
+            ErrorHandler("Order Start_SVPWM not initialized");
+        }
+        if (Stop_Motor_order == nullptr) {
+            ErrorHandler("Order Stop_Motor not initialized");
+        }
+        if (Send_Reference_Current_order == nullptr) {
+            ErrorHandler("Order Send_Reference_Current not initialized");
+        }
+        if (Zeroing_order == nullptr) {
+            ErrorHandler("Order Zeroing not initialized");
+        }
+        if (Reset_Bypass_order == nullptr) {
+            ErrorHandler("Order Reset_Bypass not initialized");
+        }
+        if (Send_Reference_Speed_order == nullptr) {
+            ErrorHandler("Order Send_Reference_Speed not initialized");
+        }
+        
+
+        control_station_tcp = new ServerSocket("192.168.1.5",50500);
+        
+    }
+
 private:
     static void Start_SVPWM_cb()
     {

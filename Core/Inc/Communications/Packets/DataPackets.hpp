@@ -82,7 +82,6 @@ public:
     inline static HeapPacket *Speed_data_packet{nullptr};
     inline static HeapPacket *GateDriverReporting_packet{nullptr};
     
-    inline static ServerSocket *control_station_tcp{nullptr};
     inline static DatagramSocket *control_station_udp{nullptr};
     
         
@@ -111,12 +110,9 @@ public:
         }
         
 
-        control_station_tcp = new ServerSocket("192.168.1.5",50500);
         control_station_udp = new DatagramSocket("192.168.1.5",50400,"192.168.0.9",50400);
         
-        
         Scheduler::register_task(16670, +[](){
-            
             DataPackets::control_station_udp->send_packet(*DataPackets::pwm_packet_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Current_sensors_packet);
@@ -124,8 +120,7 @@ public:
             DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting_packet);
-            
-        });
+            });
     }
 
 
