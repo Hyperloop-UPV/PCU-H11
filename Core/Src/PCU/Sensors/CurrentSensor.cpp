@@ -2,14 +2,15 @@
 
 #define TIMES_TO_CREATE_ZERO 1000
 
-void CurrentSensors::init()
+void CurrentSensors::init(ST_LIB::ADCDomain::Instance& Sensor_U_A,ST_LIB::ADCDomain::Instance& Sensor_U_B,ST_LIB::ADCDomain::Instance& Sensor_V_A,
+    ST_LIB::ADCDomain::Instance& Sensor_V_B,ST_LIB::ADCDomain::Instance& Sensor_W_A,ST_LIB::ADCDomain::Instance& Sensor_W_B)
 {
-    sensor_u_a = new LinearSensor<float>{Pinout::Current_sensor_U_A,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&actual_current_sensor_u_a};
-    sensor_u_b = new LinearSensor<float>{Pinout::Current_sensor_U_B,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&actual_current_sensor_u_b};
-    sensor_v_a = new LinearSensor<float>{Pinout::Current_sensor_V_A,Sensors_data::slope_current_sensor_inverted,Sensors_data::offset_current_sensor_inverted,&actual_current_sensor_v_a};
-    sensor_v_b = new LinearSensor<float>{Pinout::Current_sensor_V_B,Sensors_data::slope_current_sensor_inverted,Sensors_data::offset_current_sensor_inverted,&actual_current_sensor_v_b};
-    sensor_w_a = new LinearSensor<float>{Pinout::Current_sensor_W_A,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&actual_current_sensor_w_a};
-    sensor_w_b = new LinearSensor<float>{Pinout::Current_sensor_W_B,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&actual_current_sensor_w_b};
+    sensor_u_a = new LinearSensor<float>{Sensor_U_A,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&actual_current_sensor_u_a};
+    sensor_u_b = new LinearSensor<float>{Sensor_U_B,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&actual_current_sensor_u_b};
+    sensor_v_a = new LinearSensor<float>{Sensor_V_A,Sensors_data::slope_current_sensor_inverted,Sensors_data::offset_current_sensor_inverted,&actual_current_sensor_v_a};
+    sensor_v_b = new LinearSensor<float>{Sensor_V_B,Sensors_data::slope_current_sensor_inverted,Sensors_data::offset_current_sensor_inverted,&actual_current_sensor_v_b};
+    sensor_w_a = new LinearSensor<float>{Sensor_W_A,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&actual_current_sensor_w_a};
+    sensor_w_b = new LinearSensor<float>{Sensor_W_B,Sensors_data::slope_current_sensor,Sensors_data::offset_current_sensor,&actual_current_sensor_w_b};
 }
 
 void CurrentSensors::read()

@@ -17,16 +17,17 @@ class VoltageSensors{
     
     VoltageSensors()=default;
 
-    static void init()
+    static void init(ST_LIB::ADCDomain::Instance &SensorA,ST_LIB::ADCDomain::Instance& SensorB)
     {
-        sensor_battery_a = new FilteredLinearSensor<float,50>{Pinout::Voltage_Battery_A,Sensors_data::slope_voltage_sensor,Sensors_data::offset_voltage_sensor,&actual_voltage_battery_a,filter_voltage_A};
-        sensor_battery_b = new FilteredLinearSensor<float,50>{Pinout::Voltage_Battery_B,Sensors_data::slope_voltage_sensor,Sensors_data::offset_voltage_sensor,&actual_voltage_battery_b,filter_voltage_B};
+
+        sensor_battery_a = new FilteredLinearSensor<float,50>{SensorA,Sensors_data::slope_voltage_sensor,Sensors_data::offset_voltage_sensor,&actual_voltage_battery_a,filter_voltage_A};
+        sensor_battery_b = new FilteredLinearSensor<float,50>{SensorB,Sensors_data::slope_voltage_sensor,Sensors_data::offset_voltage_sensor,&actual_voltage_battery_b,filter_voltage_B};
     };
 
     static void read()
     {
         sensor_battery_a->read();
-        sensor_battery_b->read();    
+        sensor_battery_b->read(); 
     };
 
 };

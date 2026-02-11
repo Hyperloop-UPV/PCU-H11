@@ -5,7 +5,7 @@ static const string PCU_MASK= "255.255.0.0";
 
 void PCU::start()
 {
-    STLIB::start(PCU_MAC,PCU_IP,PCU_MASK); //POr cambiar a lo nuevo
+    // STLIB::start(PCU_MAC,PCU_IP,PCU_MASK); //POr cambiar a lo nuevo
     Comms::start();
     CurrentControl::init();
     SpeedControl::init();

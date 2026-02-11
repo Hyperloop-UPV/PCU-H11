@@ -31,11 +31,12 @@ int main(void) {
   using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
-                               Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B>;
-    // using myBoard = ST_LIB::Board<eth,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
-                              //  Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
-                              //  Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
-                              //  Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B>;
+                               Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B,
+                               Pinout::Voltage_Battery_A,Pinout::Voltage_Battery_B,
+                               Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
+                               Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
+                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B>;
+
   #else
   using myBoard = ST_LIB::Board<eth,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational, Pinout::led_accelerating, Pinout::led_braking,
@@ -57,6 +58,16 @@ int main(void) {
 
   auto& reset_bypass = myBoard::instance_of<Pinout::Reset_bypass>();
   auto& buff_enable = myBoard::instance_of<Pinout::Buff_enable>();
+
+  auto& Voltage_A = myBoard::instance_of<Pinout::Voltage_Battery_A>();
+  auto& Voltage_B = myBoard::instance_of<Pinout::Voltage_Battery_B>();
+
+  auto& current_sensor_u_a = myBoard::instance_of<Pinout::Current_sensor_U_A>();
+  auto& current_sensor_u_b = myBoard::instance_of<Pinout::Current_sensor_U_B>();
+  auto& current_sensor_v_a = myBoard::instance_of<Pinout::Current_sensor_V_A>();
+  auto& current_sensor_v_b = myBoard::instance_of<Pinout::Current_sensor_V_B>();
+  auto& current_sensor_w_a = myBoard::instance_of<Pinout::Current_sensor_W_A>();
+  auto& current_sensor_w_b = myBoard::instance_of<Pinout::Current_sensor_W_B>();
 
   Actuators::init(buff_enable, reset_bypass,
                   led_connecting, led_fault, led_operational);
@@ -97,6 +108,11 @@ int main(void) {
 
   Speetec::init(&encoder);
 
+  CurrentSensors::init(current_sensor_u_a, current_sensor_u_b,
+                       current_sensor_v_a, current_sensor_v_b,
+                       current_sensor_w_a, current_sensor_w_b);
+  VoltageSensors::init(Voltage_A, Voltage_B);
+
   
   Sensors::init(fault_inverter_a, fault_inverter_b,
                 ready_inverter_a, ready_inverter_b);
@@ -104,8 +120,6 @@ int main(void) {
 
   auto eth_instance = &myBoard::instance_of<eth>();
   PCU::start();
-  CurrentSensors::init();
-  VoltageSensors::init();
   Scheduler::start();
 
 
@@ -113,7 +127,7 @@ int main(void) {
     PCU::update();
     Scheduler::update();
     eth_instance->update();
-    STLIB::update();
+    // STLIB::update();
 
   }
 }

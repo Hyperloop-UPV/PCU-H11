@@ -16,7 +16,7 @@
 #include "PCU/Comms/Comms.hpp"
 
 #define MODULATION_FREQUENCY_DEFAULT 10
-#define Protecction_Voltage 325.0f 
+#define Protecction_Voltage 410.0f 
 class PCU
 {
     public:
@@ -159,7 +159,7 @@ static inline constinit auto PCU_State_Machine = []() consteval
     {
         Actuators::set_led_connecting(false);
         Actuators::set_led_operational(true);
-        Actuators::set_led_fault(true);
+        Actuators::set_led_fault(false);
     }, operational_state);
 
     sm.add_cyclic_action([]()

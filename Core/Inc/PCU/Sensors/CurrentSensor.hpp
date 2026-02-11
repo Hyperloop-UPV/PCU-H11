@@ -27,7 +27,8 @@ class CurrentSensors{
     public:
 
     CurrentSensors()=default;
-    static void init();
+    static void init(ST_LIB::ADCDomain::Instance& Sensor_U_A,ST_LIB::ADCDomain::Instance& Sensor_U_B,ST_LIB::ADCDomain::Instance& Sensor_V_A,
+    ST_LIB::ADCDomain::Instance& Sensor_V_B,ST_LIB::ADCDomain::Instance& Sensor_W_A,ST_LIB::ADCDomain::Instance& Sensor_W_B);
     static void read();
     static void zeroing();
 

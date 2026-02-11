@@ -12,6 +12,7 @@
 using ST_LIB::DigitalInputDomain;
 using ST_LIB::DigitalOutputDomain;
 using ST_LIB::TimerDomain;
+using ST_LIB::ADCDomain;
 
 #if PCU_H10 == 1
 namespace Pinout{
@@ -60,19 +61,43 @@ namespace Pinout{
     constexpr DigitalOutputDomain::DigitalOutput Buff_enable{ST_LIB::PF4}; 
     constexpr DigitalOutputDomain::DigitalOutput Reset_bypass{ST_LIB::PB7};
 
-    static constexpr Pin& Voltage_Battery_A = PF3;
-    static constexpr Pin& Voltage_Battery_B = PF5;
+
+    inline constinit float raw_value_Voltage_Battery_A{0.0f};
+    constexpr auto Voltage_Battery_A = ADCDomain::ADC(ST_LIB::PF3, raw_value_Voltage_Battery_A, ADCDomain::Resolution::BITS_12,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Voltage_Battery_B{0.0f};
+    constexpr auto Voltage_Battery_B = ADCDomain::ADC(ST_LIB::PF5, raw_value_Voltage_Battery_B, ADCDomain::Resolution::BITS_12,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
 
     constexpr DigitalOutputDomain::DigitalOutput led_connecting{ST_LIB::PG6};
     constexpr DigitalOutputDomain::DigitalOutput led_fault = {ST_LIB::PG7};
     constexpr DigitalOutputDomain::DigitalOutput led_operational = {ST_LIB::PG8};
     //current sensors
-    static constexpr Pin& Current_sensor_U_A = PA0;
-    static constexpr Pin& Current_sensor_U_B = PA6;
-    static constexpr Pin& Current_sensor_V_A = PA4;
-    static constexpr Pin& Current_sensor_V_B = PB0;
-    static constexpr Pin& Current_sensor_W_A = PA5;
-    static constexpr Pin& Current_sensor_W_B = PB1;
+
+    inline constinit float raw_value_Current_U_A{0.0f};
+    constexpr auto Current_sensor_U_A = ADCDomain::ADC(ST_LIB::PA0, raw_value_Current_U_A, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_U_B{0.0f};
+    constexpr auto Current_sensor_U_B = ADCDomain::ADC(ST_LIB::PA6, raw_value_Current_U_B, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_V_A{0.0f};
+    constexpr auto Current_sensor_V_A = ADCDomain::ADC(ST_LIB::PA4, raw_value_Current_V_A, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_V_B{0.0f};
+    constexpr auto Current_sensor_V_B = ADCDomain::ADC(ST_LIB::PB0, raw_value_Current_V_B, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_W_A{0.0f};
+    constexpr auto Current_sensor_W_A = ADCDomain::ADC(ST_LIB::PA5, raw_value_Current_W_A, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_W_B{0.0f};
+    constexpr auto Current_sensor_W_B = ADCDomain::ADC(ST_LIB::PB1, raw_value_Current_W_B, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
     //Speetec
     static constexpr Pin& Speetec_A = PF1;
     static constexpr Pin& Speetec_B = PF0;
@@ -242,14 +267,15 @@ namespace Speed_Control_Data
 
 namespace Sensors_data
 {
-    constexpr static float slope_current_sensor{96.206615f};
-    constexpr static float offset_current_sensor{-159.5747f};
+    constexpr static float slope_current_sensor{192.723f};
 
-    constexpr static float slope_current_sensor_inverted{-97.134615384615700f};
-    constexpr static float offset_current_sensor_inverted{160.660653846154000f};
+    constexpr static float offset_current_sensor{-116.376f};
+
+    constexpr static float slope_current_sensor_inverted{-192.723f};
+    constexpr static float offset_current_sensor_inverted{116.376f};
     
-    static constexpr float slope_voltage_sensor = 133.31627;
-    static constexpr float offset_voltage_sensor = -9.24655;
+    static constexpr float slope_voltage_sensor = 135.7f;
+    static constexpr float offset_voltage_sensor = -15.329f;
 
     static constexpr uint32_t read_sensors_us = 200; //This speed allows maximum precision with speetec.
     static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; // this has to be the same frequency that the read is done
