@@ -115,6 +115,8 @@ static inline constinit auto Operational_State_Machine = []() consteval
     {
         #if PCU_H10 == 0
         Actuators::set_led_accelerating(true);
+        #else
+        Actuators::enable_reset_bypass();
         #endif
         
         Actuators::enable_buffer();
@@ -125,6 +127,8 @@ static inline constinit auto Operational_State_Machine = []() consteval
         #if PCU_H10 == 0
         Actuators::set_led_braking(true);
         Actuators::set_led_accelerating(false);
+        #else
+        Actuators::disable_reset_bypass();
         #endif
         PWMActuators::stop();
         Actuators::disable_buffer();
