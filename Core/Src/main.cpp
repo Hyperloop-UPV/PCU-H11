@@ -6,6 +6,7 @@
 #include "PCU/PCU.hpp"
 
 using ST_LIB::EthernetDomain;
+TIM_TypeDef* global_us_timer = nullptr;
 
 #if defined(USE_PHY_LAN8742)
 constexpr auto eth =
@@ -35,7 +36,7 @@ int main(void) {
                                Pinout::Voltage_Battery_A,Pinout::Voltage_Battery_B,
                                Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
                                Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
-                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B>;
+                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def>;
 
   #else
   using myBoard = ST_LIB::Board<eth,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
@@ -102,7 +103,14 @@ int main(void) {
   PWMActuators::init(pwm_u, pwm_v, pwm_w);
 
   auto timer2 = get_timer_instance(myBoard, Pinout::tim_encoder_decl);
-    
+  auto timer_us_tick = get_timer_instance(myBoard, Pinout::timer_us_tick_def);
+  
+  global_us_timer = timer_us_tick.instance->tim;
+  timer_us_tick.set_prescaler(
+        timer_us_tick.get_clock_frequency() / 1000'000);
+  global_us_timer->ARR = UINT32_MAX;
+  timer_us_tick.counter_enable();
+  
   ST_LIB::Encoder<Pinout::tim_encoder_decl> encoder = 
         timer2.get_encoder();
 

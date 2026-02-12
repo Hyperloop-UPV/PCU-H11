@@ -120,6 +120,10 @@ inline constexpr ST_LIB::TimerDomain::Timer tim_encoder_decl {
     Encoder_Pin_B
 };
 
+inline constexpr ST_LIB::TimerDomain::Timer timer_us_tick_def{{
+    .request = ST_LIB::TimerRequest::GeneralPurpose32bit_5,
+}};
+
     constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_A = {ST_LIB::PB6};
     constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_B = {ST_LIB::PE15};
     constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_A = {ST_LIB::PB5};
@@ -274,8 +278,8 @@ namespace Sensors_data
     constexpr static float slope_current_sensor_inverted{-192.723f};
     constexpr static float offset_current_sensor_inverted{116.376f};
     
-    static constexpr float slope_voltage_sensor = 135.7f;
-    static constexpr float offset_voltage_sensor = -15.329f;
+    static constexpr float slope_voltage_sensor = 136.24540968446678f;
+    static constexpr float offset_voltage_sensor =-16.670217777056518f;
 
     static constexpr uint32_t read_sensors_us = 200; //This speed allows maximum precision with speetec.
     static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; // this has to be the same frequency that the read is done
@@ -298,6 +302,10 @@ enum class BUFFER_STATE: uint8_t
     DISABLED = 0,
     ENABLED = 1
 };
+
+extern TIM_TypeDef* global_us_timer;
+#define GetMicroseconds() global_us_timer->CNT
+
 struct Control_Data
 {
     //SpaceVector:

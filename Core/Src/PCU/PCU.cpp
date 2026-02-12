@@ -9,6 +9,9 @@ void PCU::start()
     Comms::start();
     CurrentControl::init();
     SpeedControl::init();
+
+    Scheduler::register_task(1000, [](){flag_sensors_update = true;});
+
     #if PCU_H10 == 0
     Actuators::enable_hall_supply();
     Actuators::enable_speedtec_supply();
@@ -24,6 +27,7 @@ void PCU::stop_motors()
     SpeedControl::stop();
     PWMActuators::stop();
     Actuators::disable_buffer();
+    Operational_State_Machine.force_change_state(nested_idle_state);
 }
 
 void PCU::update()
@@ -34,14 +38,19 @@ void PCU::update()
     {
         return;
     }
+    
 
     if(OrderPackets::Stop_Motor_flag == true)
     {
         OrderPackets::Stop_Motor_flag=false;
         stop_motors();
+        control_data.space_vector_active = SpaceVectorState::DISABLE;
     }
     current_state_pcu = PCU_State_Machine.get_current_state();
     current_operational_state_pcu = Operational_State_Machine.get_current_state();
+    if(current_operational_state_pcu == Operational_States_PCU::Accelerating && (CurrentSensors::actual_current_sensor_u_a >=110.0f || CurrentSensors::actual_current_sensor_v_a>=110.0f || CurrentSensors::actual_current_sensor_w_a >=110.0f)){
+        PCU_State_Machine.force_change_state(fault_state); return;
+    }
     
     if(OrderPackets::Start_SVPWM_flag == true)
     {

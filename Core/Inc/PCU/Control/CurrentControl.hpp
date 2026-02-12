@@ -3,8 +3,8 @@
 #include "PCU/Sensors/CurrentSensor.hpp"
 #include "PCU/Control/SpaceVector.hpp"
 
-#define USE_VF_CONTROL 1 
-#define NANOSECOND 1000000000
+#define USE_VF_CONTROL 0 
+#define MICROSECONDS 1000000
 class Max_Peak{
     private:
         double antiguo_maximo = 0.0;
@@ -20,12 +20,14 @@ class Max_Peak{
         Max_Peak(float &curr_sensor): current_sensor(&curr_sensor){}
         
         double calculate_Max_Peak(){
-            double tiempo = static_cast<double>(Time::get_global_tick())/NANOSECOND;
+            double tiempo = static_cast<double>(GetMicroseconds())/MICROSECONDS;
+            double max_current = std::abs(*current_sensor);
+
+            if(modulation_frequency < 0.1) return max_current;
+
             double maximo;
 
             double period = 1.0 / modulation_frequency;
-
-            double max_current = std::abs(*current_sensor);
                                     
             if(max_current >= antiguo_maximo){
                 maximo = max_current;
@@ -60,12 +62,12 @@ private:
     inline static PI<IntegratorType::Trapezoidal> current_PI{Current_Control_Data::kp_accelerate,Current_Control_Data::ki_accelerate,Current_Control_Data::period};
     inline static PI<IntegratorType::Trapezoidal> current_regenerate_PI{Current_Control_Data::kp_regenerate,Current_Control_Data::ki_regenerate,Current_Control_Data::period};
     
-    #if PPU_USING != 1
+    #if PPU_USING != 0
         inline static Max_Peak current_u_a{CurrentSensors::actual_current_sensor_u_a};
         inline static Max_Peak current_v_a{CurrentSensors::actual_current_sensor_v_a};
         inline static Max_Peak current_w_a{CurrentSensors::actual_current_sensor_w_a};
     #endif
-    #if PPU_USING != 0
+    #if PPU_USING != 1
         inline static Max_Peak current_u_b{CurrentSensors::actual_current_sensor_u_b};
         inline static Max_Peak current_v_b{CurrentSensors::actual_current_sensor_v_b};
         inline static Max_Peak current_w_b{CurrentSensors::actual_current_sensor_w_b};

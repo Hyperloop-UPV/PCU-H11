@@ -36,21 +36,21 @@ double CurrentControl::calculate_peak(){
         Max_Peak::set_modulation_freq(SpaceVector::get_modulation_frequency());
     #endif
 
-    #if PPU_USING != 1
+    #if PPU_USING != 0
         double Peak_u_a = current_u_a.calculate_Max_Peak();
         double Peak_v_a = current_v_a.calculate_Max_Peak();
         double Peak_w_a = current_w_a.calculate_Max_Peak();
         double average_a = (Peak_u_a + Peak_v_a + Peak_w_a)/3.0;
     #endif
-    #if PPU_USING != 0
+    #if PPU_USING != 1
         double Peak_u_b = current_u_b.calculate_Max_Peak();
         double Peak_v_b = current_v_b.calculate_Max_Peak();
         double Peak_w_b = current_w_b.calculate_Max_Peak();
         double average_b = (Peak_u_b + Peak_v_b + Peak_w_b)/3.0;
     #endif
-    #if PPU_USING == 0
+    #if PPU_USING == 1
         return average_a;
-    #elif PPU_USING == 1
+    #elif PPU_USING == 0
         return average_b;
     #elif PPU_USING == 2
         return (average_a + average_b)/2.0;
@@ -94,8 +94,11 @@ void CurrentControl::control_action(){
     if(target_voltage > SpaceVector::VMAX){
         PCU::control_data.target_voltage = SpaceVector::VMAX;
     }
-    if(target_voltage < 0.0){
+    else if(target_voltage < 0.0){
         PCU::control_data.target_voltage = 0.0;
+    }
+    else{
+        PCU::control_data.target_voltage = target_voltage;
     }
     SpaceVector::set_target_voltage(PCU::control_data.target_voltage);
 }

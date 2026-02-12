@@ -59,7 +59,7 @@ static constexpr auto connecting_state = make_state(States_PCU::Connecting,
 static constexpr auto operational_state = make_state(States_PCU::Operational,
     Transition<States_PCU>{States_PCU::Fault,[]()
     {
-        return !OrderPackets::control_station_tcp->is_connected() || (VoltageSensors::actual_voltage_battery_a > Protecction_Voltage) || (VoltageSensors::actual_voltage_battery_b > Protecction_Voltage);
+        return ((!OrderPackets::control_station_tcp->is_connected()) || (VoltageSensors::actual_voltage_battery_a > Protecction_Voltage) || (VoltageSensors::actual_voltage_battery_b > Protecction_Voltage));
     }}
 );
 
@@ -161,11 +161,6 @@ static inline constinit auto PCU_State_Machine = []() consteval
         Actuators::set_led_operational(true);
         Actuators::set_led_fault(false);
     }, operational_state);
-
-    sm.add_cyclic_action([]()
-    {
-        flag_sensors_update = true;
-    }, ms(1),operational_state);
 
     sm.add_exit_action([]()
     {

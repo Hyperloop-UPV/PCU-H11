@@ -4,12 +4,12 @@
 class CurrentSensors{
     public: 
 
-    inline static D1_NC float actual_current_sensor_u_a{0.0f};
-    inline static D1_NC float actual_current_sensor_u_b{0.0f};
-    inline static D1_NC float actual_current_sensor_v_a{0.0f};
-    inline static D1_NC float actual_current_sensor_v_b{0.0f};
-    inline static D1_NC float actual_current_sensor_w_a{0.0f};
-    inline static D1_NC float actual_current_sensor_w_b{0.0f};
+    inline static float actual_current_sensor_u_a{0.0f};
+    inline static float actual_current_sensor_u_b{0.0f};
+    inline static float actual_current_sensor_v_a{0.0f};
+    inline static float actual_current_sensor_v_b{0.0f};
+    inline static float actual_current_sensor_w_a{0.0f};
+    inline static float actual_current_sensor_w_b{0.0f};
     #if PCU_H10 == 0
     
     inline static bool is_on{false};
