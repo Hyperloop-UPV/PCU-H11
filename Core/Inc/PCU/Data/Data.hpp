@@ -9,6 +9,8 @@
 #define MOTOR_CENTER_ALIGNED 0 // 0 = Normal dualPWM, 1 = CenterAligned DualPWM
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
 
+#define MASK_TO_24 1 //0 = mask to 16 , 1 = mask to 24
+
 #define CURRENT_PROTECTION 100
 
 
@@ -274,12 +276,12 @@ namespace Speed_Control_Data
 
 namespace Sensors_data
 {
-    constexpr static float slope_current_sensor{192.723f};
+    constexpr static float slope_current_sensor{113.33841247311165f};
 
-    constexpr static float offset_current_sensor{-116.376f};
+    constexpr static float offset_current_sensor{-190.71205651614483f};
 
-    constexpr static float slope_current_sensor_inverted{-192.723f};
-    constexpr static float offset_current_sensor_inverted{116.376f};
+    constexpr static float slope_current_sensor_inverted{-113.33841247311165f};
+    constexpr static float offset_current_sensor_inverted{190.71205651614483f};
     
     static constexpr float slope_voltage_sensor = 136.24540968446678f;
     static constexpr float offset_voltage_sensor =-16.670217777056518f;

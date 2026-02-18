@@ -13,9 +13,15 @@ constexpr auto eth =
     EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "00:80:e1:55:01:07",
                              "192.168.1.5", "255.255.0.0");
 #elif defined(USE_PHY_LAN8700)
+#if MASK_TO_24 == 1
+constexpr auto eth =
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "00:80:e1:55:01:07",
+                             "192.168.1.5", "255.255.255.0");
+#else
 constexpr auto eth =
     EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "00:80:e1:55:01:07",
                              "192.168.1.5", "255.255.0.0");
+#endif
 #elif defined(USE_PHY_KSZ8041)
 constexpr auto eth =
     EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "00:80:e1:55:01:07",
@@ -135,8 +141,6 @@ int main(void) {
     PCU::update();
     Scheduler::update();
     eth_instance->update();
-    // STLIB::update();
-
   }
 }
 void Error_Handler(void) {
