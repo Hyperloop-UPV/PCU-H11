@@ -1,5 +1,8 @@
 #pragma once
 #include "ST-LIB.hpp"
+#include "ST-LIB_HIGH/Protections/ProtectionManager.hpp"
+#include "ST-LIB_HIGH/Protections/Boundary.hpp"
+#include "ST-LIB_HIGH/Protections/Protection.hpp"
 #include "PCU/Data/Data.hpp"
 #include "PCU/Sensors/CurrentSensor.hpp"
 #include "PCU/Sensors/VoltageSensor.hpp"
@@ -39,6 +42,7 @@ class PCU
     static void stop_motors();
     static void start_precharge();
     static void motor_brake();
+    static void initialize_protections();
     
     public:
 

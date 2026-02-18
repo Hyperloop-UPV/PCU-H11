@@ -19,6 +19,36 @@ void PCU::start()
 
 }
 
+void PCU::initialize_protections()
+{   
+    ProtectionManager::link_state_machine(PCU_State_Machine,
+                                        static_cast<uint8_t>(States_PCU::Fault));
+    
+    ProtectionManager::add_standard_protections();
+    ProtectionManager::initialize();
+
+    ProtectionManager::_add_protection(
+    &CurrentSensors::actual_current_sensor_u_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+
+    ProtectionManager::_add_protection(
+    &CurrentSensors::actual_current_sensor_v_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+
+    ProtectionManager::_add_protection(
+    &CurrentSensors::actual_current_sensor_w_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+
+    Scheduler::register_task(1000, [](){
+        ProtectionManager::check_protections();
+    });
+    // [[maybe_unused]] Protection* Current_UB = &ProtectionManager::_add_protection(
+    // &CurrentSensors::actual_current_sensor_u_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+    
+    // [[maybe_unused]] Protection* Current_VB = &ProtectionManager::_add_protection(
+    // &CurrentSensors::actual_current_sensor_v_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+    
+    // [[maybe_unused]] Protection* Current_WB = &ProtectionManager::_add_protection(
+    // &CurrentSensors::actual_current_sensor_w_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+}
+
 void PCU::stop_motors()
 {
     flag_update_current_control = false;

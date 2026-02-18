@@ -9,6 +9,9 @@
 #define MOTOR_CENTER_ALIGNED 0 // 0 = Normal dualPWM, 1 = CenterAligned DualPWM
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
 
+#define CURRENT_PROTECTION 100
+
+
 using ST_LIB::DigitalInputDomain;
 using ST_LIB::DigitalOutputDomain;
 using ST_LIB::TimerDomain;
