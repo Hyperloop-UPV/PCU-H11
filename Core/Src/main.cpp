@@ -15,7 +15,7 @@ constexpr auto eth =
 #elif defined(USE_PHY_LAN8700)
 #if MASK_TO_24 == 1
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "00:80:e1:55:01:07",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:09",
                              "192.168.1.5", "255.255.255.0");
 #else
 constexpr auto eth =

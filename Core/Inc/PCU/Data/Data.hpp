@@ -337,7 +337,7 @@ struct Control_Data
     double speed_encoder{0.0f};
 
     EncoderDirection established_direction{EncoderDirection::Forward};
-    SpeedControlState speed_control_active{false};
-    CurrentControlState current_control_active{false};
-    SpaceVectorState space_vector_active{false};
+    SpeedControlState speed_control_active{SpeedControlState::DISABLE};
+    CurrentControlState current_control_active{CurrentControlState::DISABLE};
+    SpaceVectorState space_vector_active{SpaceVectorState::DISABLE};
 };

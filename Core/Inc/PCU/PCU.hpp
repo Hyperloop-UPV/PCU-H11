@@ -23,7 +23,7 @@
 class PCU
 {
     public:
-    D1_NC inline static Control_Data control_data{};
+    inline static Control_Data control_data{};
 
     inline static bool flag_update_speed_control{false};
     inline static bool flag_update_current_control{false};
@@ -179,6 +179,7 @@ static inline constinit auto PCU_State_Machine = []() consteval
         Actuators::set_led_operational(false);
         Actuators::set_led_connecting(false);
         Actuators::set_led_fault(true);
+        ProtectionManager::propagate_fault();
     }, fault_state);
 
     sm.add_state_machine(Operational_State_Machine, operational_state);

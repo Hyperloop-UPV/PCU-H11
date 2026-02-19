@@ -1,7 +1,4 @@
 #include "PCU/PCU.hpp"
-static constexpr string PCU_IP = "192.168.1.5";
-static const string PCU_MAC = "00:80:e1:15:00:00";
-static const string PCU_MASK= "255.255.0.0";
 
 void PCU::start()
 {
@@ -10,6 +7,10 @@ void PCU::start()
     SpeedControl::init();
 
     Scheduler::register_task(1000, [](){flag_sensors_update = true;});
+
+    control_data.space_vector_active = SpaceVectorState::DISABLE;
+    control_data.speed_control_active = SpeedControlState::DISABLE;
+    control_data.current_control_active = CurrentControlState::DISABLE;
 
     #if PCU_H10 == 0
     Actuators::enable_hall_supply();
@@ -64,6 +65,10 @@ void PCU::update()
     PCU_State_Machine.check_transitions();
     current_state_pcu = PCU_State_Machine.get_current_state();
     current_operational_state_pcu = Operational_State_Machine.get_current_state();
+
+    [[maybe_unused]]static SpeedControlState speed_control_active= control_data.speed_control_active;
+    [[maybe_unused]]static CurrentControlState current_control_active= control_data.current_control_active;
+    [[maybe_unused]]static SpaceVectorState space_vector_active = control_data.space_vector_active;
 
     if(current_state_pcu == States_PCU::Fault)
     {
