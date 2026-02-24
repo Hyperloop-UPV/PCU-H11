@@ -1,5 +1,4 @@
-#include "Examples/ExampleMPU.cpp"
-#include "Examples/ExamplesHardFault.cpp"
+#include "main.h"
 
 #include "ST-LIB.hpp"
 #include "main.h"
@@ -160,8 +159,10 @@ int main(void) {
     eth_instance->update();
   }
 }
-void Error_Handler(void) {
-  ErrorHandler("HAL error handler triggered");
-  while (1) {
-  }
+#endif
+
+extern "C" void Error_Handler(void) {
+    ErrorHandler("HAL error handler triggered");
+    while (1) {
+    }
 }
