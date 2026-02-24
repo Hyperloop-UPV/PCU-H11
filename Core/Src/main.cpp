@@ -159,7 +159,6 @@ int main(void) {
     eth_instance->update();
   }
 }
-#endif
 
 extern "C" void Error_Handler(void) {
     ErrorHandler("HAL error handler triggered");

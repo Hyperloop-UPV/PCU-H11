@@ -58,6 +58,9 @@ void PCU::stop_motors()
     SpeedControl::stop();
     PWMActuators::stop();
     Actuators::disable_buffer();
+    SpeedControl::set_reference_speed(0);
+    PWMActuators::set_three_frequencies(0);
+    SpaceVector::set_VMAX(0);
     Operational_State_Machine.force_change_state(nested_idle_state);
 }
 

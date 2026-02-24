@@ -175,7 +175,6 @@ static inline constinit auto PCU_State_Machine = []() consteval
     sm.add_enter_action([]()
     {
         stop_motors();
-
         Actuators::set_led_operational(false);
         Actuators::set_led_connecting(false);
         Actuators::set_led_fault(true);
