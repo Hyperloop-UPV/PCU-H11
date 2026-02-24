@@ -32,7 +32,7 @@ constexpr auto eth =
 
 int main(void) {
 
-  Hard_fault_check();
+  // Hard_fault_check();
   #if PCU_H10 == 1
   using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
@@ -54,6 +54,7 @@ int main(void) {
                                Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def,
                                Pinout::Speetec_supply, Pinout::Hall_SupplyA, Pinout::Hall_SupplyB>;
   #endif
+  // Hard_fault_check();
   myBoard::init();
 
   #if PCU_H10 == 1
