@@ -2,16 +2,15 @@
 #include "ST-LIB.hpp"
 
 /*-------Flags-------*/
-#define PCU_H10 1        // 0 = PCU-H11, 1 = PCU-H10
+#define PCU_H10 1       // 0 = PCU-H11, 1 = PCU-H10
 #define MODE_CALCULATE_SIN 0 //0 = Normal sin, 1 = Look Up table with direct interpolation
 #define PPU_USING 1     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
-#define MOTOR_CENTER_ALIGNED 0 // 0 = Normal dualPWM, 1 = CenterAligned DualPWM
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
 
 #define MASK_TO_24 1 //0 = mask to 16 , 1 = mask to 24
 
-#define CURRENT_PROTECTION 100
+#define CURRENT_PROTECTION 110
 
 
 using ST_LIB::DigitalInputDomain;
@@ -147,12 +146,29 @@ namespace Pinout
     constexpr DigitalOutputDomain::DigitalOutput led_braking = {ST_LIB::PG6};
 
     /*------Current Sensors------*/
-    static constexpr Pin& Current_sensor_U_A = PA0;
-    static constexpr Pin& Current_sensor_U_B = PA6;
-    static constexpr Pin& Current_sensor_V_A = PA4;
-    static constexpr Pin& Current_sensor_V_B = PB0;
-    static constexpr Pin& Current_sensor_W_A = PA5;
-    static constexpr Pin& Current_sensor_W_B = PB1;
+    inline constinit float raw_value_Current_U_A{0.0f};
+    constexpr auto Current_sensor_U_A = ADCDomain::ADC(ST_LIB::PA0, raw_value_Current_U_A, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_U_B{0.0f};
+    constexpr auto Current_sensor_U_B = ADCDomain::ADC(ST_LIB::PA6, raw_value_Current_U_B, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_V_A{0.0f};
+    constexpr auto Current_sensor_V_A = ADCDomain::ADC(ST_LIB::PA4, raw_value_Current_V_A, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_V_B{0.0f};
+    constexpr auto Current_sensor_V_B = ADCDomain::ADC(ST_LIB::PB0, raw_value_Current_V_B, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_W_A{0.0f};
+    constexpr auto Current_sensor_W_A = ADCDomain::ADC(ST_LIB::PA5, raw_value_Current_W_A, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Current_W_B{0.0f};
+    constexpr auto Current_sensor_W_B = ADCDomain::ADC(ST_LIB::PB1, raw_value_Current_W_B, ADCDomain::Resolution::BITS_16,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
     
     /*------PWM------*/
     inline constexpr ST_LIB::TimerPin U_PWM_pin {
@@ -224,21 +240,36 @@ namespace Pinout
 
 
     /*------Voltage Battery------*/
-    static constexpr Pin& Voltage_Battery_A = PF3;
-    static constexpr Pin& Voltage_Battery_B = PF5;
+    inline constinit float raw_value_Voltage_Battery_A{0.0f};
+    constexpr auto Voltage_Battery_A = ADCDomain::ADC(ST_LIB::PF3, raw_value_Voltage_Battery_A, ADCDomain::Resolution::BITS_12,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constinit float raw_value_Voltage_Battery_B{0.0f};
+    constexpr auto Voltage_Battery_B = ADCDomain::ADC(ST_LIB::PF5, raw_value_Voltage_Battery_B, ADCDomain::Resolution::BITS_12,
+                                       ADCDomain::SampleTime::CYCLES_8_5);
+
+    inline constexpr ST_LIB::TimerDomain::Timer timer_us_tick_def{{
+        .request = ST_LIB::TimerRequest::GeneralPurpose32bit_5,
+    }};
 
     /*------Temperature------*/
-    static constexpr Pin& PPU_temp_A = PF7;
-    static constexpr Pin& PPU_temp_B = PF8;
+    // inline constinit float raw_value_PPU_temp_A{0.0f};
+    // constexpr auto PPU_temp_A = ADCDomain::ADC(ST_LIB::PF7, raw_value_PPU_temp_A, ADCDomain::Resolution::BITS_12,
+    //                                    ADCDomain::SampleTime::CYCLES_8_5);
+
+    // inline constinit float raw_value_PPU_temp_B{0.0f};
+    // constexpr auto PPU_temp_B = ADCDomain::ADC(ST_LIB::PF8, raw_value_PPU_temp_B, ADCDomain::Resolution::BITS_12,
+    //                                    ADCDomain::SampleTime::CYCLES_8_5);
 
     /*------B2B------*/
     //Imagino que serán DI:
-    constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_A = {ST_LIB::PE14};
-    constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_B = {ST_LIB::PB6};
+    constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_A = {ST_LIB::PB6};
+    constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_B = {ST_LIB::PE15};
+
     constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_A = {ST_LIB::PB5};
     constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_B = {ST_LIB::PE14};
     // Outputs:
-    constexpr DigitalOutputDomain::DigitalOutput Buff_enable = {ST_LIB::PF4}; //Negado en h10, no se si en h11 si
+    constexpr DigitalOutputDomain::DigitalOutput Buff_enable = {ST_LIB::PF4}; 
     constexpr DigitalOutputDomain::DigitalOutput Reset_bypass = {ST_LIB::PG5};
 
 

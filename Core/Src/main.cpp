@@ -10,7 +10,7 @@ TIM_TypeDef* global_us_timer = nullptr;
 
 #if defined(USE_PHY_LAN8742)
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "00:80:e1:55:01:07",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:09",
                              "192.168.1.5", "255.255.0.0");
 #elif defined(USE_PHY_LAN8700)
 #if MASK_TO_24 == 1
@@ -45,10 +45,14 @@ int main(void) {
                                Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def>;
 
   #else
-  using myBoard = ST_LIB::Board<eth,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+  using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational, Pinout::led_accelerating, Pinout::led_braking,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                                Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B,
+                               Pinout::Voltage_Battery_A,Pinout::Voltage_Battery_B,
+                               Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
+                               Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
+                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def,
                                Pinout::Speetec_supply, Pinout::Hall_SupplyA, Pinout::Hall_SupplyB>;
   #endif
   myBoard::init();
@@ -96,6 +100,19 @@ int main(void) {
   auto& speedtec_supply = myBoard::instance_of<Pinout::Speetec_supply>();
   auto& hall_supply_a = myBoard::instance_of<Pinout::Hall_SupplyA>();
   auto& hall_supply_b = myBoard::instance_of<Pinout::Hall_SupplyB>();
+
+  auto& Voltage_A = myBoard::instance_of<Pinout::Voltage_Battery_A>();
+  auto& Voltage_B = myBoard::instance_of<Pinout::Voltage_Battery_B>();
+
+  // auto& ppu_temp_a = myBoard::instance_of<Pinout::PPU_temp_A>();
+  // auto& ppu_temp_b = myBoard::instance_of<Pinout::PPU_temp_B>();
+
+  auto& current_sensor_u_a = myBoard::instance_of<Pinout::Current_sensor_U_A>();
+  auto& current_sensor_u_b = myBoard::instance_of<Pinout::Current_sensor_U_B>();
+  auto& current_sensor_v_a = myBoard::instance_of<Pinout::Current_sensor_V_A>();
+  auto& current_sensor_v_b = myBoard::instance_of<Pinout::Current_sensor_V_B>();
+  auto& current_sensor_w_a = myBoard::instance_of<Pinout::Current_sensor_W_A>();
+  auto& current_sensor_w_b = myBoard::instance_of<Pinout::Current_sensor_W_B>();
 
   Actuators::init(hall_supply_a, hall_supply_b,speedtec_supply, buff_enable, reset_bypass);
   Actuators::init_leds(led_operational, led_fault, led_connecting,

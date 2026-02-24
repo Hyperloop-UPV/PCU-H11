@@ -11,6 +11,7 @@ void PCU::start()
     control_data.space_vector_active = SpaceVectorState::DISABLE;
     control_data.speed_control_active = SpeedControlState::DISABLE;
     control_data.current_control_active = CurrentControlState::DISABLE;
+    initialize_protections();
 
     #if PCU_H10 == 0
     Actuators::enable_hall_supply();
@@ -39,14 +40,14 @@ void PCU::initialize_protections()
     Scheduler::register_task(1000, [](){
         ProtectionManager::check_protections();
     });
-    // [[maybe_unused]] Protection* Current_UB = &ProtectionManager::_add_protection(
-    // &CurrentSensors::actual_current_sensor_u_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+    ProtectionManager::_add_protection(
+    &CurrentSensors::actual_current_sensor_u_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
     
-    // [[maybe_unused]] Protection* Current_VB = &ProtectionManager::_add_protection(
-    // &CurrentSensors::actual_current_sensor_v_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+    ProtectionManager::_add_protection(
+    &CurrentSensors::actual_current_sensor_v_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
     
-    // [[maybe_unused]] Protection* Current_WB = &ProtectionManager::_add_protection(
-    // &CurrentSensors::actual_current_sensor_w_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+    ProtectionManager::_add_protection(
+    &CurrentSensors::actual_current_sensor_w_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
 }
 
 void PCU::stop_motors()
