@@ -5,6 +5,7 @@ void PCU::start()
     Comms::start();
     CurrentControl::init();
     SpeedControl::init();
+    PCU_State_Machine.start();
 
     Scheduler::register_task(1000, [](){flag_sensors_update = true;});
 
@@ -37,9 +38,6 @@ void PCU::initialize_protections()
     ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_w_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
 
-    Scheduler::register_task(1000, [](){
-        ProtectionManager::check_protections();
-    });
     ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_u_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
     
@@ -48,6 +46,10 @@ void PCU::initialize_protections()
     
     ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_w_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+
+    Scheduler::register_task(1000, [](){
+        ProtectionManager::check_protections();
+    });
 }
 
 void PCU::stop_motors()
@@ -73,11 +75,6 @@ void PCU::update()
     [[maybe_unused]]static SpeedControlState speed_control_active= control_data.speed_control_active;
     [[maybe_unused]]static CurrentControlState current_control_active= control_data.current_control_active;
     [[maybe_unused]]static SpaceVectorState space_vector_active = control_data.space_vector_active;
-
-    if(current_state_pcu == States_PCU::Fault)
-    {
-        return;
-    }
     
 
     if(OrderPackets::Stop_Motor_flag == true)
@@ -85,6 +82,21 @@ void PCU::update()
         OrderPackets::Stop_Motor_flag=false;
         stop_motors();
         control_data.space_vector_active = SpaceVectorState::DISABLE;
+    }
+
+    if(flag_sensors_update)
+    {
+        flag_sensors_update=false;
+        Sensors::read();
+        VoltageSensors::read();
+        CurrentSensors::read();
+        Speetec::read();
+
+    }
+    
+    if(current_state_pcu == States_PCU::Fault)
+    {
+        return;
     }
     //Temporary protections
     if(current_operational_state_pcu == Operational_States_PCU::Accelerating && (CurrentSensors::actual_current_sensor_u_a >=110.0f || CurrentSensors::actual_current_sensor_v_a>=110.0f || CurrentSensors::actual_current_sensor_w_a >=110.0f)){
@@ -148,16 +160,6 @@ void PCU::update()
     {
         OrderPackets::Zeroing_flag=false;
         CurrentSensors::zeroing();
-    }
-
-    if(flag_sensors_update)
-    {
-        flag_sensors_update=false;
-        Sensors::read();
-        VoltageSensors::read();
-        CurrentSensors::read();
-        Speetec::read();
-
     }
 
     // Control updates:

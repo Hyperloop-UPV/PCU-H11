@@ -3,7 +3,7 @@
 #include "PCU/Sensors/CurrentSensor.hpp"
 #include "PCU/Control/SpaceVector.hpp"
 
-#define USE_VF_CONTROL 0 
+#define USE_VF_CONTROL 1 
 #define MICROSECONDS 1000000
 class Max_Peak{
     private:

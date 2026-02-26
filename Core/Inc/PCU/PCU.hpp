@@ -109,8 +109,14 @@ static inline constinit auto Operational_State_Machine = []() consteval
 
     sm.add_cyclic_action([]()
     {   
-        if(control_data.space_vector_active == SpaceVectorState::ACTIVE)flag_execute_space_vector_control = true;
-        if(CurrentControl::is_running())flag_update_current_control = true;
+        if(control_data.space_vector_active == SpaceVectorState::ACTIVE)
+        {
+            flag_execute_space_vector_control = true;
+        }
+        if(CurrentControl::is_running())
+        {
+            flag_update_current_control = true;
+        }
     }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
 
 
@@ -147,17 +153,13 @@ static inline constinit auto PCU_State_Machine = []() consteval
         operational_state,
         fault_state
     );
-
-    sm.add_exit_action([]()
+    using namespace std::chrono_literals;
+    sm.add_cyclic_action([]()
     {
-        Actuators::set_led_connecting(false);
-    }, connecting_state);
-
-    sm.add_enter_action([]()
-    {
-        CurrentSensors::zeroing();
-        Actuators::set_led_connecting(true);
-    }, connecting_state);
+        static bool toggle = true;
+        Actuators::set_led_connecting(toggle);
+        toggle = !toggle;
+    }, ms(500), connecting_state);
 
     sm.add_enter_action([]()
     {
