@@ -33,7 +33,7 @@ constexpr auto eth =
 int main(void) {
 
   Hard_fault_check();
-  Global_RTC::start_rtc();
+  Global_RTC::start_rtc(); //Temporary fix
   #if PCU_H10 == 1
   using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,

@@ -18,7 +18,6 @@
 #include "PCU/Sensors/Sensors.hpp"
 #include "PCU/Comms/Comms.hpp"
 
-#define MODULATION_FREQUENCY_DEFAULT 10
 #define Protecction_Voltage 410.0f 
 class PCU
 {
@@ -166,15 +165,16 @@ static inline constinit auto PCU_State_Machine = []() consteval
 
     sm.add_enter_action([]()
     {
-        Actuators::set_led_connecting(false);
-        Actuators::set_led_operational(true);
+        Actuators::set_led_connecting(true);
+        Actuators::set_led_operational(false); //not working for now, so its false
         Actuators::set_led_fault(false);
     }, operational_state);
 
     sm.add_exit_action([]()
     {
         stop_motors();
-        Actuators::set_led_operational(false);
+        // Actuators::set_led_operational(false);
+        Actuators::set_led_connecting(false);
     }, operational_state);
 
     sm.add_enter_action([]()
