@@ -148,10 +148,13 @@ static inline constinit auto Operational_State_Machine = []() consteval
 
 static inline constinit auto PCU_State_Machine = []() consteval
 {
+    auto nested = StateMachineHelper::add_nesting(operational_state, Operational_State_Machine);
     auto sm = make_state_machine(States_PCU::Connecting,
+        StateMachineHelper::add_nested_machines(nested),
         connecting_state,
         operational_state,
         fault_state
+
     );
     using namespace std::chrono_literals;
     sm.add_cyclic_action([]()
@@ -183,7 +186,6 @@ static inline constinit auto PCU_State_Machine = []() consteval
         ProtectionManager::propagate_fault();
     }, fault_state);
 
-    sm.add_state_machine(Operational_State_Machine, operational_state);
 
     return sm;
 }();
