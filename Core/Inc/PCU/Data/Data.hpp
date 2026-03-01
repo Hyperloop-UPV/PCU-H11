@@ -11,7 +11,7 @@
 #define PPU_USING 1     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
-#define USE_VF_CONTROL 0
+// #define USE_VF_CONTROL 0
 
 
 

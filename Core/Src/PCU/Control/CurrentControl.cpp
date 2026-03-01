@@ -30,12 +30,7 @@ double CurrentControl::calculate_frequency_modulation(){
     return exp_follower(a * PCU::control_data.speed_km_h_encoder + b);
 }
 
-double CurrentControl::calculate_peak(){
-    // NOTA: set_modulation_freq se mueve a control_action si USE_VF_CONTROL está activo
-    #if USE_VF_CONTROL == 0
-        Max_Peak::set_modulation_freq(SpaceVector::get_modulation_frequency());
-    #endif
-
+double CurrentControl::calculate_peak(){    
     #if PPU_USING != 0
         double Peak_u_a = current_u_a.calculate_Max_Peak();
         double Peak_v_a = current_v_a.calculate_Max_Peak();
@@ -60,11 +55,13 @@ double CurrentControl::calculate_peak(){
 void CurrentControl::control_action(){
     if (!should_be_running) return;
 
-    #if USE_VF_CONTROL
+    if(PCU::control_data.speed_control_active == SpeedControlState::ACTIVE){
         float freq = calculate_frequency_modulation();
         SpaceVector::set_frequency_Modulation(freq);
         Max_Peak::set_modulation_freq(freq);
-    #endif
+    } else {
+        Max_Peak::set_modulation_freq(SpaceVector::get_modulation_frequency());
+    }
 
     double target_voltage;
     double current_peak = calculate_peak();
