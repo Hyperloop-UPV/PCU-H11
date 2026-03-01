@@ -45,6 +45,13 @@ void SpaceVector::calculate_duties() {
     }
     PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
     time += Period / 1000000.0;
+
+    // Wrap time to avoid float precision loss for long-running operation.
+    // Reset after one full electrical period (1/f) to keep angles accurate.
+    if (Modulation_frequency > 0.0 && time >= (1.0 / Modulation_frequency)) {
+        time = fmodf(time, 1.0f / static_cast<float>(Modulation_frequency));
+    }
+
     PCU::control_data.time = time;
 }
 
@@ -80,9 +87,7 @@ float SpaceVector::calculate_sin_look_up_table(float angle) {
 
 
     if (idx >= NUMBER_POINTS - 1) {
-        idx = NUMBER_POINTS - 1;
-        if (idx >= NUMBER_POINTS) idx = NUMBER_POINTS - 1; 
-        return sign * look_up_table_sin[idx];
+        return sign * look_up_table_sin[NUMBER_POINTS - 1];
     }
 
     float result = look_up_table_sin[idx] * (1.0f - interpolation) + 

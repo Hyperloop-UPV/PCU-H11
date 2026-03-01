@@ -8,7 +8,7 @@
 /*Modify this variables to change the  LUT*/
 constexpr int NUMBER_POINTS = 4096;
 constexpr float START_RAD = 0.0f;
-constexpr float END_RAD = 2 * M_PI;
+constexpr float END_RAD = M_PI / 2.0f; // Only first quadrant for PCU
 const std::string FUNC_NAME = "sin";
 std::function<float(float)> func = [](float x) { return std::sin(x); };
 
@@ -26,7 +26,7 @@ int main() {
              << " rad */\n";
 
     // Nombre de variable dinámico
-    out_file << "const float look_up_table_" << FUNC_NAME << "[NUMBER_POINTS] = {\n";
+    out_file << "inline constexpr float look_up_table_" << FUNC_NAME << "[NUMBER_POINTS] = {\n";
 
     for (int i = 0; i < NUMBER_POINTS; ++i) {
         float angle = START_RAD + (END_RAD - START_RAD) * i / NUMBER_POINTS;

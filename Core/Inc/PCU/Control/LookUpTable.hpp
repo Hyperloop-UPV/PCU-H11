@@ -1,6 +1,6 @@
 #pragma once
 #define NUMBER_POINTS 4096
-const float look_up_table_sin[NUMBER_POINTS] = {
+inline constexpr float look_up_table_sin[NUMBER_POINTS] = {
     0,          0.000383495, 0.00076699, 0.00115049, 0.00153398, 0.00191747,
     0.00230097, 0.00268446,  0.00306796, 0.00345145, 0.00383494, 0.00421843,
     0.00460193, 0.00498542,  0.00536891, 0.0057524,  0.00613588, 0.00651937,
