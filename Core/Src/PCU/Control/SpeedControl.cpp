@@ -36,7 +36,22 @@ void SpeedControl::control_action(){
     //     actual_current_ref = regenerate_PI.output_value;
     // }
     
-    actual_current_ref = (actual_current_ref > CURRENT_LIMIT || actual_current_ref < -30.0) ? CURRENT_LIMIT : actual_current_ref;
+    // actual_current_ref = (actual_current_ref > CURRENT_LIMIT || actual_current_ref < -30.0) ? CURRENT_LIMIT : actual_current_ref;
+    // if(PCU::control_data.Speed_state == ControlStates::Cruise_Mode){
+        if(actual_current_ref < 0.0){
+            actual_current_ref = 0.0;
+        }
+    // }
+    // else if(PCU::control_data.Speed_state == ControlStates::Regenerative_Braking){
+    //     if(actual_current_ref < 30.0){
+    //         actual_current_ref = -30.0;
+    //     }
+    // // } TODO esto para el regenerativo
+    if(actual_current_ref > CURRENT_LIMIT){
+        actual_current_ref = CURRENT_LIMIT;
+    }
+
+
         
     PCU::control_data.actual_current_ref = actual_current_ref;
     CurrentControl::set_current_ref(actual_current_ref);
