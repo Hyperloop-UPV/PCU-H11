@@ -163,24 +163,24 @@ static inline constinit auto PCU_State_Machine = []() consteval
 
     sm.add_enter_action([]()
     {
-        Actuators::set_led_connecting(false);
-        Actuators::set_led_operational(true);
+        Actuators::set_led_connecting(true);
+        Actuators::set_led_operational(false);
         Actuators::set_led_fault(false);
     }, operational_state);
 
     sm.add_exit_action([]()
     {
         stop_motors();
-        Actuators::set_led_operational(false);
+        Actuators::set_led_connecting(false);
     }, operational_state);
 
     sm.add_enter_action([]()
     {
         stop_motors();
+        ProtectionManager::propagate_fault();
         Actuators::set_led_operational(false);
         Actuators::set_led_connecting(false);
         Actuators::set_led_fault(true);
-        ProtectionManager::propagate_fault();
     }, fault_state);
 
     sm.add_state_machine(Operational_State_Machine, operational_state);

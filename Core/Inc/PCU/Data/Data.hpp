@@ -3,12 +3,17 @@
 
 /*-------Flags-------*/
 #define PCU_H10 1       // 0 = PCU-H11, 1 = PCU-H10
-#define MODE_CALCULATE_SIN 0 //0 = Normal sin, 1 = Look Up table with direct interpolation
+#define MASK_TO_24 1 //0 = mask to 16 , 1 = mask to 24
+
+
+/*------Control flags------*/
+#define MODE_CALCULATE_SIN 1//0 = Normal sin, 1 = Look Up table with direct interpolation
 #define PPU_USING 1     // 0 PPU connector A, 1 PPU connector B , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
+#define USE_VF_CONTROL 0
 
-#define MASK_TO_24 1 //0 = mask to 16 , 1 = mask to 24
+
 
 #define CURRENT_PROTECTION 110
 

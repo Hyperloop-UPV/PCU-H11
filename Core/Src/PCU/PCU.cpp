@@ -7,7 +7,7 @@ void PCU::start()
     SpeedControl::init();
     PCU_State_Machine.start();
 
-    Scheduler::register_task(1000, [](){flag_sensors_update = true;});
+    Scheduler::register_task(500, [](){flag_sensors_update = true;});
 
     control_data.space_vector_active = SpaceVectorState::DISABLE;
     control_data.speed_control_active = SpeedControlState::DISABLE;
@@ -72,11 +72,6 @@ void PCU::update()
     current_state_pcu = PCU_State_Machine.get_current_state();
     current_operational_state_pcu = Operational_State_Machine.get_current_state();
 
-    [[maybe_unused]]static SpeedControlState speed_control_active= control_data.speed_control_active;
-    [[maybe_unused]]static CurrentControlState current_control_active= control_data.current_control_active;
-    [[maybe_unused]]static SpaceVectorState space_vector_active = control_data.space_vector_active;
-    
-
     if(OrderPackets::Stop_Motor_flag == true)
     {
         OrderPackets::Stop_Motor_flag=false;
@@ -98,10 +93,11 @@ void PCU::update()
     {
         return;
     }
+
     //Temporary protections
-    if(current_operational_state_pcu == Operational_States_PCU::Accelerating && (CurrentSensors::actual_current_sensor_u_a >=110.0f || CurrentSensors::actual_current_sensor_v_a>=110.0f || CurrentSensors::actual_current_sensor_w_a >=110.0f)){
-        PCU_State_Machine.force_change_state(fault_state); return;
-    }
+    // if(current_operational_state_pcu == Operational_States_PCU::Accelerating && (CurrentSensors::actual_current_sensor_u_a >=110.0f || CurrentSensors::actual_current_sensor_v_a>=110.0f || CurrentSensors::actual_current_sensor_w_a >=110.0f)){
+    //     PCU_State_Machine.force_change_state(fault_state); return;
+    // }
     
     if(OrderPackets::Start_SVPWM_flag == true)
     {

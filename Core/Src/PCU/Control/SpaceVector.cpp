@@ -1,5 +1,6 @@
 #include "PCU/Control/SpaceVector.hpp"
 #include "PCU/PCU.hpp"
+#include <cmath> // Ensure fmodf is available
 
 float SpaceVector::Imodulation = 0.0f;
 double SpaceVector::Modulation_frequency = 0.0;
@@ -56,40 +57,38 @@ void SpaceVector::set_VMAX(float Vmax) { VMAX = Vmax; }
 
 #if MODE_CALCULATE_SIN == 1
 float SpaceVector::calculate_sin_look_up_table(float angle) {
-    // control range between 0 and 360
-    while (angle < 0) {
+    angle = fmodf(angle, 2.0f * M_PI);
+    if (angle < 0.0f) {
         angle += 2.0f * M_PI;
     }
-    while(angle > (2.0f*M_PI)){
-        angle = angle - (2.0f*M_PI);
+
+    float sign = 1.0f;
+    if (angle > M_PI) {
+        angle -= M_PI;
+        sign = -1.0f;
     }
-    if (angle <= (M_PI / 2.0f)) {
-        int idx = (angle * NUMBER_POINTS) / (M_PI / 2.0f);
-        float interpolation =
-            static_cast<float>((angle * NUMBER_POINTS) / (M_PI / 2.0f)) - idx;
-        return (look_up_table_sin[idx] * (1.0f - interpolation) + look_up_table_sin[idx + 1] * (interpolation)) ;
-    } else if (angle <= (M_PI)) {
+    
+    if (angle > (M_PI / 2.0f)) {
         angle = M_PI - angle;
-        int idx = (angle * NUMBER_POINTS) / (M_PI / 2.0f);
-        float interpolation =
-            static_cast<float>((angle * NUMBER_POINTS) / (M_PI / 2.0f)) - idx;
-        return (look_up_table_sin[idx] * (1.0f - interpolation) +
-                look_up_table_sin[idx - 1] * (interpolation));
-    } else if (angle <= (M_PI * 3.0f) / 2.0f) {
-        angle = angle - M_PI;
-        int idx = (angle * NUMBER_POINTS) / (M_PI / 2.0f);
-        float interpolation =
-            static_cast<float>((angle * NUMBER_POINTS) / (M_PI / 2.0f)) - idx;
-        return -(look_up_table_sin[idx] * (1.0f - interpolation) +
-                 look_up_table_sin[idx + 1] * (interpolation));
-    } else {
-        angle = 2.0 * M_PI - angle;
-        int idx = (angle * NUMBER_POINTS) / (M_PI / 2.0f);
-        float interpolation =
-            static_cast<float>((angle * NUMBER_POINTS) / (M_PI / 2.0f)) - idx;
-        return -(look_up_table_sin[idx] * (1.0f - interpolation) +
-                 look_up_table_sin[idx - 1] * (interpolation));
     }
+
+    constexpr float SCALE = static_cast<float>(NUMBER_POINTS) / (M_PI / 2.0f);
+    
+    float val = angle * SCALE;
+    int idx = static_cast<int>(val);
+    float interpolation = val - idx;
+
+
+    if (idx >= NUMBER_POINTS - 1) {
+        idx = NUMBER_POINTS - 1;
+        if (idx >= NUMBER_POINTS) idx = NUMBER_POINTS - 1; 
+        return sign * look_up_table_sin[idx];
+    }
+
+    float result = look_up_table_sin[idx] * (1.0f - interpolation) + 
+                   look_up_table_sin[idx + 1] * interpolation;
+
+    return sign * result;
 }
 float SpaceVector::calculate_sin_phase(phase p) {
     float angle = 0.0f;
