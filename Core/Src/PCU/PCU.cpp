@@ -7,7 +7,9 @@ void PCU::start()
     SpeedControl::init();
     PCU_State_Machine.start();
 
-    Scheduler::register_task(500, [](){flag_sensors_update = true;});
+    Scheduler::register_task(500, [](){
+        flag_sensors_update = true;
+    });
 
     control_data.space_vector_active = SpaceVectorState::DISABLE;
     control_data.speed_control_active = SpeedControlState::DISABLE;
