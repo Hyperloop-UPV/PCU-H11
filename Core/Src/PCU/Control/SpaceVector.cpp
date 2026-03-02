@@ -1,6 +1,5 @@
 #include "PCU/Control/SpaceVector.hpp"
 #include "PCU/PCU.hpp"
-#include <cmath> // Ensure fmodf is available
 
 float SpaceVector::Imodulation = 0.0f;
 double SpaceVector::Modulation_frequency = 0.0;
