@@ -1,6 +1,5 @@
 #include "PCU/Control/SpaceVector.hpp"
 #include "PCU/PCU.hpp"
-#include <cmath> // Ensure fmodf is available
 
 float SpaceVector::Imodulation = 0.0f;
 double SpaceVector::Modulation_frequency = 0.0;
@@ -46,11 +45,11 @@ void SpaceVector::calculate_duties() {
     PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
     time += Period / 1000000.0;
 
-    // Wrap time to avoid float precision loss for long-running operation.
-    // Reset after one full electrical period (1/f) to keep angles accurate.
-    //if (Modulation_frequency > 0.0 && time >= (1.0 / Modulation_frequency)) {
-      //  time = fmodf(time, 1.0f / static_cast<float>(Modulation_frequency));
-    //}
+    // // Wrap time to avoid float precision loss for long-running operation.
+    // // Reset after one full electrical period (1/f) to keep angles accurate.
+    // if (Modulation_frequency > 0.0 && time >= (100.0 / Modulation_frequency)) {
+    //     time = fmodf(time, 1.0f / static_cast<float>(Modulation_frequency));
+    // }
 
     PCU::control_data.time = time;
 }
@@ -64,9 +63,14 @@ void SpaceVector::set_VMAX(float Vmax) { VMAX = Vmax; }
 
 #if MODE_CALCULATE_SIN == 1
 float SpaceVector::calculate_sin_look_up_table(float angle) {
-    angle = fmodf(angle, 2.0f * M_PI);
+    constexpr float TWO_PI = 2.0f * M_PI;
+    constexpr float INV_TWO_PI = 1.0f / TWO_PI; 
+
+    int rotations = static_cast<int>(angle * INV_TWO_PI);
+    angle = angle - (rotations * TWO_PI);
+
     if (angle < 0.0f) {
-        angle += 2.0f * M_PI;
+        angle += TWO_PI;
     }
 
     float sign = 1.0f;
@@ -83,8 +87,7 @@ float SpaceVector::calculate_sin_look_up_table(float angle) {
     
     float val = angle * SCALE;
     int idx = static_cast<int>(val);
-    float interpolation = val - idx;
-
+    float interpolation = val - static_cast<float>(idx);
 
     if (idx >= NUMBER_POINTS - 1) {
         return sign * look_up_table_sin[NUMBER_POINTS - 1];
