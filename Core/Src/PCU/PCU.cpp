@@ -66,6 +66,7 @@ void PCU::stop_motors()
     PWMActuators::set_three_frequencies(0);
     SpaceVector::set_VMAX(0);
     Operational_State_Machine.force_change_state(nested_idle_state);
+    SpaceVector::set_time(0.0f);
 }
 
 void PCU::update()
@@ -109,6 +110,7 @@ void PCU::update()
         SpaceVector::set_frequency_Modulation(Comms::frequency_space_vector_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
         SpaceVector::set_target_voltage(Comms::ref_voltage_space_vector_received);
+        SpaceVector::set_time(0.0f);
         CurrentControl::stop();
         SpeedControl::stop();
 
@@ -126,6 +128,7 @@ void PCU::update()
         CurrentControl::set_current_ref(Comms::current_reference_received);
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_frequency_Modulation(Comms::frequency_space_vector_received);
+        SpaceVector::set_time(0.0f);
 
         SpeedControl::stop();
         CurrentControl::start();
@@ -140,6 +143,7 @@ void PCU::update()
         SpeedControl::set_reference_speed(Comms::speed_reference_received);
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
+        SpaceVector::set_time(0.0f);
         CurrentControl::start();
         SpeedControl::start();
 

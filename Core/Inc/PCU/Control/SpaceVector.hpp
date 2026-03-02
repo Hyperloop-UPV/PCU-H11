@@ -29,6 +29,7 @@ public:
     static inline float VMAX = 163.0;
 
     SpaceVector()=default;
+    static void set_time(float t) { time = t; };
     static void set_target_voltage(float V_ref);
     static void set_frequency_Modulation(float freq);
     static void calculate_duties();

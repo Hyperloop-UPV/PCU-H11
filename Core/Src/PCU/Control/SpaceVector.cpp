@@ -64,9 +64,14 @@ void SpaceVector::set_VMAX(float Vmax) { VMAX = Vmax; }
 
 #if MODE_CALCULATE_SIN == 1
 float SpaceVector::calculate_sin_look_up_table(float angle) {
-    angle = fmodf(angle, 2.0f * M_PI);
+    constexpr float TWO_PI = 2.0f * M_PI;
+    constexpr float INV_TWO_PI = 1.0f / TWO_PI; 
+
+    int rotations = static_cast<int>(angle * INV_TWO_PI);
+    angle = angle - (rotations * TWO_PI);
+
     if (angle < 0.0f) {
-        angle += 2.0f * M_PI;
+        angle += TWO_PI;
     }
 
     float sign = 1.0f;
@@ -83,8 +88,7 @@ float SpaceVector::calculate_sin_look_up_table(float angle) {
     
     float val = angle * SCALE;
     int idx = static_cast<int>(val);
-    float interpolation = val - idx;
-
+    float interpolation = val - static_cast<float>(idx);
 
     if (idx >= NUMBER_POINTS - 1) {
         return sign * look_up_table_sin[NUMBER_POINTS - 1];
