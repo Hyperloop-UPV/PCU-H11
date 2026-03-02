@@ -18,13 +18,19 @@ constexpr auto eth =
                              "192.168.1.5", "255.255.255.0");
 #else
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "00:80:e1:55:01:07",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:09",
                              "192.168.1.5", "255.255.0.0");
 #endif
 #elif defined(USE_PHY_KSZ8041)
+#if MASK_TO_24 == 1
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "00:80:e1:55:01:07",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "05:80:e8:55:61:09",
+                             "192.168.1.5", "255.255.255.0");
+#else
+constexpr auto eth =
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "05:80:e8:55:61:09",
                              "192.168.1.5", "255.255.0.0");
+#endif
 #else
 #error "Ethernet PHY not defined"
 
@@ -33,7 +39,6 @@ constexpr auto eth =
 int main(void) {
 
   Hard_fault_check();
-  Global_RTC::start_rtc();
   #if PCU_H10 == 1
   using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,

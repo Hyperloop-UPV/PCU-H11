@@ -27,25 +27,50 @@ void PCU::initialize_protections()
                                         static_cast<uint8_t>(States_PCU::Fault));
     
     ProtectionManager::add_standard_protections();
-    ProtectionManager::initialize();
 
-    ProtectionManager::_add_protection(
+    auto& voltage_protection_A_PCU = ProtectionManager::_add_protection(
+    &VoltageSensors::actual_voltage_battery_a, Boundary<float, ABOVE>{Protecction_Voltage});
+
+    voltage_protection_A_PCU.set_name((char*)"PCU Battery A voltage");
+
+    auto& voltage_protection_B_PCU = ProtectionManager::_add_protection(
+    &VoltageSensors::actual_voltage_battery_b, Boundary<float, ABOVE>{Protecction_Voltage});
+
+    voltage_protection_B_PCU.set_name((char*)"PCU Battery B voltage");
+
+    auto& current_protection_u_a = ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_u_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
 
-    ProtectionManager::_add_protection(
+    current_protection_u_a.set_name((char*)"PCU Current Sensor U A");
+
+    auto& current_protection_v_a = ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_v_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
 
-    ProtectionManager::_add_protection(
+    current_protection_v_a.set_name((char*)"PCU Current Sensor V A");
+    
+    auto& current_protection_w_a = ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_w_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
 
-    ProtectionManager::_add_protection(
+    current_protection_w_a.set_name((char*)"PCU Current Sensor W A");
+
+    auto& current_protection_u_b = ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_u_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+
+    current_protection_u_b.set_name((char*)"PCU Current Sensor U B");
     
-    ProtectionManager::_add_protection(
+    auto& current_protection_v_b = ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_v_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+
+    current_protection_v_b.set_name((char*)"PCU Current Sensor V B");
     
-    ProtectionManager::_add_protection(
+    auto& current_protection_w_b = ProtectionManager::_add_protection(
     &CurrentSensors::actual_current_sensor_w_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+
+    current_protection_w_b.set_name((char*)"PCU Current Sensor W B");
+
+    
+    ProtectionManager::initialize();
+
 
     Scheduler::register_task(1000, [](){
         ProtectionManager::check_protections();

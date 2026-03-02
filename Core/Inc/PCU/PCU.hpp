@@ -53,17 +53,13 @@ static constexpr auto connecting_state = make_state(States_PCU::Connecting,
     Transition<States_PCU>{States_PCU::Operational,[]()
     {
         return OrderPackets::control_station_tcp->is_connected();
-    }},
-    Transition<States_PCU>{States_PCU::Fault,[]()
-    {
-        return (VoltageSensors::actual_voltage_battery_a > Protecction_Voltage) || (VoltageSensors::actual_voltage_battery_b > Protecction_Voltage);
     }}
 );
 
 static constexpr auto operational_state = make_state(States_PCU::Operational,
     Transition<States_PCU>{States_PCU::Fault,[]()
     {
-        return ((!OrderPackets::control_station_tcp->is_connected()) || (VoltageSensors::actual_voltage_battery_a > Protecction_Voltage) || (VoltageSensors::actual_voltage_battery_b > Protecction_Voltage));
+        return (!OrderPackets::control_station_tcp->is_connected());
     }}
 );
 
