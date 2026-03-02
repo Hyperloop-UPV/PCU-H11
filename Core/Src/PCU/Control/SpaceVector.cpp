@@ -48,9 +48,9 @@ void SpaceVector::calculate_duties() {
 
     // Wrap time to avoid float precision loss for long-running operation.
     // Reset after one full electrical period (1/f) to keep angles accurate.
-    if (Modulation_frequency > 0.0 && time >= (1.0 / Modulation_frequency)) {
-        time = fmodf(time, 1.0f / static_cast<float>(Modulation_frequency));
-    }
+    //if (Modulation_frequency > 0.0 && time >= (1.0 / Modulation_frequency)) {
+      //  time = fmodf(time, 1.0f / static_cast<float>(Modulation_frequency));
+    //}
 
     PCU::control_data.time = time;
 }
