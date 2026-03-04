@@ -7,13 +7,19 @@ void PCU::start()
     SpeedControl::init();
     PCU_State_Machine.start();
 
-    Scheduler::register_task(500, [](){
+    Scheduler::register_task(Sensors_data::read_sensors_us, [](){
+        flag_speetec_update = true;
+    });
+
+    Scheduler::register_task(400, [](){
         flag_sensors_update = true;
     });
 
     Scheduler::register_task(100, [](){
         flag_check_transitions = true;
     });
+
+
 
 
     control_data.space_vector_active = SpaceVectorState::DISABLE;
@@ -115,13 +121,18 @@ void PCU::update()
         control_data.space_vector_active = SpaceVectorState::DISABLE;
     }
 
+    if(flag_speetec_update)
+    {
+        flag_speetec_update=false;
+        Speetec::read();
+    }
+
     if(flag_sensors_update)
     {
         flag_sensors_update=false;
         Sensors::read();
         VoltageSensors::read();
         CurrentSensors::read();
-        Speetec::read();
 
     }
     

@@ -322,9 +322,9 @@ namespace Sensors_data
     static constexpr float slope_voltage_sensor = 136.24540968446678f;
     static constexpr float offset_voltage_sensor =-16.670217777056518f;
 
-    static constexpr uint32_t read_sensors_us = 200; //This speed allows maximum precision with speetec.
+    static constexpr uint32_t read_sensors_us = 200; 
     static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; // this has to be the same frequency that the read is done
-    static constexpr double encoder_counter_distance_m = 0.0001; // mm
+    static constexpr double encoder_counter_distance_m = 0.0001; 
     static constexpr size_t  encoder_samples = 250;
 };
 
