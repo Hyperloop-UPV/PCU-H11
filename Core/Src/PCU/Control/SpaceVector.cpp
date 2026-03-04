@@ -46,13 +46,13 @@ void SpaceVector::calculate_duties() {
     //     PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
     // }
     PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
-    time += Period / 1000000.0;
+    constexpr float period_time = static_cast<float>(Period) / 1'000'000.0f;
+    time += period_time;
 
-    // // Wrap time to avoid float precision loss for long-running operation.
-    // // Reset after one full electrical period (1/f) to keep angles accurate.
-    // if (Modulation_frequency > 0.0 && time >= (100.0 / Modulation_frequency)) {
-    //     time = fmodf(time, 1.0f / static_cast<float>(Modulation_frequency));
-    // }
+    if(Modulation_frequency > 0.0f && time >= (2.0))
+    {
+        time -= 2.0f;
+    }
 
     PCU::control_data.time = time;
 }
