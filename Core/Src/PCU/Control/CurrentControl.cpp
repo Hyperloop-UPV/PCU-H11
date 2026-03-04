@@ -27,7 +27,7 @@ double CurrentControl::calculate_frequency_modulation(){
     // return (PCU::control_data.speedState == ControlStates::Cruise_Mode) ? 
     //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b) : 
     //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b - PCU::control_data.speed_km_h_encoder/1.2);
-    return exp_follower(a * PCU::control_data.speed_km_h_encoder + b);
+    return exp_follower((a * PCU::control_data.speed_km_h_encoder) + b);
 }
 
 double CurrentControl::calculate_peak(){    
@@ -55,7 +55,7 @@ double CurrentControl::calculate_peak(){
 void CurrentControl::control_action(){
     if (!should_be_running) return;
 
-    if(PCU::control_data.speed_control_active == SpeedControlState::ACTIVE){
+    if(PCU::control_data.speed_control_active == SpeedControlState::ACTIVE || Comms::Variable_frequency_recieved){
         float freq = calculate_frequency_modulation();
         SpaceVector::set_frequency_Modulation(freq);
         Max_Peak::set_modulation_freq(freq);

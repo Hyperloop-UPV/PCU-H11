@@ -2,6 +2,7 @@
 #include "PCU/Data/Data.hpp"
 #include "PCU/Sensors/CurrentSensor.hpp"
 #include "PCU/Control/SpaceVector.hpp"
+#include "PCU/Comms/Comms.hpp"
 
 #define MICROSECONDS 1000000
 class Max_Peak{

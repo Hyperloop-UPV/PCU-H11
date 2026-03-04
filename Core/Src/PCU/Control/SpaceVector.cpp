@@ -2,7 +2,10 @@
 #include "PCU/PCU.hpp"
 
 float SpaceVector::Imodulation = 0.0f;
-double SpaceVector::Modulation_frequency = 0.0;
+float SpaceVector::Modulation_frequency = 0.0;
+
+static constexpr float TWO_PI = 2.0f * M_PI;
+static constexpr float phase_shift = 2 * M_PI / 3;
 
 void SpaceVector::set_target_voltage(float V_ref) {
     if (V_ref < 0) V_ref = 0;
@@ -18,14 +21,14 @@ void SpaceVector::set_frequency_Modulation(float freq) {
 
 void SpaceVector::calculate_duties() {
 #if MODE_CALCULATE_SIN == 0
-    float sin_u = Imodulation * sin(2.0f * M_PI * Modulation_frequency * time);
-    float sin_v = Imodulation * sin(2.0f * M_PI * Modulation_frequency * time + 2 * M_PI / 3);
-    float sin_w = Imodulation * sin(2.0f * M_PI * Modulation_frequency * time - 2 * M_PI / 3);
+    float sin_u = Imodulation * sin(TWO_PI * Modulation_frequency * time);
+    float sin_v = Imodulation * sin(TWO_PI * Modulation_frequency * time + phase_shift);
+    float sin_w = Imodulation * sin(TWO_PI * Modulation_frequency * time - phase_shift);
 #endif
 #if MODE_CALCULATE_SIN == 1
-    float sin_u = calculate_sin_phase(phase::U);
-    float sin_v = calculate_sin_phase(phase::V);
-    float sin_w = calculate_sin_phase(phase::W);
+    float sin_u = Imodulation* calculate_sin_phase(phase::U);
+    float sin_v = Imodulation* calculate_sin_phase(phase::V);
+    float sin_w = Imodulation* calculate_sin_phase(phase::W);
 #endif
 
 #if ARMONIC_INJECTION == 1
@@ -35,13 +38,13 @@ void SpaceVector::calculate_duties() {
     sin_w -= offset;
 #endif
 
-    if ( PCU::control_data.established_direction == EncoderDirection::Forward){
+    // if ( PCU::control_data.established_direction == EncoderDirection::Forward){ 
         PWMActuators::set_duty_u((sin_u / 2.0 + 0.5) * 100.0);
         PWMActuators::set_duty_v((sin_v / 2.0 + 0.5) * 100.0);
-    } else {
-        PWMActuators::set_duty_u((sin_v / 2.0 + 0.5) * 100.0);
-        PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
-    }
+    // } else {
+    //     PWMActuators::set_duty_u((sin_v / 2.0 + 0.5) * 100.0);
+    //     PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
+    // }
     PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
     time += Period / 1000000.0;
 
@@ -63,8 +66,8 @@ void SpaceVector::set_VMAX(float Vmax) { VMAX = Vmax; }
 
 #if MODE_CALCULATE_SIN == 1
 float SpaceVector::calculate_sin_look_up_table(float angle) {
-    constexpr float TWO_PI = 2.0f * M_PI;
     constexpr float INV_TWO_PI = 1.0f / TWO_PI; 
+    constexpr float PI_HALF = M_PI / 2.0f;
 
     int rotations = static_cast<int>(angle * INV_TWO_PI);
     angle = angle - (rotations * TWO_PI);
@@ -79,7 +82,7 @@ float SpaceVector::calculate_sin_look_up_table(float angle) {
         sign = -1.0f;
     }
     
-    if (angle > (M_PI / 2.0f)) {
+    if (angle > (PI_HALF)) {
         angle = M_PI - angle;
     }
 
@@ -101,13 +104,16 @@ float SpaceVector::calculate_sin_look_up_table(float angle) {
 float SpaceVector::calculate_sin_phase(phase p) {
     float angle = 0.0f;
     if (p == phase::U) {
-        angle = (2.0f * M_PI * Modulation_frequency * time);
+        angle = (TWO_PI * Modulation_frequency * time);
+        return calculate_sin_look_up_table(angle);
     }
     else if (p == phase::V) {
-        angle = (2.0f * M_PI * Modulation_frequency * time + 2 * M_PI / 3);
+        angle = (TWO_PI * Modulation_frequency * time + phase_shift);
+        return calculate_sin_look_up_table(angle);
     }
     else if (p == phase::W) {
-        angle = (2.0f * M_PI * Modulation_frequency * time - 2 * M_PI / 3);
+        angle = (TWO_PI * Modulation_frequency * time - phase_shift);
+        return calculate_sin_look_up_table(angle);
     }
     return calculate_sin_look_up_table(angle);
 }

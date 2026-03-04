@@ -29,6 +29,7 @@ class PCU
     inline static bool flag_update_current_control{false};
     inline static bool flag_execute_space_vector_control{false};
     inline static bool flag_sensors_update{false};
+    inline static bool flag_check_transitions{false};
 
 
     inline static States_PCU current_state_pcu{States_PCU::Connecting};

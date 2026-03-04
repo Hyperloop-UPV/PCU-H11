@@ -15,6 +15,8 @@ class Comms{
     inline static float speed_reference_received{0.0f};
     inline static bool reset_bypass_received{false};
 
+    inline static bool Variable_frequency_recieved{false};
+
     static void start();
     static void update();
 

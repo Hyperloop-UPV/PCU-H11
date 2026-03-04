@@ -35,9 +35,9 @@ public:
     {
         Stop_Motor_order = new HeapOrder(508, &Stop_Motor_cb);
     }
-    static void Send_Reference_Current_init(float &freq_to_send_svpwm, float &freq_to_send_PWM, float &Current_Ref, float &VMax)
+    static void Send_Reference_Current_init(float &freq_to_send_svpwm, float &freq_to_send_PWM, float &Current_Ref, float &VMax, bool &VF_control)
     {
-        Send_Reference_Current_order = new HeapOrder(509, &Send_Reference_Current_cb, &freq_to_send_svpwm, &freq_to_send_PWM, &Current_Ref, &VMax);
+        Send_Reference_Current_order = new HeapOrder(509, &Send_Reference_Current_cb, &freq_to_send_svpwm, &freq_to_send_PWM, &Current_Ref, &VMax, &VF_control);
     }
     static void Zeroing_init()
     {

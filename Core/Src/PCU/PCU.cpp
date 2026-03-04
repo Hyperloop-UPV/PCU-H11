@@ -7,12 +7,23 @@ void PCU::start()
     SpeedControl::init();
     PCU_State_Machine.start();
 
-    Scheduler::register_task(500, [](){flag_sensors_update = true;});
+    Scheduler::register_task(500, [](){
+        flag_sensors_update = true;
+    });
+
+    Scheduler::register_task(100, [](){
+        flag_check_transitions = true;
+    });
+
 
     control_data.space_vector_active = SpaceVectorState::DISABLE;
     control_data.speed_control_active = SpeedControlState::DISABLE;
     control_data.current_control_active = CurrentControlState::DISABLE;
     initialize_protections();
+
+    Scheduler::register_task(600, [](){
+        ProtectionManager::check_protections();
+    });
 
     #if PCU_H10 == 0
     Actuators::enable_hall_supply();
@@ -71,10 +82,6 @@ void PCU::initialize_protections()
     
     ProtectionManager::initialize();
 
-
-    Scheduler::register_task(1000, [](){
-        ProtectionManager::check_protections();
-    });
 }
 
 void PCU::stop_motors()
@@ -93,9 +100,13 @@ void PCU::stop_motors()
 
 void PCU::update()
 {
-    PCU_State_Machine.check_transitions();
-    current_state_pcu = PCU_State_Machine.get_current_state();
-    current_operational_state_pcu = Operational_State_Machine.get_current_state();
+    if(flag_check_transitions)
+    {
+        flag_check_transitions=false;
+        PCU_State_Machine.check_transitions();
+        current_state_pcu = PCU_State_Machine.get_current_state();
+        current_operational_state_pcu = Operational_State_Machine.get_current_state();
+    }
 
     if(OrderPackets::Stop_Motor_flag == true)
     {
@@ -118,11 +129,6 @@ void PCU::update()
     {
         return;
     }
-
-    //Temporary protections
-    // if(current_operational_state_pcu == Operational_States_PCU::Accelerating && (CurrentSensors::actual_current_sensor_u_a >=110.0f || CurrentSensors::actual_current_sensor_v_a>=110.0f || CurrentSensors::actual_current_sensor_w_a >=110.0f)){
-    //     PCU_State_Machine.force_change_state(fault_state); return;
-    // }
     
     if(OrderPackets::Start_SVPWM_flag == true)
     {
@@ -132,12 +138,12 @@ void PCU::update()
         SpaceVector::set_frequency_Modulation(Comms::frequency_space_vector_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
         SpaceVector::set_target_voltage(Comms::ref_voltage_space_vector_received);
+        SpaceVector::reset_time();
+
         CurrentControl::stop();
         SpeedControl::stop();
 
     }
-
-    //Arreglar esto:
 
     if(OrderPackets::Send_Reference_Current_flag == true)
     {
@@ -149,6 +155,7 @@ void PCU::update()
         CurrentControl::set_current_ref(Comms::current_reference_received);
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_frequency_Modulation(Comms::frequency_space_vector_received);
+        SpaceVector::reset_time();
 
         SpeedControl::stop();
         CurrentControl::start();
@@ -163,6 +170,8 @@ void PCU::update()
         SpeedControl::set_reference_speed(Comms::speed_reference_received);
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
+        SpaceVector::reset_time();
+
         CurrentControl::start();
         SpeedControl::start();
 

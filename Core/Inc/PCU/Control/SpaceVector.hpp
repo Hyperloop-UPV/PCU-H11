@@ -19,8 +19,8 @@ private:
 
     inline static float time{0.0f};
     static float Imodulation;
-    static double Modulation_frequency;
-
+    static float Modulation_frequency;
+    
     static constexpr float IMAX = 1.1547;
     
 public:
@@ -32,6 +32,7 @@ public:
     static void set_target_voltage(float V_ref);
     static void set_frequency_Modulation(float freq);
     static void calculate_duties();
+    static void reset_time(){time = 0.0f;};
     static float get_modulation_frequency();
     static float get_actual_time();
     static void set_VMAX(float VMax);

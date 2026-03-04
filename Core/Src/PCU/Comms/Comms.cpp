@@ -66,7 +66,8 @@ void Comms::start()
         frequency_space_vector_received,
         frequency_received,
         current_reference_received,
-        Vmax_control_received
+        Vmax_control_received,
+        Variable_frequency_recieved
     );
 
     OrderPackets::Send_Reference_Speed_init(
