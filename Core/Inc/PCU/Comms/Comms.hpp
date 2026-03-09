@@ -18,6 +18,5 @@ class Comms{
     inline static bool Variable_frequency_recieved{false};
 
     static void start();
-    static void update();
 
 };

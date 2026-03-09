@@ -112,10 +112,12 @@ public:
 
         control_station_udp = new DatagramSocket("192.168.1.5",50400,"192.168.0.9",50400);
         
-        Scheduler::register_task(16670, +[](){
+        Scheduler::register_task(1000, +[](){
             DataPackets::control_station_udp->send_packet(*DataPackets::pwm_packet_packet);
-            DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Current_sensors_packet);
+            });
+        Scheduler::register_task(16670, +[](){
+            DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data_packet);
