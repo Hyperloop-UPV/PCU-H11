@@ -157,7 +157,6 @@ int main(void) {
 
   auto eth_instance = &myBoard::instance_of<eth>();
   PCU::start();
-  Scheduler::start();
 
 
   while (1) {
