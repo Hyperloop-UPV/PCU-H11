@@ -6,6 +6,10 @@ float SpaceVector::Modulation_frequency = 0.0;
 
 static constexpr float TWO_PI = 2.0f * M_PI;
 static constexpr float phase_shift = 2 * M_PI / 3;
+static constexpr float INV_TWO_PI = 1.0f / TWO_PI;
+static constexpr float PI_HALF = M_PI / 2.0f;
+
+
 
 void SpaceVector::set_target_voltage(float V_ref) {
     if (V_ref < 0) V_ref = 0;
@@ -21,9 +25,9 @@ void SpaceVector::set_frequency_Modulation(float freq) {
 
 void SpaceVector::calculate_duties() {
 #if MODE_CALCULATE_SIN == 0
-    float sin_u = Imodulation * sin(TWO_PI * Modulation_frequency * time);
-    float sin_v = Imodulation * sin(TWO_PI * Modulation_frequency * time + phase_shift);
-    float sin_w = Imodulation * sin(TWO_PI * Modulation_frequency * time - phase_shift);
+    float sin_u = Imodulation * sin(phase_rad);
+    float sin_v = Imodulation * sin(phase_rad + phase_shift);
+    float sin_w = Imodulation * sin(phase_rad - phase_shift);
 #endif
 #if MODE_CALCULATE_SIN == 1
     float sin_u = Imodulation* calculate_sin_phase(phase::U);
@@ -49,6 +53,16 @@ void SpaceVector::calculate_duties() {
     constexpr float period_time = static_cast<float>(Period) / 1'000'000.0f;
     time += period_time;
 
+    float delta_phase = TWO_PI * Modulation_frequency * period_time;
+    phase_rad += delta_phase;
+
+    int rotations = static_cast<int>(phase_rad * INV_TWO_PI);
+    phase_rad = phase_rad - (rotations * TWO_PI);
+
+    if (phase_rad < 0.0f) {
+        phase_rad += TWO_PI;
+    }
+
     if(Modulation_frequency > 0.0f && time >= (2.0))
     {
         time -= 2.0f;
@@ -66,9 +80,6 @@ void SpaceVector::set_VMAX(float Vmax) { VMAX = Vmax; }
 
 #if MODE_CALCULATE_SIN == 1
 float SpaceVector::calculate_sin_look_up_table(float angle) {
-    constexpr float INV_TWO_PI = 1.0f / TWO_PI; 
-    constexpr float PI_HALF = M_PI / 2.0f;
-
     int rotations = static_cast<int>(angle * INV_TWO_PI);
     angle = angle - (rotations * TWO_PI);
 
@@ -104,15 +115,15 @@ float SpaceVector::calculate_sin_look_up_table(float angle) {
 float SpaceVector::calculate_sin_phase(phase p) {
     float angle = 0.0f;
     if (p == phase::U) {
-        angle = (TWO_PI * Modulation_frequency * time);
+        angle = phase_rad;
         return calculate_sin_look_up_table(angle);
     }
     else if (p == phase::V) {
-        angle = (TWO_PI * Modulation_frequency * time + phase_shift);
+        angle = phase_rad + phase_shift;
         return calculate_sin_look_up_table(angle);
     }
     else if (p == phase::W) {
-        angle = (TWO_PI * Modulation_frequency * time - phase_shift);
+        angle = phase_rad - phase_shift;
         return calculate_sin_look_up_table(angle);
     }
     return calculate_sin_look_up_table(angle);
