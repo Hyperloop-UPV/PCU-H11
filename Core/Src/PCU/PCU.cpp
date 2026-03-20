@@ -19,9 +19,6 @@ void PCU::start()
         flag_check_transitions = true;
     });
 
-
-
-
     control_data.space_vector_active = SpaceVectorState::DISABLE;
     control_data.speed_control_active = SpeedControlState::DISABLE;
     control_data.current_control_active = CurrentControlState::DISABLE;

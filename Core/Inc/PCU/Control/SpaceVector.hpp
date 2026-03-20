@@ -19,8 +19,8 @@ private:
 
     inline static float time{0.0f};
     inline static float phase_rad{0.0f};
-    static float Imodulation;
-    static float Modulation_frequency;
+    static inline float Imodulation{0.0f};
+    static inline float Modulation_frequency{0.0f};
     
     static constexpr float IMAX = 1.1547;
     

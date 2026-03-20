@@ -27,7 +27,9 @@ double CurrentControl::calculate_frequency_modulation(){
     // return (PCU::control_data.speedState == ControlStates::Cruise_Mode) ? 
     //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b) : 
     //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b - PCU::control_data.speed_km_h_encoder/1.2);
-    return std::max(5.0,exp_follower((a * PCU::control_data.speed_km_h_encoder) + b));
+    double aux = exp_follower((a * PCU::control_data.speed_km_h_encoder) + b);
+    if(aux < 5.0) aux = 5.0;
+    return aux;
 }
 
 double CurrentControl::calculate_peak(){    

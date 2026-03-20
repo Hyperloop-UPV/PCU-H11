@@ -24,6 +24,17 @@ void SpaceVector::set_frequency_Modulation(float freq) {
 }
 
 void SpaceVector::calculate_duties() {
+    constexpr float period_time = static_cast<float>(Period) / 1'000'000.0f;    
+    
+    float delta_phase = TWO_PI * Modulation_frequency * period_time;
+    phase_rad += delta_phase;
+
+    int rotations = static_cast<int>(phase_rad * INV_TWO_PI);
+    phase_rad = phase_rad - (rotations * TWO_PI);
+    if (phase_rad < 0.0f) {
+        phase_rad += TWO_PI;
+    }
+
 #if MODE_CALCULATE_SIN == 0
     float sin_u = Imodulation * sin(phase_rad);
     float sin_v = Imodulation * sin(phase_rad + phase_shift);
@@ -50,18 +61,8 @@ void SpaceVector::calculate_duties() {
     //     PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
     // }
     PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
-    constexpr float period_time = static_cast<float>(Period) / 1'000'000.0f;
+  
     time += period_time;
-
-    float delta_phase = TWO_PI * Modulation_frequency * period_time;
-    phase_rad += delta_phase;
-
-    int rotations = static_cast<int>(phase_rad * INV_TWO_PI);
-    phase_rad = phase_rad - (rotations * TWO_PI);
-
-    if (phase_rad < 0.0f) {
-        phase_rad += TWO_PI;
-    }
 
     if(Modulation_frequency > 0.0f && time >= (2.0))
     {
