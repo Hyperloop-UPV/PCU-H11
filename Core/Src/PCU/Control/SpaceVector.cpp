@@ -1,9 +1,6 @@
 #include "PCU/Control/SpaceVector.hpp"
 #include "PCU/PCU.hpp"
 
-float SpaceVector::Imodulation = 0.0f;
-float SpaceVector::Modulation_frequency = 0.0;
-
 static constexpr float TWO_PI = 2.0f * M_PI;
 static constexpr float phase_shift = 2 * M_PI / 3;
 static constexpr float INV_TWO_PI = 1.0f / TWO_PI;
