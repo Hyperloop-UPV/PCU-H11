@@ -56,8 +56,9 @@ void SpaceVector::calculate_duties() {
     float delta_phase = TWO_PI * Modulation_frequency * period_time;
     phase_rad += delta_phase;
 
-    int rotations = static_cast<int>(phase_rad * INV_TWO_PI);
-    phase_rad = phase_rad - (rotations * TWO_PI);
+    //int rotations = static_cast<int>(phase_rad * INV_TWO_PI);
+    //phase_rad = phase_rad - (rotations * TWO_PI);
+    phase_rad = fmod(phase_rad, TWO_PI);
 
     if (phase_rad < 0.0f) {
         phase_rad += TWO_PI;
@@ -80,19 +81,20 @@ void SpaceVector::set_VMAX(float Vmax) { VMAX = Vmax; }
 
 #if MODE_CALCULATE_SIN == 1
 float SpaceVector::calculate_sin_look_up_table(float angle) {
-    int rotations = static_cast<int>(angle * INV_TWO_PI);
-    angle = angle - (rotations * TWO_PI);
+    //int rotations = static_cast<int>(angle * INV_TWO_PI);
+    //angle = angle - (rotations * TWO_PI);
 
+    angle = fmod(angle, TWO_PI);
     if (angle < 0.0f) {
         angle += TWO_PI;
     }
 
     float sign = 1.0f;
     if (angle > M_PI) {
-        angle -= M_PI;
+        angle = TWO_PI - angle;
         sign = -1.0f;
     }
-    
+
     if (angle > (PI_HALF)) {
         angle = M_PI - angle;
     }

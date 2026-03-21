@@ -16,8 +16,6 @@ void PWMActuators::init(ST_LIB::DualPWM<Pinout::tim_decl,Pinout::U_PWM_pin,Pinou
     W_Dual = &pwm_w;
 
     U_Dual->set_timer_frequency(initial_frequency);
-    V_Dual->set_timer_frequency(initial_frequency);
-    W_Dual->set_timer_frequency(initial_frequency);
     U_Dual->set_dead_time(dead_time_ns);
     V_Dual->set_dead_time(dead_time_ns);
     W_Dual->set_dead_time(dead_time_ns);
@@ -59,14 +57,9 @@ void PWMActuators::stop()
 
 
 
-/*------Setters PWM------*/
+/*------Setters PWM------*/ 
 void PWMActuators::set_duty_u(float duty_cycle)
 {
-    if (duty_cycle < 0.0)
-        duty_cycle = 0.0;
-    else if (duty_cycle > 100.0)
-        duty_cycle = 100.0;
-
     U_Dual->set_duty_cycle(duty_cycle);
     PCU::control_data.duty_cycle_u = get_duty_u();
 }
@@ -74,11 +67,6 @@ void PWMActuators::set_duty_u(float duty_cycle)
 
 void PWMActuators::set_duty_v(float duty_cycle)
 {
-    if (duty_cycle < 0.0)
-        duty_cycle = 0.0;
-    else if (duty_cycle > 100.0)
-        duty_cycle = 100.0;
-
     V_Dual->set_duty_cycle(duty_cycle);
     PCU::control_data.duty_cycle_v = get_duty_v();
 }
@@ -86,11 +74,6 @@ void PWMActuators::set_duty_v(float duty_cycle)
 
 void PWMActuators::set_duty_w(float duty_cycle)
 {
-    if (duty_cycle < 0.0)
-        duty_cycle = 0.0;
-    else if (duty_cycle > 100.0)
-        duty_cycle = 100.0;
-
     W_Dual->set_duty_cycle(duty_cycle);
     PCU::control_data.duty_cycle_w = get_duty_w();
 }

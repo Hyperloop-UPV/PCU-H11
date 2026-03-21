@@ -8,14 +8,14 @@
 
 /*------Control flags------*/
 #define MODE_CALCULATE_SIN 1 //0 = Normal sin, 1 = Look Up table with direct interpolation
-#define PPU_USING 1     // 0 PPU connector A, 1 PPU connector A , 2 Both PPU
+#define PPU_USING 2     // 0 PPU connector A, 1 PPU connector A , 2 Both PPU
 #define ARMONIC_INJECTION 1 // 0 = NO armonic injection, 1 = Armonic injection active
 #define SATURATOR_PI 1 // 0 = No saturator PI, 1 = Saturator PI
 // #define USE_VF_CONTROL 0
 
 
 
-#define CURRENT_PROTECTION 110
+#define CURRENT_PROTECTION 120
 
 
 using ST_LIB::DigitalInputDomain;
@@ -302,8 +302,8 @@ namespace Current_Control_Data
 }
 namespace Speed_Control_Data
 {
-    static constexpr double kp_accelerate = 4.0;
-    static constexpr double ki_accelerate = 1.0;
+    static constexpr double kp_accelerate = 7.5;
+    static constexpr double ki_accelerate = 4.0;
     static constexpr double kp_regenerate = 4.0;
     static constexpr double ki_regenerate = 1.0;
     static constexpr double period = 0.1;
@@ -328,7 +328,7 @@ namespace Sensors_data
     static constexpr size_t  encoder_samples = 250;
 };
 
-#include "Communications/Packets/DataPackets.hpp"
+#include "Communications/Packets/DataPackets-test.hpp"
 
 using States_PCU = DataPackets::general_state_machine;
 using Operational_States_PCU = DataPackets::operational_state_machine;

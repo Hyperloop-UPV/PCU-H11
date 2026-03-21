@@ -2,24 +2,25 @@
 
 void PCU::start()
 {
-    Comms::start();
     CurrentControl::init();
     SpeedControl::init();
     PCU_State_Machine.start();
 
     Scheduler::register_task(Sensors_data::read_sensors_us, [](){
-        flag_speetec_update = true;
+        Speetec::read();
     });
 
     Scheduler::register_task(400, [](){
-        flag_sensors_update = true;
+        Sensors::read();
+        VoltageSensors::read();
+        CurrentSensors::read();
     });
 
-    Scheduler::register_task(100, [](){
-        flag_check_transitions = true;
+    Scheduler::register_task(1000, [](){
+        PCU_State_Machine.check_transitions();
+        current_state_pcu = PCU_State_Machine.get_current_state();
+        current_operational_state_pcu = Operational_State_Machine.get_current_state();
     });
-
-
 
 
     control_data.space_vector_active = SpaceVectorState::DISABLE;
@@ -28,7 +29,44 @@ void PCU::start()
     initialize_protections();
 
     Scheduler::register_task(600, [](){
+        static constexpr float max_current = CURRENT_PROTECTION;
+        static constexpr float max_voltage = Protecction_Voltage;
         ProtectionManager::check_protections();
+        if(VoltageSensors::actual_voltage_battery_a > Protecction_Voltage) {
+            ErrorHandler("PCU Battery voltage A %f above limit: %f", VoltageSensors::actual_voltage_battery_a, max_voltage);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
+
+        if(VoltageSensors::actual_voltage_battery_b > Protecction_Voltage) {
+            ErrorHandler("PCU Battery voltage A %f above limit: %f", VoltageSensors::actual_voltage_battery_b, max_voltage);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
+
+        if(CurrentSensors::actual_current_sensor_u_a > CURRENT_PROTECTION) {
+            ErrorHandler("PCU Current Sensor U A %f above limit: %f", CurrentSensors::actual_current_sensor_u_a, max_current);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
+        if(CurrentSensors::actual_current_sensor_v_a > CURRENT_PROTECTION) {
+            ErrorHandler("PCU Current Sensor V A %f above limit: %f", CurrentSensors::actual_current_sensor_v_a, max_current);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
+        if(CurrentSensors::actual_current_sensor_w_a > CURRENT_PROTECTION) {
+            ErrorHandler("PCU Current Sensor W A %f above limit: %f", CurrentSensors::actual_current_sensor_w_a, max_current);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
+        
+        if(CurrentSensors::actual_current_sensor_u_b > CURRENT_PROTECTION) {
+            ErrorHandler("PCU Current Sensor U B %f above limit: %f", CurrentSensors::actual_current_sensor_u_b, max_current);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
+        if(CurrentSensors::actual_current_sensor_v_b > CURRENT_PROTECTION) {
+            ErrorHandler("PCU Current Sensor V B %f above limit: %f", CurrentSensors::actual_current_sensor_v_b, max_current);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
+        if(CurrentSensors::actual_current_sensor_w_b > CURRENT_PROTECTION) {
+            ErrorHandler("PCU Current Sensor W B %f above limit: %f", CurrentSensors::actual_current_sensor_w_b, max_current);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
     });
 
     #if PCU_H10 == 0
@@ -45,45 +83,45 @@ void PCU::initialize_protections()
     
     ProtectionManager::add_standard_protections();
 
-    auto& voltage_protection_A_PCU = ProtectionManager::_add_protection(
-    &VoltageSensors::actual_voltage_battery_a, Boundary<float, ABOVE>{Protecction_Voltage});
-
-    voltage_protection_A_PCU.set_name((char*)"PCU Battery A voltage");
-
-    auto& voltage_protection_B_PCU = ProtectionManager::_add_protection(
-    &VoltageSensors::actual_voltage_battery_b, Boundary<float, ABOVE>{Protecction_Voltage});
-
-    voltage_protection_B_PCU.set_name((char*)"PCU Battery B voltage");
-
-    auto& current_protection_u_a = ProtectionManager::_add_protection(
-    &CurrentSensors::actual_current_sensor_u_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
-
-    current_protection_u_a.set_name((char*)"PCU Current Sensor U A");
-
-    auto& current_protection_v_a = ProtectionManager::_add_protection(
-    &CurrentSensors::actual_current_sensor_v_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
-
-    current_protection_v_a.set_name((char*)"PCU Current Sensor V A");
-    
-    auto& current_protection_w_a = ProtectionManager::_add_protection(
-    &CurrentSensors::actual_current_sensor_w_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
-
-    current_protection_w_a.set_name((char*)"PCU Current Sensor W A");
-
-    auto& current_protection_u_b = ProtectionManager::_add_protection(
-    &CurrentSensors::actual_current_sensor_u_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
-
-    current_protection_u_b.set_name((char*)"PCU Current Sensor U B");
-    
-    auto& current_protection_v_b = ProtectionManager::_add_protection(
-    &CurrentSensors::actual_current_sensor_v_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
-
-    current_protection_v_b.set_name((char*)"PCU Current Sensor V B");
-    
-    auto& current_protection_w_b = ProtectionManager::_add_protection(
-    &CurrentSensors::actual_current_sensor_w_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
-
-    current_protection_w_b.set_name((char*)"PCU Current Sensor W B");
+//    auto& voltage_protection_A_PCU = ProtectionManager::_add_protection(
+//    &VoltageSensors::actual_voltage_battery_a, Boundary<float, ABOVE>{Protecction_Voltage});
+//
+//    voltage_protection_A_PCU.set_name((char*)"PCU Battery A voltage");
+//
+//    auto& voltage_protection_B_PCU = ProtectionManager::_add_protection(
+//    &VoltageSensors::actual_voltage_battery_b, Boundary<float, ABOVE>{Protecction_Voltage});
+//
+//    voltage_protection_B_PCU.set_name((char*)"PCU Battery B voltage");
+//
+//    auto& current_protection_u_a = ProtectionManager::_add_protection(
+//    &CurrentSensors::actual_current_sensor_u_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+//
+//    current_protection_u_a.set_name((char*)"PCU Current Sensor U A");
+//
+//    auto& current_protection_v_a = ProtectionManager::_add_protection(
+//    &CurrentSensors::actual_current_sensor_v_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+//
+//    current_protection_v_a.set_name((char*)"PCU Current Sensor V A");
+//    
+//    auto& current_protection_w_a = ProtectionManager::_add_protection(
+//    &CurrentSensors::actual_current_sensor_w_a, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+//
+//    current_protection_w_a.set_name((char*)"PCU Current Sensor W A");
+//
+//    auto& current_protection_u_b = ProtectionManager::_add_protection(
+//    &CurrentSensors::actual_current_sensor_u_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+//
+//    current_protection_u_b.set_name((char*)"PCU Current Sensor U B");
+//    
+//    auto& current_protection_v_b = ProtectionManager::_add_protection(
+//    &CurrentSensors::actual_current_sensor_v_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+//
+//    current_protection_v_b.set_name((char*)"PCU Current Sensor V B");
+//    
+//    auto& current_protection_w_b = ProtectionManager::_add_protection(
+//    &CurrentSensors::actual_current_sensor_w_b, Boundary<float, ABOVE>{CURRENT_PROTECTION});
+//
+//    current_protection_w_b.set_name((char*)"PCU Current Sensor W B");
 
     
     ProtectionManager::initialize();
@@ -106,34 +144,11 @@ void PCU::stop_motors()
 
 void PCU::update()
 {
-    if(flag_check_transitions)
-    {
-        flag_check_transitions=false;
-        PCU_State_Machine.check_transitions();
-        current_state_pcu = PCU_State_Machine.get_current_state();
-        current_operational_state_pcu = Operational_State_Machine.get_current_state();
-    }
-
     if(OrderPackets::Stop_Motor_flag == true)
     {
         OrderPackets::Stop_Motor_flag=false;
         stop_motors();
         control_data.space_vector_active = SpaceVectorState::DISABLE;
-    }
-
-    if(flag_speetec_update)
-    {
-        flag_speetec_update=false;
-        Speetec::read();
-    }
-
-    if(flag_sensors_update)
-    {
-        flag_sensors_update=false;
-        Sensors::read();
-        VoltageSensors::read();
-        CurrentSensors::read();
-
     }
     
     if(current_state_pcu == States_PCU::Fault)
@@ -201,24 +216,5 @@ void PCU::update()
     {
         OrderPackets::Zeroing_flag=false;
         CurrentSensors::zeroing();
-    }
-
-    // Control updates:
-    if(flag_update_speed_control)
-    {
-        flag_update_speed_control=false;
-        SpeedControl::control_action();
-    }
-
-    if(flag_update_current_control)
-    {
-        flag_update_current_control=false;
-        CurrentControl::control_action();
-    }
-
-    if(flag_execute_space_vector_control)
-    {
-        flag_execute_space_vector_control=false;
-        SpaceVector::calculate_duties();
     }
 }

@@ -1,14 +1,12 @@
 #include "PCU/Comms/Comms.hpp"
 #include "PCU/PCU.hpp"
 
-void Comms::start()
+void Comms::start(float& duty_u, float& duty_v, float& duty_w)
 {
     DataPackets::pwm_packet_init(
         PCU::control_data.actual_frequency,
         PCU::control_data.modulation_frequency,
-        PCU::control_data.duty_cycle_u,
-        PCU::control_data.duty_cycle_v,
-        PCU::control_data.duty_cycle_w
+        duty_u, duty_v, duty_w
     );
 
     DataPackets::Batteries_Voltage_init(

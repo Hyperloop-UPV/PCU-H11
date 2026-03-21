@@ -1,6 +1,6 @@
 #pragma once
 #include "PCU/Data/Data.hpp"
-#include "Communications/Packets/DataPackets.hpp"
+#include "Communications/Packets/DataPackets-test.hpp"
 #include "Communications/Packets/OrderPackets.hpp"
 
 class Comms{
@@ -17,6 +17,6 @@ class Comms{
 
     inline static bool Variable_frequency_recieved{false};
 
-    static void start();
+    static void start(float& duty_u, float& duty_v, float& duty_w);
 
 };

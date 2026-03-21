@@ -13,7 +13,7 @@
 #include "PCU/Control/SpaceVector.hpp"
 #include "PCU/Control/CurrentControl.hpp"
 #include "PCU/Control/SpeedControl.hpp"
-#include "Communications/Packets/DataPackets.hpp"
+#include "Communications/Packets/DataPackets-test.hpp"
 #include "Communications/Packets/OrderPackets.hpp"
 #include "PCU/Sensors/Sensors.hpp"
 #include "PCU/Comms/Comms.hpp"
@@ -101,7 +101,7 @@ static inline constinit auto Operational_State_Machine = []() consteval
     {
         if(SpeedControl::running)
         {
-            flag_update_speed_control = true;
+            SpeedControl::control_action();
         }
     }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
 
@@ -109,11 +109,11 @@ static inline constinit auto Operational_State_Machine = []() consteval
     {   
         if(control_data.space_vector_active == SpaceVectorState::ACTIVE)
         {
-            flag_execute_space_vector_control = true;
+            SpaceVector::calculate_duties();
         }
         if(CurrentControl::is_running())
         {
-            flag_update_current_control = true;
+            CurrentControl::control_action();
         }
     }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
 

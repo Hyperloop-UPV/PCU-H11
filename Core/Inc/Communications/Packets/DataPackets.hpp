@@ -73,6 +73,11 @@ public:
         GateDriverReporting_packet = new HeapPacket(static_cast<uint16_t>(558), &gd_fault_a, &gd_fault_b, &gd_ready_a, &gd_ready_b);
     }
 
+    static void schedGlobalTick_init(uint64_t &ticks)
+    {
+        schedGlobalTick_packet = new HeapPacket(static_cast<uint16_t>(559), &ticks);
+    }
+
     public:
     inline static HeapPacket *pwm_packet_packet{nullptr};
     inline static HeapPacket *Batteries_Voltage_packet{nullptr};
@@ -81,6 +86,7 @@ public:
     inline static HeapPacket *Speetec_data_packet{nullptr};
     inline static HeapPacket *Speed_data_packet{nullptr};
     inline static HeapPacket *GateDriverReporting_packet{nullptr};
+    inline static HeapPacket *schedGlobalTick_packet{nullptr};
     
     inline static DatagramSocket *control_station_udp{nullptr};
     
@@ -108,6 +114,9 @@ public:
         if (GateDriverReporting_packet == nullptr) {
             ErrorHandler("Packet GateDriverReporting not initialized");
         }
+        if (schedGlobalTick_packet == nullptr) {
+            ErrorHandler("Packet schedGlobalTick not initialized");
+        }
         
 
         control_station_udp = new DatagramSocket("192.168.1.5",50400,"192.168.0.9",50400);
@@ -122,6 +131,9 @@ public:
             DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting_packet);
+            });
+        Scheduler::register_task(10000, +[](){
+            DataPackets::control_station_udp->send_packet(*DataPackets::schedGlobalTick_packet);
             });
     }
 
