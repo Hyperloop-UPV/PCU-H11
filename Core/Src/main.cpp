@@ -156,7 +156,7 @@ int main(void) {
 
 
   auto eth_instance = &myBoard::instance_of<eth>();
-  Comms::start(*pwm_u.duty_cycle, *pwm_v.duty_cycle, *pwm_w.duty_cycle);
+  Comms::start();
   PCU::start();
 
   while (1) {

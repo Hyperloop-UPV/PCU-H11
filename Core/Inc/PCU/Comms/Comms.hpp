@@ -17,6 +17,6 @@ class Comms{
 
     inline static bool Variable_frequency_recieved{false};
 
-    static void start(float& duty_u, float& duty_v, float& duty_w);
+    static void start();
 
 };
