@@ -73,11 +73,6 @@ public:
         GateDriverReporting_packet = new StackPacket(static_cast<uint16_t>(558), &gd_fault_a, &gd_fault_b, &gd_ready_a, &gd_ready_b);
     }
 
-    static void schedGlobalTick_init(uint64_t &ticks)
-    {
-        schedGlobalTick_packet = new StackPacket(static_cast<uint16_t>(559), &ticks);
-    }
-
     public:
     inline static Packet *pwm_packet_packet{nullptr};
     inline static Packet *Batteries_Voltage_packet{nullptr};
@@ -120,7 +115,6 @@ public:
         if (GateDriverReporting_packet == nullptr) {
             ErrorHandler("Packet GateDriverReporting not initialized");
         }
-        schedGlobalTick_init(sched_ticks);
 
         control_station_udp = new DatagramSocket("192.168.1.5",50400,"192.168.0.9",50400);
 
@@ -137,8 +131,6 @@ public:
 //            DataPackets::packets_16670us_idx = (DataPackets::packets_16670us_idx + 1) % ARRAY_LEN(DataPackets::packets_16670us);
 //            });
         Scheduler::register_task(10'000, +[](){
-            DataPackets::sched_ticks = Scheduler::get_global_tick();
-            DataPackets::control_station_udp->send_packet(*DataPackets::schedGlobalTick_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data_packet);
