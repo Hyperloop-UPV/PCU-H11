@@ -333,7 +333,6 @@ namespace Sensors_data
 using States_PCU = DataPackets::general_state_machine;
 using Operational_States_PCU = DataPackets::operational_state_machine;
 using EncoderDirection = DataPackets::encoder_direction;
-using PWM_ACTIVE = DataPackets::space_vector_active;
 using SpeedControlState = DataPackets::speed_control_active;
 using CurrentControlState = DataPackets::current_control_active;
 using SpaceVectorState = DataPackets::space_vector_active;
@@ -350,7 +349,6 @@ extern TIM_TypeDef* global_us_timer;
 struct Control_Data
 {
     //SpaceVector:
-    PWM_ACTIVE pwm_active{};
     uint32_t actual_frequency{};
     float modulation_frequency{0.0f};
     float duty_cycle_u{0.0f};
