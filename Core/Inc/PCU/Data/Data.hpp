@@ -336,6 +336,7 @@ using EncoderDirection = DataPackets::encoder_direction;
 using SpeedControlState = DataPackets::speed_control_active;
 using CurrentControlState = DataPackets::current_control_active;
 using SpaceVectorState = DataPackets::space_vector_active;
+using PWM_ACTIVE = DataPackets::space_vector_active;
 
 enum class BUFFER_STATE: uint8_t
 {
@@ -349,6 +350,7 @@ extern TIM_TypeDef* global_us_timer;
 struct Control_Data
 {
     //SpaceVector:
+    PWM_ACTIVE pwm_active{PWM_ACTIVE::DISABLE};
     uint32_t actual_frequency{};
     float modulation_frequency{0.0f};
     float duty_cycle_u{0.0f};
