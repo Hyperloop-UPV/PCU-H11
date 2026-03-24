@@ -11,15 +11,16 @@ void PCU::start()
     });
 
     Scheduler::register_task(400, [](){
-        Sensors::read();
-        VoltageSensors::read();
         CurrentSensors::read();
     });
 
-    Scheduler::register_task(1000, [](){
+
+    Scheduler::register_task(1'000, [](){
         PCU_State_Machine.check_transitions();
         current_state_pcu = PCU_State_Machine.get_current_state();
         current_operational_state_pcu = Operational_State_Machine.get_current_state();
+        Sensors::read();
+        VoltageSensors::read();
     });
 
 

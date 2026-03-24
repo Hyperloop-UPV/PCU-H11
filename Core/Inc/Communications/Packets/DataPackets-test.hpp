@@ -40,60 +40,60 @@ public:
 
     static void pwm_packet_init(uint32_t &frequency, float &modulation_frequency, float &duty_u, float &duty_v, float &duty_w)
     {
-        pwm_packet_packet = new HeapPacket(static_cast<uint16_t>(550), &frequency, &modulation_frequency, &duty_u, &duty_v, &duty_w);
+        pwm_packet_packet = new StackPacket(static_cast<uint16_t>(550), &frequency, &modulation_frequency, &duty_u, &duty_v, &duty_w);
     }
 
     static void Batteries_Voltage_init(float &Voltage_Battery_A, float &Voltage_Battery_B)
     {
-        Batteries_Voltage_packet = new HeapPacket(static_cast<uint16_t>(551), &Voltage_Battery_A, &Voltage_Battery_B);
+        Batteries_Voltage_packet = new StackPacket(static_cast<uint16_t>(551), &Voltage_Battery_A, &Voltage_Battery_B);
     }
 
     static void Current_sensors_init(float &current_sensor_u_a, float &current_sensor_v_a, float &current_sensor_w_a, float &current_sensor_u_b, float &current_sensor_v_b, float &current_sensor_w_b, double &current_Peak, double &Error_PI, double &Target_Voltage, float &SVPWM_Time, float &imod)
     {
-        Current_sensors_packet = new HeapPacket(static_cast<uint16_t>(552), &current_sensor_u_a, &current_sensor_v_a, &current_sensor_w_a, &current_sensor_u_b, &current_sensor_v_b, &current_sensor_w_b, &current_Peak, &Error_PI, &Target_Voltage, &SVPWM_Time, &imod);
+        Current_sensors_packet = new StackPacket(static_cast<uint16_t>(552), &current_sensor_u_a, &current_sensor_v_a, &current_sensor_w_a, &current_sensor_u_b, &current_sensor_v_b, &current_sensor_w_b, &current_Peak, &Error_PI, &Target_Voltage, &SVPWM_Time, &imod);
     }
 
     static void StateMachine_states_init(general_state_machine &general_state_machine, operational_state_machine &operational_state_machine, space_vector_active &space_vector_active, current_control_active &current_control_active, speed_control_active &speed_control_active)
     {
-        StateMachine_states_packet = new HeapPacket(static_cast<uint16_t>(553), &general_state_machine, &operational_state_machine, &space_vector_active, &current_control_active, &speed_control_active);
+        StateMachine_states_packet = new StackPacket(static_cast<uint16_t>(553), &general_state_machine, &operational_state_machine, &space_vector_active, &current_control_active, &speed_control_active);
     }
 
     static void Speetec_data_init(double &encoder_position, encoder_direction &encoder_direction, double &encoder_speed, double &encoder_speed_km_h, double &encoder_acceleration)
     {
-        Speetec_data_packet = new HeapPacket(static_cast<uint16_t>(554), &encoder_position, &encoder_direction, &encoder_speed, &encoder_speed_km_h, &encoder_acceleration);
+        Speetec_data_packet = new StackPacket(static_cast<uint16_t>(554), &encoder_position, &encoder_direction, &encoder_speed, &encoder_speed_km_h, &encoder_acceleration);
     }
 
     static void Speed_data_init(float &target_speed, double &speed_error, float &actual_current_ref)
     {
-        Speed_data_packet = new HeapPacket(static_cast<uint16_t>(555), &target_speed, &speed_error, &actual_current_ref);
+        Speed_data_packet = new StackPacket(static_cast<uint16_t>(555), &target_speed, &speed_error, &actual_current_ref);
     }
 
     static void GateDriverReporting_init(bool &gd_fault_a, bool &gd_fault_b, bool &gd_ready_a, bool &gd_ready_b)
     {
-        GateDriverReporting_packet = new HeapPacket(static_cast<uint16_t>(558), &gd_fault_a, &gd_fault_b, &gd_ready_a, &gd_ready_b);
+        GateDriverReporting_packet = new StackPacket(static_cast<uint16_t>(558), &gd_fault_a, &gd_fault_b, &gd_ready_a, &gd_ready_b);
     }
 
     static void schedGlobalTick_init(uint64_t &ticks)
     {
-        schedGlobalTick_packet = new HeapPacket(static_cast<uint16_t>(559), &ticks);
+        schedGlobalTick_packet = new StackPacket(static_cast<uint16_t>(559), &ticks);
     }
 
     public:
-    inline static HeapPacket *pwm_packet_packet{nullptr};
-    inline static HeapPacket *Batteries_Voltage_packet{nullptr};
-    inline static HeapPacket *Current_sensors_packet{nullptr};
-    inline static HeapPacket *StateMachine_states_packet{nullptr};
-    inline static HeapPacket *Speetec_data_packet{nullptr};
-    inline static HeapPacket *Speed_data_packet{nullptr};
-    inline static HeapPacket *GateDriverReporting_packet{nullptr};
-    inline static HeapPacket *schedGlobalTick_packet{nullptr};
+    inline static Packet *pwm_packet_packet{nullptr};
+    inline static Packet *Batteries_Voltage_packet{nullptr};
+    inline static Packet *Current_sensors_packet{nullptr};
+    inline static Packet *StateMachine_states_packet{nullptr};
+    inline static Packet *Speetec_data_packet{nullptr};
+    inline static Packet *Speed_data_packet{nullptr};
+    inline static Packet *GateDriverReporting_packet{nullptr};
+    inline static Packet *schedGlobalTick_packet{nullptr};
     
     inline static DatagramSocket *control_station_udp{nullptr};
     
     inline static uint32_t packets_1000us_idx = 0;
     inline static uint32_t packets_16670us_idx = 0;
-    inline static HeapPacket **packets_1000us[] = {&pwm_packet_packet, &Current_sensors_packet};
-    inline static HeapPacket **packets_16670us[] = {&Batteries_Voltage_packet, &StateMachine_states_packet, &Speetec_data_packet, &Speed_data_packet, &GateDriverReporting_packet};
+    inline static Packet **packets_1000us[] = {&pwm_packet_packet, &Current_sensors_packet};
+    inline static Packet **packets_16670us[] = {&Batteries_Voltage_packet, &StateMachine_states_packet, &Speetec_data_packet, &Speed_data_packet, &GateDriverReporting_packet};
 
     inline static uint64_t sched_ticks;
 
@@ -127,18 +127,23 @@ public:
 #define ARRAY_LEN(Arr) (sizeof(Arr)/sizeof(Arr[0]))
 
         Scheduler::register_task(2000/ARRAY_LEN(DataPackets::packets_1000us), +[](){
-            HeapPacket *packet = *DataPackets::packets_1000us[DataPackets::packets_1000us_idx];
+            Packet *packet = *DataPackets::packets_1000us[DataPackets::packets_1000us_idx];
             DataPackets::control_station_udp->send_packet(*packet);
             DataPackets::packets_1000us_idx = (DataPackets::packets_1000us_idx + 1) % ARRAY_LEN(DataPackets::packets_1000us);
         });
 //        Scheduler::register_task(16670/ARRAY_LEN(DataPackets::packets_16670us), +[](){
-//            HeapPacket *packet = *DataPackets::packets_16670us[DataPackets::packets_16670us_idx];
+//            Packet *packet = *DataPackets::packets_16670us[DataPackets::packets_16670us_idx];
 //            DataPackets::control_station_udp->send_packet(*packet);
 //            DataPackets::packets_16670us_idx = (DataPackets::packets_16670us_idx + 1) % ARRAY_LEN(DataPackets::packets_16670us);
 //            });
-        Scheduler::register_task(10000, +[](){
+        Scheduler::register_task(10'000, +[](){
             DataPackets::sched_ticks = Scheduler::get_global_tick();
             DataPackets::control_station_udp->send_packet(*DataPackets::schedGlobalTick_packet);
+            DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states_packet);
+            DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data_packet);
+            DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data_packet);
+            DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting_packet);
+            DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage_packet);
             });
     }
 

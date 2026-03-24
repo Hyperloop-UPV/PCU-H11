@@ -67,13 +67,15 @@ void Comms::start()
         frequency_received,
         current_reference_received,
         Vmax_control_received,
-        Variable_frequency_recieved
+        Variable_frequency_recieved,
+        Reverse_direction
     );
 
     OrderPackets::Send_Reference_Speed_init(
         speed_reference_received,
         frequency_received,
-        Vmax_control_received
+        Vmax_control_received,
+        Reverse_direction
     );
 
     OrderPackets::Start_SVPWM_init(

@@ -14,6 +14,7 @@ class Comms{
     inline static float Vmax_control_received{0.0f};
     inline static float speed_reference_received{0.0f};
     inline static bool reset_bypass_received{false};
+    inline static bool Reverse_direction{false};
 
     inline static bool Variable_frequency_recieved{false};
 

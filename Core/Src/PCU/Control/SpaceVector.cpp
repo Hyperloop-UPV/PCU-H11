@@ -2,7 +2,7 @@
 #include "PCU/PCU.hpp"
 
 float SpaceVector::Imodulation = 0.0f;
-float SpaceVector::Modulation_frequency = 0.0;
+float SpaceVector::Modulation_frequency = 0.0f;
 
 static constexpr float TWO_PI = 2.0f * M_PI;
 static constexpr float phase_shift = 2 * M_PI / 3;
@@ -24,6 +24,17 @@ void SpaceVector::set_frequency_Modulation(float freq) {
 }
 
 void SpaceVector::calculate_duties() {
+    constexpr float period_time = static_cast<float>(Period) / 1'000'000.0f;    
+    
+    float delta_phase = TWO_PI * Modulation_frequency * period_time;
+    phase_rad += delta_phase;
+
+    int rotations = static_cast<int>(phase_rad * INV_TWO_PI);
+    phase_rad = phase_rad - (rotations * TWO_PI);
+    if (phase_rad < 0.0f) {
+        phase_rad += TWO_PI;
+    }
+
 #if MODE_CALCULATE_SIN == 0
     float sin_u = Imodulation * sin(phase_rad);
     float sin_v = Imodulation * sin(phase_rad + phase_shift);
@@ -42,27 +53,16 @@ void SpaceVector::calculate_duties() {
     sin_w -= offset;
 #endif
 
-    // if ( PCU::control_data.established_direction == EncoderDirection::Forward){ 
+    if ( Comms::Reverse_direction == false){ 
         PWMActuators::set_duty_u((sin_u / 2.0 + 0.5) * 100.0);
         PWMActuators::set_duty_v((sin_v / 2.0 + 0.5) * 100.0);
-    // } else {
-    //     PWMActuators::set_duty_u((sin_v / 2.0 + 0.5) * 100.0);
-    //     PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
-    // }
-    PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
-    constexpr float period_time = static_cast<float>(Period) / 1'000'000.0f;
-    time += period_time;
-
-    float delta_phase = TWO_PI * Modulation_frequency * period_time;
-    phase_rad += delta_phase;
-
-    //int rotations = static_cast<int>(phase_rad * INV_TWO_PI);
-    //phase_rad = phase_rad - (rotations * TWO_PI);
-    phase_rad = fmod(phase_rad, TWO_PI);
-
-    if (phase_rad < 0.0f) {
-        phase_rad += TWO_PI;
+    } else {
+        PWMActuators::set_duty_u((sin_v / 2.0 + 0.5) * 100.0);
+        PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
     }
+    PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
+  
+    time += period_time;
 
     if(Modulation_frequency > 0.0f && time >= (2.0))
     {
@@ -81,10 +81,9 @@ void SpaceVector::set_VMAX(float Vmax) { VMAX = Vmax; }
 
 #if MODE_CALCULATE_SIN == 1
 float SpaceVector::calculate_sin_look_up_table(float angle) {
-    //int rotations = static_cast<int>(angle * INV_TWO_PI);
-    //angle = angle - (rotations * TWO_PI);
+    int rotations = static_cast<int>(angle * INV_TWO_PI);
+    angle = angle - (rotations * TWO_PI);
 
-    angle = fmod(angle, TWO_PI);
     if (angle < 0.0f) {
         angle += TWO_PI;
     }
