@@ -31,6 +31,7 @@ class PCU
     inline static bool flag_sensors_update{false};
     inline static bool flag_check_transitions{false};
     inline static bool flag_speetec_update{false};
+    inline static bool temporal_callback_flag{false};
 
 
     inline static States_PCU current_state_pcu{States_PCU::Connecting};
@@ -95,7 +96,19 @@ static inline constinit auto Operational_State_Machine = []() consteval
     sm.add_enter_action([]()
     {
         stop_motors();
+        temporal_callback_flag = false;
     },nested_idle_state);
+
+    sm.add_enter_action([]()
+    {
+        temporal_callback_flag = true;
+    },nested_accelerating_state);
+
+    sm.add_exit_action([]()
+    {
+        stop_motors();
+        temporal_callback_flag = false; //Temporal estas flags, lo pone en el nombre xd
+    },nested_accelerating_state);
 
     sm.add_cyclic_action([]()
     {
@@ -105,17 +118,17 @@ static inline constinit auto Operational_State_Machine = []() consteval
         }
     }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
 
-    sm.add_cyclic_action([]()
-    {   
-        if(control_data.space_vector_active == SpaceVectorState::ACTIVE)
-        {
-            SpaceVector::calculate_duties();
-        }
-        if(CurrentControl::is_running())
-        {
-            CurrentControl::control_action();
-        }
-    }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
+    // sm.add_cyclic_action([]()
+    // {   
+    //     if(control_data.space_vector_active == SpaceVectorState::ACTIVE)
+    //     {
+    //         SpaceVector::calculate_duties();
+    //     }
+    //     if(CurrentControl::is_running())
+    //     {
+    //         CurrentControl::control_action();
+    //     }
+    // }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
 
 
     
@@ -173,11 +186,13 @@ static inline constinit auto PCU_State_Machine = []() consteval
     {
         stop_motors();
         Actuators::set_led_connecting(false);
+        temporal_callback_flag = false;
     }, operational_state);
 
     sm.add_enter_action([]()
     {
         stop_motors();
+        temporal_callback_flag = false;
         ProtectionManager::propagate_fault();
         Actuators::set_led_operational(false);
         Actuators::set_led_connecting(false);

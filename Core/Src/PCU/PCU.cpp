@@ -15,13 +15,13 @@ void PCU::start()
     });
 
 
-    Scheduler::register_task(1'000, [](){
-        PCU_State_Machine.check_transitions();
-        current_state_pcu = PCU_State_Machine.get_current_state();
-        current_operational_state_pcu = Operational_State_Machine.get_current_state();
-        Sensors::read();
-        VoltageSensors::read();
-    });
+    // Scheduler::register_task(1'000, [](){
+    //     PCU_State_Machine.check_transitions();
+    //     current_state_pcu = PCU_State_Machine.get_current_state();
+    //     current_operational_state_pcu = Operational_State_Machine.get_current_state();
+    //     Sensors::read();
+    //     VoltageSensors::read();
+    // });
 
 
     control_data.space_vector_active = SpaceVectorState::DISABLE;
@@ -29,7 +29,7 @@ void PCU::start()
     control_data.current_control_active = CurrentControlState::DISABLE;
     initialize_protections();
 
-    Scheduler::register_task(600, [](){
+    Scheduler::register_task(1'000, [](){
         static constexpr float max_current = CURRENT_PROTECTION;
         static constexpr float max_voltage = Protecction_Voltage;
         ProtectionManager::check_protections();
@@ -39,7 +39,7 @@ void PCU::start()
         }
 
         if(VoltageSensors::actual_voltage_battery_b > Protecction_Voltage) {
-            ErrorHandler("PCU Battery voltage A %f above limit: %f", VoltageSensors::actual_voltage_battery_b, max_voltage);
+            ErrorHandler("PCU Battery voltage B %f above limit: %f", VoltageSensors::actual_voltage_battery_b, max_voltage);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
 
@@ -68,6 +68,11 @@ void PCU::start()
             ErrorHandler("PCU Current Sensor W B %f above limit: %f", CurrentSensors::actual_current_sensor_w_b, max_current);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
+        PCU_State_Machine.check_transitions();
+        current_state_pcu = PCU_State_Machine.get_current_state();
+        current_operational_state_pcu = Operational_State_Machine.get_current_state();
+        Sensors::read();
+        VoltageSensors::read();
     });
 
     #if PCU_H10 == 0

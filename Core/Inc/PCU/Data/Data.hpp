@@ -110,6 +110,11 @@ namespace Pinout{
     //Speetec
     static constexpr Pin& Speetec_A = PF1;
     static constexpr Pin& Speetec_B = PF0;
+    //Temporal:
+
+    inline constexpr ST_LIB::TimerDomain::Timer general_purpose_timer{{
+         .request = ST_LIB::TimerRequest::AnyGeneralPurpose,
+    }};
 
 constexpr ST_LIB::TimerPin Encoder_Pin_A {
     .af = ST_LIB::TimerAF::Encoder,
@@ -298,7 +303,7 @@ namespace Current_Control_Data
     static constexpr double ki_regenerate = 6.0;
     static constexpr double period = 0.0002;
     //Esto por ver:
-    static constexpr uint32_t microsecond_period = static_cast<uint32_t>(period * 1000000);
+    static constexpr uint32_t microsecond_period = static_cast<uint32_t>(period * 1'000'000);
 }
 namespace Speed_Control_Data
 {
@@ -307,7 +312,7 @@ namespace Speed_Control_Data
     static constexpr double kp_regenerate = 4.0;
     static constexpr double ki_regenerate = 1.0;
     static constexpr double period = 0.1;
-    static constexpr uint32_t microsecond_period = static_cast<uint32_t>(period * 1000000);
+    static constexpr uint32_t microsecond_period = static_cast<uint32_t>(period * 1'000'000);
 }
 
 namespace Sensors_data
@@ -322,7 +327,7 @@ namespace Sensors_data
     static constexpr float slope_voltage_sensor = 136.24540968446678f;
     static constexpr float offset_voltage_sensor =-16.670217777056518f;
 
-    static constexpr uint32_t read_sensors_us = 200; 
+    static constexpr uint32_t read_sensors_us = 330; 
     static constexpr double encoder_sample_time_s =  static_cast<double>(read_sensors_us)/1e6; // this has to be the same frequency that the read is done
     static constexpr double encoder_counter_distance_m = 0.0001; 
     static constexpr size_t  encoder_samples = 250;

@@ -7,6 +7,19 @@
 using ST_LIB::EthernetDomain;
 TIM_TypeDef* global_us_timer = nullptr;
 
+void pcu_control_callback(void* raw) {
+    if(PCU::control_data.space_vector_active == SpaceVectorState::ACTIVE && PCU::temporal_callback_flag)
+    {
+        SpaceVector::calculate_duties();
+
+        if(CurrentControl::is_running())
+        {
+            CurrentControl::control_action();
+        }
+    }
+    
+}
+
 #if defined(USE_PHY_LAN8742)
 constexpr auto eth =
     EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:09",
@@ -47,7 +60,7 @@ int main(void) {
                                Pinout::Voltage_Battery_A,Pinout::Voltage_Battery_B,
                                Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
                                Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
-                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def>;
+                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def,Pinout::general_purpose_timer>;
 
   #else
   using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
@@ -154,7 +167,12 @@ int main(void) {
   Sensors::init(fault_inverter_a, fault_inverter_b,
                 ready_inverter_a, ready_inverter_b);
 
-
+  auto tim_gp0 = get_timer_instance(myBoard, Pinout::general_purpose_timer);
+  tim_gp0.set_prescaler(tim_gp0.get_clock_frequency() / 1000'000);
+  tim_gp0.configure16bit(pcu_control_callback, nullptr, 199);
+  tim_gp0.enable_nvic();
+  tim_gp0.enable_update_interrupt();
+    
   auto eth_instance = &myBoard::instance_of<eth>();
   Comms::start();
   PCU::start();

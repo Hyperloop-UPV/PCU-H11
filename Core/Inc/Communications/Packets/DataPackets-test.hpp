@@ -90,7 +90,6 @@ public:
     inline static Packet **packets_1000us[] = {&pwm_packet_packet, &Current_sensors_packet};
     inline static Packet **packets_16670us[] = {&Batteries_Voltage_packet, &StateMachine_states_packet, &Speetec_data_packet, &Speed_data_packet, &GateDriverReporting_packet};
 
-    inline static uint64_t sched_ticks;
 
     static void start()
     {
@@ -134,9 +133,14 @@ public:
             DataPackets::control_station_udp->send_packet(*DataPackets::StateMachine_states_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Speetec_data_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Speed_data_packet);
+            // DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting_packet);
+            // DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage_packet);
+        });
+
+        Scheduler::register_task(1'000'000, +[](){
             DataPackets::control_station_udp->send_packet(*DataPackets::GateDriverReporting_packet);
             DataPackets::control_station_udp->send_packet(*DataPackets::Batteries_Voltage_packet);
-            });
+        });
     }
 
 
