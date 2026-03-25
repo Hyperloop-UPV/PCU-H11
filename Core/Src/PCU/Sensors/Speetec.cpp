@@ -26,7 +26,9 @@ void Speetec::read()
         PCU::control_data.established_direction = EncoderDirection::Backward;
     else
         PCU::control_data.established_direction = EncoderDirection::Forward;
+    __disable_irq();
     PCU::control_data.speed_km_h_encoder = PCU::control_data.speed_encoder * 3.6; 
+    __enable_irq();
 
 
 }

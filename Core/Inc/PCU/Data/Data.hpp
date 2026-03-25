@@ -363,9 +363,9 @@ struct Control_Data
     float duty_cycle_w{0.0f};
     BUFFER_STATE buffer_state{BUFFER_STATE::DISABLED};
 
-    double current_error{0.0f};
-    double current_Peak{0.0f};
-    double target_voltage{0.0f};
+    float current_error{0.0f};
+    float current_Peak{0.0f};
+    float target_voltage{0.0f};
     float time{0.0f};
     float imod{0.0f};
     //speed:

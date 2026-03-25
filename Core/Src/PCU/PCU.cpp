@@ -153,8 +153,10 @@ void PCU::update()
     if(OrderPackets::Stop_Motor_flag == true)
     {
         OrderPackets::Stop_Motor_flag=false;
-        stop_motors();
+        __disable_irq();
         control_data.space_vector_active = SpaceVectorState::DISABLE;
+        stop_motors();
+        __enable_irq();
     }
     
     if(current_state_pcu == States_PCU::Fault)
@@ -165,7 +167,6 @@ void PCU::update()
     if(OrderPackets::Start_SVPWM_flag == true)
     {
         OrderPackets::Start_SVPWM_flag=false;
-        control_data.space_vector_active=SpaceVectorState::ACTIVE;
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_frequency_Modulation(Comms::frequency_space_vector_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
@@ -174,13 +175,13 @@ void PCU::update()
 
         CurrentControl::stop();
         SpeedControl::stop();
+        control_data.space_vector_active=SpaceVectorState::ACTIVE;
 
     }
 
     if(OrderPackets::Send_Reference_Current_flag == true)
     {
         OrderPackets::Send_Reference_Current_flag = false;
-        control_data.space_vector_active = SpaceVectorState::ACTIVE;
         SpeedControl::reset_PI();
         CurrentControl::reset_PI();
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
@@ -191,12 +192,13 @@ void PCU::update()
 
         SpeedControl::stop();
         CurrentControl::start();
+        control_data.space_vector_active = SpaceVectorState::ACTIVE;
+
     }
 
     if(OrderPackets::Send_Reference_Speed_flag==true)
     {
         OrderPackets::Send_Reference_Speed_flag=false;
-        control_data.space_vector_active = SpaceVectorState::ACTIVE;
         SpeedControl::reset_PI();
         CurrentControl::reset_PI();
         SpeedControl::set_reference_speed(Comms::speed_reference_received);
@@ -206,6 +208,8 @@ void PCU::update()
 
         CurrentControl::start();
         SpeedControl::start();
+        control_data.space_vector_active = SpaceVectorState::ACTIVE;
+
 
     }
 
