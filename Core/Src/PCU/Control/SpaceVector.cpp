@@ -64,10 +64,10 @@ void SpaceVector::calculate_duties() {
   
     time += period_time;
 
-    if(Modulation_frequency > 0.0f && time >= (2.0))
-    {
-        time -= 2.0f;
-    }
+    // if(Modulation_frequency > 0.0f && time >= (2.0))
+    // {
+    //     time -= 2.0f;
+    // }
 
     PCU::control_data.time = time;
 }

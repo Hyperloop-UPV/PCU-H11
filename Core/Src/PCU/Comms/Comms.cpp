@@ -49,7 +49,8 @@ void Comms::start()
     DataPackets::Speed_data_init(
         PCU::control_data.target_speed,
         PCU::control_data.speed_error,
-        PCU::control_data.actual_current_ref
+        PCU::control_data.actual_current_ref,
+        PCU::control_data.slip_control
     );
 
     DataPackets::GateDriverReporting_init(

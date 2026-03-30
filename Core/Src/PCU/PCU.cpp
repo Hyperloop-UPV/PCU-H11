@@ -68,6 +68,11 @@ void PCU::start()
             ErrorHandler("PCU Current Sensor W B %f above limit: %f", CurrentSensors::actual_current_sensor_w_b, max_current);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
+
+        if(control_data.position_encoder > 25.0) {
+            ErrorHandler("PCU Position Encoder %f above limit: %f", control_data.position_encoder, 25.0);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
         PCU_State_Machine.check_transitions();
         current_state_pcu = PCU_State_Machine.get_current_state();
         current_operational_state_pcu = Operational_State_Machine.get_current_state();

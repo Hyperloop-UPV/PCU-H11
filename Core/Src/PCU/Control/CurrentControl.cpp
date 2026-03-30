@@ -1,5 +1,6 @@
 #include "PCU/Control/CurrentControl.hpp"
 #include "PCU/PCU.hpp"
+#include "PCU/Control/SpaceVector.hpp"
 
 double Max_Peak::modulation_frequency = 0.0;
 
@@ -28,7 +29,11 @@ double CurrentControl::calculate_frequency_modulation(){
     //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b) : 
     //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b - PCU::control_data.speed_km_h_encoder/1.2);
     // return std::max(5.0,exp_follower((a * PCU::control_data.speed_km_h_encoder) + b));
-    return exp_follower((a * PCU::control_data.speed_km_h_encoder) + b);
+    if(Comms::Reverse_direction){
+        return exp_follower((a * -1 *PCU::control_data.speed_km_h_encoder) + b);
+    }
+    // return exp_follower((a * PCU::control_data.speed_km_h_encoder) + b);
+
 }
 
 double CurrentControl::calculate_peak(){    
@@ -55,13 +60,22 @@ double CurrentControl::calculate_peak(){
 
 void CurrentControl::control_action(){
     if (!should_be_running) return;
-
+    float freq=0.0f;
     if(PCU::control_data.speed_control_active == SpeedControlState::ACTIVE || Comms::Variable_frequency_recieved){
-        float freq = calculate_frequency_modulation();
+        freq = calculate_frequency_modulation();
         SpaceVector::set_frequency_Modulation(freq);
         Max_Peak::set_modulation_freq(freq);
     } else {
-        Max_Peak::set_modulation_freq(SpaceVector::get_modulation_frequency());
+        freq = SpaceVector::get_modulation_frequency();
+        Max_Peak::set_modulation_freq(freq);
+    }
+
+    PCU::control_data.synchronous_speed = 2.0 * freq * Current_Control_Data::pole_pitch;
+
+    if (std::abs(PCU::control_data.synchronous_speed) > 0.01) { 
+        PCU::control_data.slip_control = (PCU::control_data.synchronous_speed - PCU::control_data.speed_encoder) / PCU::control_data.synchronous_speed;
+    } else {
+        PCU::control_data.slip_control = 0.0;
     }
 
     double target_voltage;

@@ -48,7 +48,7 @@ public:
         Batteries_Voltage_packet = new StackPacket(static_cast<uint16_t>(551), &Voltage_Battery_A, &Voltage_Battery_B);
     }
 
-    static void Current_sensors_init(float &current_sensor_u_a, float &current_sensor_v_a, float &current_sensor_w_a, float &current_sensor_u_b, float &current_sensor_v_b, float &current_sensor_w_b, double &current_Peak, double &Error_PI, double &Target_Voltage, float &SVPWM_Time, float &imod)
+    static void Current_sensors_init(float &current_sensor_u_a, float &current_sensor_v_a, float &current_sensor_w_a, float &current_sensor_u_b, float &current_sensor_v_b, float &current_sensor_w_b, float &current_Peak, float &Error_PI, float &Target_Voltage, float &SVPWM_Time, float &imod)
     {
         Current_sensors_packet = new StackPacket(static_cast<uint16_t>(552), &current_sensor_u_a, &current_sensor_v_a, &current_sensor_w_a, &current_sensor_u_b, &current_sensor_v_b, &current_sensor_w_b, &current_Peak, &Error_PI, &Target_Voltage, &SVPWM_Time, &imod);
     }
@@ -63,9 +63,9 @@ public:
         Speetec_data_packet = new StackPacket(static_cast<uint16_t>(554), &encoder_position, &encoder_direction, &encoder_speed, &encoder_speed_km_h, &encoder_acceleration);
     }
 
-    static void Speed_data_init(float &target_speed, double &speed_error, float &actual_current_ref)
+    static void Speed_data_init(float &target_speed, double &speed_error, float &actual_current_ref,float &slip_control)
     {
-        Speed_data_packet = new StackPacket(static_cast<uint16_t>(555), &target_speed, &speed_error, &actual_current_ref);
+        Speed_data_packet = new StackPacket(static_cast<uint16_t>(555), &target_speed, &speed_error, &actual_current_ref,&slip_control);
     }
 
     static void GateDriverReporting_init(bool &gd_fault_a, bool &gd_fault_b, bool &gd_ready_a, bool &gd_ready_b)

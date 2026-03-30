@@ -95,8 +95,8 @@ static inline constinit auto Operational_State_Machine = []() consteval
 
     sm.add_enter_action([]()
     {
-        stop_motors();
         temporal_callback_flag = false;
+        stop_motors();
     },nested_idle_state);
 
     sm.add_enter_action([]()
@@ -106,7 +106,6 @@ static inline constinit auto Operational_State_Machine = []() consteval
 
     sm.add_exit_action([]()
     {
-        stop_motors();
         temporal_callback_flag = false; //Temporal estas flags, lo pone en el nombre xd
     },nested_accelerating_state);
 
@@ -191,8 +190,8 @@ static inline constinit auto PCU_State_Machine = []() consteval
 
     sm.add_enter_action([]()
     {
-        stop_motors();
         temporal_callback_flag = false;
+        stop_motors();
         ProtectionManager::propagate_fault();
         Actuators::set_led_operational(false);
         Actuators::set_led_connecting(false);

@@ -11,7 +11,7 @@ void Speetec::init(ST_LIB::Encoder<Pinout::tim_encoder_decl>* encoder_ptr)
             Sensors_data::encoder_sample_time_s,
             &internal_direction,
             &PCU::control_data.position_encoder,
-            &PCU::control_data.speed_encoder,
+            &speed_encoder,
             &acceleration_encoder
         );
 
@@ -22,14 +22,14 @@ void Speetec::init(ST_LIB::Encoder<Pinout::tim_encoder_decl>* encoder_ptr)
 void Speetec::read()
 {
     if(sensor_speetec) sensor_speetec->read();
-    if(is_going_backwards())
-        PCU::control_data.established_direction = EncoderDirection::Backward;
-    else
-        PCU::control_data.established_direction = EncoderDirection::Forward;
+    // if(is_going_backwards())
+    //     PCU::control_data.established_direction = EncoderDirection::Backward;
+    // else
+    //     PCU::control_data.established_direction = EncoderDirection::Forward;
     __disable_irq();
-    PCU::control_data.speed_km_h_encoder = PCU::control_data.speed_encoder * 3.6; 
+    PCU::control_data.speed_encoder = speed_encoder;
+    PCU::control_data.speed_km_h_encoder = speed_encoder * 3.6; 
     __enable_irq();
-
 
 }
 

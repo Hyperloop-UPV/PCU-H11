@@ -304,6 +304,7 @@ namespace Current_Control_Data
     static constexpr double period = 0.0002;
     //Esto por ver:
     static constexpr uint32_t microsecond_period = static_cast<uint32_t>(period * 1'000'000);
+    static constexpr double pole_pitch = 0.114f;
 }
 namespace Speed_Control_Data
 {
@@ -376,6 +377,8 @@ struct Control_Data
     
     double position_encoder{0.0f}; 
     double speed_encoder{0.0f};
+    double synchronous_speed{0.0f};
+    float slip_control{0.0f};
 
     EncoderDirection established_direction{EncoderDirection::Forward};
     SpeedControlState speed_control_active{SpeedControlState::DISABLE};

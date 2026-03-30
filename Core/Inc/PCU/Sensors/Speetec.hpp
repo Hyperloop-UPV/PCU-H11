@@ -9,6 +9,7 @@ class Speetec{
 
     inline static double acceleration_encoder{0.0f};
     [[maybe_unused]] inline static SpeetecDirection internal_direction{SpeetecDirection::FORWARD};
+    inline static double speed_encoder{0.0f};
 
     private:
 
