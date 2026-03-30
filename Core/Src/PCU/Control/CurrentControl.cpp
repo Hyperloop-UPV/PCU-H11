@@ -32,7 +32,8 @@ double CurrentControl::calculate_frequency_modulation(){
     if(Comms::Reverse_direction){
         return exp_follower((a * -1 *PCU::control_data.speed_km_h_encoder) + b);
     }
-    return exp_follower((a * PCU::control_data.speed_km_h_encoder) + b);
+    // return exp_follower((a * PCU::control_data.speed_km_h_encoder) + b);
+    return (9.84f + 10.19f*SpaceVector::get_actual_time());
 
 }
 
