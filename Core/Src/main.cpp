@@ -169,6 +169,10 @@ int main(void) {
   Sensors::init(fault_inverter_a, fault_inverter_b,
                 ready_inverter_a, ready_inverter_b);
 
+   auto& spi_pins = myBoard::instance_of<Pinout::spi_def>();
+   auto& spi_cs = myBoard::instance_of<Pinout::spi_cs_def>();
+   IMU::init(spi_cs, spi_pins);
+
   auto tim_gp0 = get_timer_instance(myBoard, Pinout::general_purpose_timer);
   tim_gp0.set_prescaler(tim_gp0.get_clock_frequency() / 1000'000);
   tim_gp0.configure16bit(pcu_control_callback, nullptr, 199);

@@ -401,6 +401,8 @@ struct Control_Data
     double synchronous_speed{0.0f};
     float slip_control{0.0f};
 
+    double IMU_speed_km_h{0.0f};
+
     EncoderDirection established_direction{EncoderDirection::Forward};
     SpeedControlState speed_control_active{SpeedControlState::DISABLE};
     CurrentControlState current_control_active{CurrentControlState::DISABLE};

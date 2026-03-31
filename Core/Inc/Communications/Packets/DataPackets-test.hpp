@@ -63,9 +63,9 @@ public:
         Speetec_data_packet = new StackPacket(static_cast<uint16_t>(554), &encoder_position, &encoder_direction, &encoder_speed, &encoder_speed_km_h, &encoder_acceleration);
     }
 
-    static void Speed_data_init(float &target_speed, double &speed_error, float &actual_current_ref,float &slip_control,uint32_t &cnt_encoder)
+    static void Speed_data_init(float &target_speed, double &speed_error, float &actual_current_ref,float &slip_control,uint32_t &cnt_encoder,double& speed_km_h_IMU)
     {
-        Speed_data_packet = new StackPacket(static_cast<uint16_t>(555), &target_speed, &speed_error, &actual_current_ref,&slip_control,&cnt_encoder);
+        Speed_data_packet = new StackPacket(static_cast<uint16_t>(555), &target_speed, &speed_error, &actual_current_ref,&slip_control,&cnt_encoder,&speed_km_h_IMU);
     }
 
     static void GateDriverReporting_init(bool &gd_fault_a, bool &gd_fault_b, bool &gd_ready_a, bool &gd_ready_b)

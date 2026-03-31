@@ -15,11 +15,17 @@ class IMU{
 	static inline uint8_t txData[1] = { 0 };
 	static inline uint8_t rxData[1] = { 0 };
 
-	static std::optional<ST_LIB::SPIDomain::SPIWrapper<Pinout::spi_def>> spi_wrapper;
+	static inline std::optional<ST_LIB::SPIDomain::SPIWrapper<Pinout::spi_def>> spi_wrapper;
 	static inline ST_LIB::DigitalOutputDomain::Instance* spi_cs = nullptr;
 	static inline ST_LIB::SPIDomain::Instance* spi_pins= nullptr;
+	static inline double accel_offset_x = 0;
+	static inline double accel_offset_y = 0;
+	static inline double accel_offset_z = 0;
+	
+	static inline Integrator<IntegratorType::Trapezoidal> velocity_integrator{0.001 , 1};
 
 public:
+
 	static void init(ST_LIB::DigitalOutputDomain::Instance& spi_cs_get, ST_LIB::SPIDomain::Instance& spi_pins_get)
 	{
 		spi_cs = &spi_cs_get;
@@ -29,14 +35,15 @@ public:
 		Scheduler::set_timeout(15*1000, [](){
 			write_acceleration_config(ACCELERATION_8G, ACCELERATION_50HZ);
 			config_accel_antialias(ANTIALIAS_FREQ_536_HZ);
+			turn_on_sensors();
 		});
 	
 	}
 
 	static void read_imu_data(){
-		accel_x = read_accel_x();
-		accel_y = read_accel_y();
-		accel_z = read_accel_z();
+		accel_x = read_accel_x() - accel_offset_x;
+		accel_y = read_accel_y() - accel_offset_y;
+		accel_z = read_accel_z() - accel_offset_z;
 	}
 
 	static void get_accelerations(double& x, double& y, double& z){
@@ -46,8 +53,35 @@ public:
 	}
 
 	static double read_imu_x_acceleration(){
-		accel_x = read_accel_x();
+		accel_x = read_accel_x() - accel_offset_x;
 		return accel_x;
+	}
+
+	static double get_imu_x_speed(){
+		static double velocity = 0;
+		static double acceleration = accel_x * 9.8;
+
+		velocity_integrator.input(acceleration);
+		velocity_integrator.execute();
+		velocity= velocity_integrator.output_value;
+		return velocity * 3.6; // m/s to km/h
+	}
+
+	static void calibrate(size_t TIMES_TO_CREATE_ZERO = 100) {
+		double new_offset_x = 0;
+		double new_offset_y = 0;
+		double new_offset_z = 0;
+		for(size_t i = 1; i < TIMES_TO_CREATE_ZERO; i++) {
+			double current_x = read_accel_x();
+			double current_y = read_accel_y();
+			double current_z = read_accel_z();
+			new_offset_x = (new_offset_x * (i - 1) + current_x) / i;
+			new_offset_y = (new_offset_y * (i - 1) + current_y) / i;
+			new_offset_z = (new_offset_z * (i - 1) + current_z) / i;
+		}
+		accel_offset_x = new_offset_x;
+		accel_offset_y = new_offset_y;
+		accel_offset_z = new_offset_z;
 	}
 
 	static void turn_on_sensors(){
