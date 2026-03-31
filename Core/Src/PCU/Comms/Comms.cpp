@@ -50,7 +50,8 @@ void Comms::start()
         PCU::control_data.target_speed,
         PCU::control_data.speed_error,
         PCU::control_data.actual_current_ref,
-        PCU::control_data.slip_control
+        PCU::control_data.slip_control,
+        PCU::control_data.cnt_encoder
     );
 
     DataPackets::GateDriverReporting_init(

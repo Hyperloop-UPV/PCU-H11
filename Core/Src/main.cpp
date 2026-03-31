@@ -145,6 +145,7 @@ int main(void) {
   PWMActuators::init(pwm_u, pwm_v, pwm_w);
 
   auto timer2 = get_timer_instance(myBoard, Pinout::tim_encoder_decl);
+
   auto timer_us_tick = get_timer_instance(myBoard, Pinout::timer_us_tick_def);
   
   global_us_timer = timer_us_tick.instance->tim;

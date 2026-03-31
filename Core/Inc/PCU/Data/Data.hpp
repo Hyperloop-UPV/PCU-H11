@@ -384,4 +384,6 @@ struct Control_Data
     SpeedControlState speed_control_active{SpeedControlState::DISABLE};
     CurrentControlState current_control_active{CurrentControlState::DISABLE};
     SpaceVectorState space_vector_active{SpaceVectorState::DISABLE};
+
+    uint32_t cnt_encoder{0};
 };

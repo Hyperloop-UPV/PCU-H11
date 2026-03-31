@@ -8,6 +8,7 @@ void PCU::start()
 
     Scheduler::register_task(Sensors_data::read_sensors_us, [](){
         Speetec::read();
+        control_data.cnt_encoder = TIM23->CNT;
     });
 
     Scheduler::register_task(400, [](){
