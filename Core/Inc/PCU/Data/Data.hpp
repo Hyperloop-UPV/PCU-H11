@@ -142,6 +142,27 @@ inline constexpr ST_LIB::TimerDomain::Timer timer_us_tick_def{{
     constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_B = {ST_LIB::PE15};
     constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_A = {ST_LIB::PB5};
     constexpr DigitalInputDomain::DigitalInput READY_GD_INVERTER_B = {ST_LIB::PE14};
+
+
+inline constexpr ST_LIB::DigitalOutputDomain::DigitalOutput spi_cs_def{ST_LIB::PD3};
+
+static consteval ST_LIB::SPIDomain::SPIConfig get_spi_config() {
+    ST_LIB::SPIDomain::SPIConfig conf {
+    ST_LIB::SPIDomain::ClockPolarity::HIGH,
+    ST_LIB::SPIDomain::ClockPhase::SECOND_EDGE,
+    ST_LIB::SPIDomain::BitOrder::MSB_FIRST,
+    ST_LIB::SPIDomain::NSSMode::SOFTWARE  // Manejamos CS manualmente(no se que es esto, preguntarle a victor)
+  };
+  conf.data_size = ST_LIB::SPIDomain::DataSize::SIZE_8BIT;
+  return conf;
+}
+
+inline constexpr auto spi_def = 
+  ST_LIB::SPIDomain::Device<ST_LIB::DMA_Domain::Stream::dma1_stream5, 
+                            ST_LIB::DMA_Domain::Stream::dma1_stream6>(
+    ST_LIB::SPIDomain::SPIMode::MASTER, 
+    ST_LIB::SPIDomain::SPIPeripheral::spi3, 1000000, 
+    ST_LIB::PC10, ST_LIB::PC11, ST_LIB::PC12, get_spi_config());
 };
 #else 
 

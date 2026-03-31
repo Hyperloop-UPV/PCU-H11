@@ -60,7 +60,8 @@ int main(void) {
                                Pinout::Voltage_Battery_A,Pinout::Voltage_Battery_B,
                                Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
                                Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
-                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def,Pinout::general_purpose_timer>;
+                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def,Pinout::general_purpose_timer,
+                               Pinout::spi_cs_def,Pinout::spi_def>;
 
   #else
   using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
