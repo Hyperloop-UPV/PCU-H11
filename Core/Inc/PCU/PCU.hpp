@@ -16,6 +16,7 @@
 #include "Communications/Packets/DataPackets-test.hpp"
 #include "Communications/Packets/OrderPackets.hpp"
 #include "PCU/Sensors/Sensors.hpp"
+#include "PCU/Sensors/IMU/IMU.hpp"
 #include "PCU/Comms/Comms.hpp"
 
 #define MODULATION_FREQUENCY_DEFAULT 10

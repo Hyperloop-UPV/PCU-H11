@@ -76,7 +76,7 @@ enum ANTIALIAS_FREQUENCIES {
 };
 
 
-std::map<uint16_t, AntialiasConfig> ANTIALIAS_FREQ_TO_FILTER_CONFIG = {
+inline std::map<uint16_t, AntialiasConfig> ANTIALIAS_FREQ_TO_FILTER_CONFIG = {
 		{  42 ,{ 1, 1, 15 }},
 		{  84 ,{ 2, 4, 13 }},
 		{  126 ,{ 3, 9, 12 }},
