@@ -40,26 +40,14 @@ public:
 	
 	}
 
-	static void read_imu_data(){
-		accel_x = read_accel_x() - accel_offset_x;
-		accel_y = read_accel_y() - accel_offset_y;
-		accel_z = read_accel_z() - accel_offset_z;
-	}
-
-	static void get_accelerations(double& x, double& y, double& z){
-		x = accel_x;
-		y = accel_y;
-		z = accel_z;
-	}
-
 	static double read_imu_x_acceleration(){
-		accel_x = read_accel_x() - accel_offset_x;
-		return accel_x;
+		 
+		return read_accel_x() - accel_offset_x;
 	}
 
 	static double get_imu_x_speed(){
 		static double velocity = 0;
-		static double acceleration = accel_x * 9.8;
+		static double acceleration = read_imu_x_acceleration() * 9.8;
 
 		velocity_integrator.input(acceleration);
 		velocity_integrator.execute();
@@ -82,6 +70,19 @@ public:
 		accel_offset_x = new_offset_x;
 		accel_offset_y = new_offset_y;
 		accel_offset_z = new_offset_z;
+	}
+
+	static void read_imu_data(){
+		accel_x = read_accel_x() - accel_offset_x;
+		accel_y = read_accel_y() - accel_offset_y;
+		accel_z = read_accel_z() - accel_offset_z;
+	}
+
+	static void get_accelerations(double& x, double& y, double& z){
+		read_imu_data();
+		x = accel_x;
+		y = accel_y;
+		z = accel_z;
 	}
 
 	static void turn_on_sensors(){
