@@ -47,12 +47,18 @@ public:
 
 	static double get_imu_x_speed(){
 		static double velocity = 0;
-		static double acceleration = read_imu_x_acceleration() * 9.8;
+		static double acceleration = read_imu_x_acceleration();
+		acceleration *= 9.8;
 
 		velocity_integrator.input(acceleration);
 		velocity_integrator.execute();
 		velocity= velocity_integrator.output_value;
 		return velocity * 3.6; // m/s to km/h
+	}
+
+	static void restart()
+	{
+		velocity_integrator.reset();
 	}
 
 	static void calibrate(size_t TIMES_TO_CREATE_ZERO = 100) {
@@ -98,11 +104,11 @@ public:
 private:
 
 	static inline void SPI_transmit(const span<uint8_t> data) {
-		spi_wrapper->send(data);
+		spi_wrapper->send_DMA(data);
 	}
 
 	static inline void SPI_receive(span<uint8_t> buffer) {
-		spi_wrapper->receive(buffer);
+		spi_wrapper->receive_DMA(buffer);
 	}
 
 	static uint8_t read_register(uint8_t register_address){
