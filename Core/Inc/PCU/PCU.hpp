@@ -119,14 +119,6 @@ static inline constinit auto Operational_State_Machine = []() consteval
         }
     }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
 
-    sm.add_cyclic_action([](){
-        static double aux_speed_IMU = 0;
-        aux_speed_IMU = IMU::get_imu_x_speed();
-        __disable_irq();
-        control_data.IMU_speed_km_h = aux_speed_IMU;
-        __enable_irq();
-    }, ms(1), nested_accelerating_state);
-
 
     // sm.add_cyclic_action([]()
     // {   

@@ -231,6 +231,6 @@ void PCU::update()
     {
         OrderPackets::Zeroing_flag=false;
         CurrentSensors::zeroing();
-        IMU::calibrate();
+        IMU::calibrate(10000);
     }
 }

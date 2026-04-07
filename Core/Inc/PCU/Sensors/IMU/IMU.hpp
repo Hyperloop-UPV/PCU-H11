@@ -2,6 +2,7 @@
 
 #include "PCU/Sensors/IMU/IMU_Antialias_freq.hpp"
 #include "PCU/Sensors/IMU/IMU_Registers.hpp"
+#include "ST-LIB_LOW/ErrorHandler/ErrorHandler.hpp"
 #include <deque>
 #include <cmath>
 
@@ -22,7 +23,7 @@ class IMU{
 	static inline double accel_offset_y = 0;
 	static inline double accel_offset_z = 0;
 	
-	static inline Integrator<IntegratorType::Trapezoidal> velocity_integrator{0.001 , 1};
+	static inline Integrator<IntegratorType::Trapezoidal> velocity_integrator{1.0 / 3000.0 , 1};
 
 public:
 
@@ -33,8 +34,8 @@ public:
 		spi_wrapper.emplace(*spi_pins);
 		soft_reset();
 		Scheduler::set_timeout(15*1000, [](){
-			write_acceleration_config(ACCELERATION_8G, ACCELERATION_50HZ);
-			config_accel_antialias(ANTIALIAS_FREQ_536_HZ);
+			write_acceleration_config(ACCELERATION_2G, ACCELERATION_4KHZ);
+			config_accel_antialias(ANTIALIAS_FREQ_1051_HZ);
 			turn_on_sensors();
 		});
 	
@@ -59,6 +60,16 @@ public:
 	static void restart()
 	{
 		velocity_integrator.reset();
+	}
+	// Sync IMU integrator speed with an external reference (e.g. Speetec),
+	// provided in km/h.
+	static void sync_speed_with_reference(double speed_km_h) {
+		double velocity_ms = speed_km_h / 3.6;
+		velocity_integrator.reset();
+		velocity_integrator.integral = velocity_ms;
+		velocity_integrator.output_value = velocity_ms;
+		velocity_integrator.first_execution = false;
+	}
 	}
 
 	static void calibrate(size_t TIMES_TO_CREATE_ZERO = 100) {
@@ -133,7 +144,7 @@ private:
 
 	static void soft_reset(){
 		DeviceConfigRegister reg;
-		reg.value = 0;
+		reg.value = read_register(DEVICE_CONFIG);
 		reg.fields.SOFT_RESET_CONFIG = 1;
 		write_register(DEVICE_CONFIG, reg.value);
 		// HAL_Delay(5);

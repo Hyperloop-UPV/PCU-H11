@@ -1,6 +1,7 @@
 #include "PCU/Control/CurrentControl.hpp"
 #include "PCU/PCU.hpp"
 #include "PCU/Control/SpaceVector.hpp"
+#include "PCU/Sensors/IMU/IMU.hpp"
 
 double Max_Peak::modulation_frequency = 0.0;
 
@@ -25,19 +26,38 @@ float CurrentControl::get_current_ref(){
 }
 
 double CurrentControl::calculate_frequency_modulation(){
-    // return (PCU::control_data.speedState == ControlStates::Cruise_Mode) ? 
-    //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b) : 
-    //         exp_follower(a * PCU::control_data.speed_km_h_encoder + b - PCU::control_data.speed_km_h_encoder/1.2);
-    // return std::max(5.0,exp_follower((a * PCU::control_data.speed_km_h_encoder) + b));
-    if(Comms::Reverse_direction){
-        return exp_follower((a * -1 *PCU::control_data.speed_km_h_encoder) + b);
+    static bool use_imu = false;
+    constexpr double threshold_kmh = 15.0;
+    constexpr double hysteresis_kmh = 0.5; // to avoid chattering around the threshold
+
+    const double encoder_speed_kmh = PCU::control_data.speed_km_h_encoder;
+    const double imu_speed_kmh      = PCU::control_data.IMU_speed_km_h;
+
+    double fused_speed_kmh;
+
+    if (!use_imu) {
+        // Below threshold: follow Speetec/encoder. When we cross, initialize IMU integrator.
+        fused_speed_kmh = encoder_speed_kmh;
+        if ((encoder_speed_kmh >= 0.0 ? encoder_speed_kmh : -encoder_speed_kmh) > threshold_kmh) {
+            // Initialize IMU integrator from Speetec speed in m/s
+            IMU::sync_speed_with_reference_ms(PCU::control_data.speed_encoder);
+            use_imu = true;
+        }
+    } else {
+        // Above threshold: use IMU. Allow switching back with hysteresis.
+        fused_speed_kmh = imu_speed_kmh;
+        double abs_encoder_speed = (encoder_speed_kmh >= 0.0 ? encoder_speed_kmh : -encoder_speed_kmh);
+        if (abs_encoder_speed < (threshold_kmh - hysteresis_kmh)) {
+            use_imu = false;
+        }
     }
-    if(PCU::control_data.speed_km_h_encoder < 15.0f){
-        return exp_follower((a * PCU::control_data.IMU_speed_km_h) + b);
-    }else{
-        return exp_follower((a * PCU::control_data.speed_km_h_encoder) + b);
+
+    double effective_speed_kmh = fused_speed_kmh;
+    if (Comms::Reverse_direction) {
+        effective_speed_kmh = -effective_speed_kmh;
     }
-    // return (9.84f + 10.19f*SpaceVector::get_actual_time());
+
+    return exp_follower((a * effective_speed_kmh) + b);
 
 }
 
