@@ -2,8 +2,8 @@
 #include "ST-LIB.hpp"
 #include "PCU/Data/Data.hpp"
 
+enum class SpeetecDirection : uint8_t { FORWARD = 0, BACKWARDS = 1 };
 
-using SpeetecDirection = ST_LIB::EncoderSensor<ST_LIB::Encoder<Pinout::tim_encoder_decl>, Sensors_data::encoder_samples>::Direction;
 class Speetec{
     public:
 
@@ -13,12 +13,18 @@ class Speetec{
 
     private:
 
-        static ST_LIB::EncoderSensor<ST_LIB::Encoder<Pinout::tim_encoder_decl>,Sensors_data::encoder_samples>* sensor_speetec;
+        static ST_LIB::Encoder<Pinout::tim_encoder_decl>* encoder_ptr;
+        
+        static constexpr size_t SAMPLES = Sensors_data::encoder_samples;
+        static constexpr int64_t START_COUNTER = UINT32_MAX / 2;
+        
+        static RingBuffer<int64_t, (SAMPLES / 2) * 2> past_delta_counters;
+        static double* position_ptr;
     public:
     
     Speetec()=default;
     
-    static void init(ST_LIB::Encoder<Pinout::tim_encoder_decl>* encoder_ptr);
+    static void init(ST_LIB::Encoder<Pinout::tim_encoder_decl>* enc_ptr);
     
     static void read();
     static bool is_going_backwards();

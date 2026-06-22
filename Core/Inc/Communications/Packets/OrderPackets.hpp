@@ -18,7 +18,7 @@ public:
     
 
     OrderPackets() = default;
-
+#ifdef STLIB_ETH
     inline static HeapOrder *Start_SVPWM_order{nullptr};
     inline static HeapOrder *Stop_Motor_order{nullptr};
     inline static HeapOrder *Send_Reference_Current_order{nullptr};
@@ -56,31 +56,33 @@ public:
     
     inline static ServerSocket *control_station_tcp{nullptr};
     
-
+#endif
     static void start()
     {
+#ifdef STLIB_ETH
         if (Start_SVPWM_order == nullptr) {
-            ErrorHandler("Order Start_SVPWM not initialized");
+            PANIC("Order Start_SVPWM not initialized");
         }
         if (Stop_Motor_order == nullptr) {
-            ErrorHandler("Order Stop_Motor not initialized");
+            PANIC("Order Stop_Motor not initialized");
         }
         if (Send_Reference_Current_order == nullptr) {
-            ErrorHandler("Order Send_Reference_Current not initialized");
+            PANIC("Order Send_Reference_Current not initialized");
         }
         if (Zeroing_order == nullptr) {
-            ErrorHandler("Order Zeroing not initialized");
+            PANIC("Order Zeroing not initialized");
         }
         if (Reset_Bypass_order == nullptr) {
-            ErrorHandler("Order Reset_Bypass not initialized");
+            PANIC("Order Reset_Bypass not initialized");
         }
         if (Send_Reference_Speed_order == nullptr) {
-            ErrorHandler("Order Send_Reference_Speed not initialized");
+            PANIC("Order Send_Reference_Speed not initialized");
         }
         
 
         control_station_tcp = new ServerSocket("192.168.1.5",50500);
         
+#endif
     }
 
 private:

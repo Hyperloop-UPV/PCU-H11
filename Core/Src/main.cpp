@@ -53,7 +53,7 @@ int main(void) {
 
   Hard_fault_check();
   #if PCU_H10 == 1
-  using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+  using myBoard = ST_LIB::Board<ST_LIB::DefaultFaultPolicy, eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                                Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B,
@@ -64,7 +64,7 @@ int main(void) {
                                Pinout::spi_cs_def,Pinout::spi_def>;
 
   #else
-  using myBoard = ST_LIB::Board<eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+  using myBoard = ST_LIB::Board<ST_LIB::DefaultFaultPolicy, eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational, Pinout::led_accelerating, Pinout::led_braking,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                                Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B,

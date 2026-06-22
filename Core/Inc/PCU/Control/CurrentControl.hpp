@@ -59,8 +59,8 @@ private:
     inline static float b = 9.84;
 
     inline static float current_ref{0.0f};
-    inline static PI<IntegratorType::Trapezoidal> current_PI{Current_Control_Data::kp_accelerate,Current_Control_Data::ki_accelerate,Current_Control_Data::period};
-    inline static PI<IntegratorType::Trapezoidal> current_regenerate_PI{Current_Control_Data::kp_regenerate,Current_Control_Data::ki_regenerate,Current_Control_Data::period};
+    inline static PI<IntegratorType::Trapezoidal, double> current_PI{Current_Control_Data::kp_accelerate,Current_Control_Data::ki_accelerate,Current_Control_Data::period};
+    inline static PI<IntegratorType::Trapezoidal, double> current_regenerate_PI{Current_Control_Data::kp_regenerate,Current_Control_Data::ki_regenerate,Current_Control_Data::period};
     
     #if PPU_USING != 0
         inline static Max_Peak current_u_a{CurrentSensors::actual_current_sensor_u_a};

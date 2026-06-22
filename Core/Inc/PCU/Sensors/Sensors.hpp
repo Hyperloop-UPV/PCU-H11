@@ -3,10 +3,10 @@
 
 class Sensors{
     public:
-    inline static D1_NC bool gd_fault_a{false};
-    inline static D1_NC bool gd_fault_b{false};
-    inline static D1_NC bool gd_ready_a{false};
-    inline static D1_NC bool gd_ready_b{false};
+    inline static bool gd_fault_a{false};
+    inline static bool gd_fault_b{false};
+    inline static bool gd_ready_a{false};
+    inline static bool gd_ready_b{false};
 
 using DigitalInputInstance = ST_LIB::DigitalInputDomain::Instance;
     inline static DigitalInputInstance* gd_fault_a_instance = nullptr;
