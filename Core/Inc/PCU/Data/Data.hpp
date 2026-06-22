@@ -107,10 +107,6 @@ namespace Pinout{
     inline constinit float raw_value_Current_W_B{0.0f};
     constexpr auto Current_sensor_W_B = ADCDomain::ADC(ST_LIB::PB1, raw_value_Current_W_B, ADCDomain::Resolution::BITS_16,
                                        ADCDomain::SampleTime::CYCLES_8_5);
-    //Speetec
-    static constexpr Pin& Speetec_A = PF1;
-    static constexpr Pin& Speetec_B = PF0;
-    //Temporal:
 
     inline constexpr ST_LIB::TimerDomain::Timer general_purpose_timer{{
          .request = ST_LIB::TimerRequest::AnyGeneralPurpose,
@@ -134,9 +130,6 @@ inline constexpr ST_LIB::TimerDomain::Timer tim_encoder_decl {
     Encoder_Pin_B
 };
 
-inline constexpr ST_LIB::TimerDomain::Timer timer_us_tick_def{{
-    .request = ST_LIB::TimerRequest::GeneralPurpose32bit_5,
-}};
 
     constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_A = {ST_LIB::PB6};
     constexpr DigitalInputDomain::DigitalInput FAULT_GD_INVERTER_B = {ST_LIB::PE15};
@@ -177,6 +170,7 @@ namespace Pinout
     constexpr DigitalOutputDomain::DigitalOutput led_braking = {ST_LIB::PG6};
 
     /*------Current Sensors------*/
+    
     inline constinit float raw_value_Current_U_A{0.0f};
     constexpr auto Current_sensor_U_A = ADCDomain::ADC(ST_LIB::PA0, raw_value_Current_U_A, ADCDomain::Resolution::BITS_16,
                                        ADCDomain::SampleTime::CYCLES_8_5);
@@ -279,10 +273,6 @@ namespace Pinout
     constexpr auto Voltage_Battery_B = ADCDomain::ADC(ST_LIB::PF5, raw_value_Voltage_Battery_B, ADCDomain::Resolution::BITS_12,
                                        ADCDomain::SampleTime::CYCLES_8_5);
 
-    inline constexpr ST_LIB::TimerDomain::Timer timer_us_tick_def{{
-        .request = ST_LIB::TimerRequest::GeneralPurpose32bit_5,
-    }};
-
     /*------Temperature------*/
     // inline constinit float raw_value_PPU_temp_A{0.0f};
     // constexpr auto PPU_temp_A = ADCDomain::ADC(ST_LIB::PF7, raw_value_PPU_temp_A, ADCDomain::Resolution::BITS_12,
@@ -309,6 +299,9 @@ namespace Pinout
     constexpr DigitalOutputDomain::DigitalOutput Hall_SupplyA= {ST_LIB::PD12};
     constexpr DigitalOutputDomain::DigitalOutput Hall_SupplyB= {ST_LIB::PD11};
 
+    inline constexpr ST_LIB::TimerDomain::Timer general_purpose_timer{{
+         .request = ST_LIB::TimerRequest::AnyGeneralPurpose,
+    }};
 
 
 
@@ -355,7 +348,7 @@ namespace Sensors_data
     static constexpr size_t  encoder_samples = 250;
 };
 
-#include "Communications/Packets/DataPackets-test.hpp"
+#include "Communications/Packets/DataPackets.hpp"
 
 using States_PCU = DataPackets::general_state_machine;
 using Operational_States_PCU = DataPackets::operational_state_machine;
@@ -402,6 +395,7 @@ struct Control_Data
     float slip_control{0.0f};
 
     double IMU_speed_km_h{0.0f};
+    float IMU_position_m{0.0f}; 
 
     EncoderDirection established_direction{EncoderDirection::Forward};
     SpeedControlState speed_control_active{SpeedControlState::DISABLE};

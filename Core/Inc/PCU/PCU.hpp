@@ -1,8 +1,5 @@
 #pragma once
 #include "ST-LIB.hpp"
-#include "ST-LIB_HIGH/Protections/ProtectionManager.hpp"
-#include "ST-LIB_HIGH/Protections/Boundary.hpp"
-#include "ST-LIB_HIGH/Protections/Protection.hpp"
 #include "PCU/Data/Data.hpp"
 #include "PCU/Sensors/CurrentSensor.hpp"
 #include "PCU/Sensors/VoltageSensor.hpp"
@@ -13,7 +10,7 @@
 #include "PCU/Control/SpaceVector.hpp"
 #include "PCU/Control/CurrentControl.hpp"
 #include "PCU/Control/SpeedControl.hpp"
-#include "Communications/Packets/DataPackets-test.hpp"
+#include "Communications/Packets/DataPackets.hpp"
 #include "Communications/Packets/OrderPackets.hpp"
 #include "PCU/Sensors/Sensors.hpp"
 #include "PCU/Sensors/IMU/IMU.hpp"
@@ -97,7 +94,7 @@ static inline constinit auto Operational_State_Machine = []() consteval
     sm.add_enter_action([]()
     {
         temporal_callback_flag = false;
-        IMU::restart();
+        // IMU::restart();
         stop_motors();
     },nested_idle_state);
 
@@ -195,7 +192,7 @@ static inline constinit auto PCU_State_Machine = []() consteval
     {
         temporal_callback_flag = false;
         stop_motors();
-        ProtectionManager::propagate_fault();
+        // ProtectionManager::propagate_fault();
         Actuators::set_led_operational(false);
         Actuators::set_led_connecting(false);
         Actuators::set_led_fault(true);

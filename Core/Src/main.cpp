@@ -60,7 +60,7 @@ int main(void) {
                                Pinout::Voltage_Battery_A,Pinout::Voltage_Battery_B,
                                Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
                                Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
-                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def,Pinout::general_purpose_timer,
+                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::general_purpose_timer,
                                Pinout::spi_cs_def,Pinout::spi_def>;
 
   #else
@@ -71,7 +71,7 @@ int main(void) {
                                Pinout::Voltage_Battery_A,Pinout::Voltage_Battery_B,
                                Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
                                Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
-                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::timer_us_tick_def,
+                               Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::general_purpose_timer,
                                Pinout::Speetec_supply, Pinout::Hall_SupplyA, Pinout::Hall_SupplyB>;
   #endif
   myBoard::init();
@@ -99,6 +99,10 @@ int main(void) {
   auto& current_sensor_v_b = myBoard::instance_of<Pinout::Current_sensor_V_B>();
   auto& current_sensor_w_a = myBoard::instance_of<Pinout::Current_sensor_W_A>();
   auto& current_sensor_w_b = myBoard::instance_of<Pinout::Current_sensor_W_B>();
+
+  auto& spi_pins = myBoard::instance_of<Pinout::spi_def>();
+  auto& spi_cs = myBoard::instance_of<Pinout::spi_cs_def>();
+  IMU::init(spi_cs, spi_pins);
 
   Actuators::init(buff_enable, reset_bypass,
                   led_connecting, led_fault, led_operational);
@@ -137,6 +141,8 @@ int main(void) {
   Actuators::init(hall_supply_a, hall_supply_b,speedtec_supply, buff_enable, reset_bypass);
   Actuators::init_leds(led_operational, led_fault, led_connecting,
                        led_accelerating, led_braking);
+
+    
   #endif
     
   auto timer = get_timer_instance(myBoard, Pinout::tim_decl);
@@ -146,14 +152,6 @@ int main(void) {
   PWMActuators::init(pwm_u, pwm_v, pwm_w);
 
   auto timer2 = get_timer_instance(myBoard, Pinout::tim_encoder_decl);
-
-  auto timer_us_tick = get_timer_instance(myBoard, Pinout::timer_us_tick_def);
-  
-  global_us_timer = timer_us_tick.instance->tim;
-  timer_us_tick.set_prescaler(
-        timer_us_tick.get_clock_frequency() / 1000'000);
-  global_us_timer->ARR = UINT32_MAX;
-  timer_us_tick.counter_enable();
   
   ST_LIB::Encoder<Pinout::tim_encoder_decl> encoder = 
         timer2.get_encoder();
@@ -169,9 +167,7 @@ int main(void) {
   Sensors::init(fault_inverter_a, fault_inverter_b,
                 ready_inverter_a, ready_inverter_b);
 
-   auto& spi_pins = myBoard::instance_of<Pinout::spi_def>();
-   auto& spi_cs = myBoard::instance_of<Pinout::spi_cs_def>();
-   IMU::init(spi_cs, spi_pins);
+   
 
   auto tim_gp0 = get_timer_instance(myBoard, Pinout::general_purpose_timer);
   tim_gp0.set_prescaler(tim_gp0.get_clock_frequency() / 1000'000);

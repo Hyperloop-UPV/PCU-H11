@@ -52,7 +52,8 @@ void Comms::start()
         PCU::control_data.actual_current_ref,
         PCU::control_data.slip_control,
         PCU::control_data.cnt_encoder,
-        PCU::control_data.IMU_speed_km_h
+        PCU::control_data.IMU_speed_km_h,
+        PCU::control_data.IMU_position_m
     );
 
     DataPackets::GateDriverReporting_init(

@@ -6,6 +6,9 @@ void PCU::start()
     SpeedControl::init();
     PCU_State_Machine.start();
 
+    Actuators::enable_hall_supply();
+    Actuators::enable_speedtec_supply();
+
     Scheduler::register_task(Sensors_data::read_sensors_us, [](){
         Speetec::read();
         control_data.cnt_encoder = TIM23->CNT;
@@ -14,6 +17,16 @@ void PCU::start()
     Scheduler::register_task(400, [](){
         CurrentSensors::read();
     });
+    #if PCU_H10 == 1
+    Scheduler::register_task(333, [](){
+        static imu_pair aux_speed_IMU = {0, 0};
+        aux_speed_IMU = IMU::get_imu_x_speed();
+        __disable_irq();
+        control_data.IMU_speed_km_h = aux_speed_IMU.velocity_km_h;
+        __enable_irq();
+        control_data.IMU_position_m = aux_speed_IMU.position_m;
+    });
+    #endif
     
     // Scheduler::register_task(1'000, [](){
     //     PCU_State_Machine.check_transitions();
@@ -32,45 +45,50 @@ void PCU::start()
     Scheduler::register_task(1'000, [](){
         static constexpr float max_current = CURRENT_PROTECTION;
         static constexpr float max_voltage = Protecction_Voltage;
-        ProtectionManager::check_protections();
+        // ProtectionManager::check_protections();
         if(VoltageSensors::actual_voltage_battery_a > Protecction_Voltage) {
-            ErrorHandler("PCU Battery voltage A %f above limit: %f", VoltageSensors::actual_voltage_battery_a, max_voltage);
+            PANIC("PCU Battery voltage A %f above limit: %f", VoltageSensors::actual_voltage_battery_a, max_voltage);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
 
         if(VoltageSensors::actual_voltage_battery_b > Protecction_Voltage) {
-            ErrorHandler("PCU Battery voltage B %f above limit: %f", VoltageSensors::actual_voltage_battery_b, max_voltage);
+            PANIC("PCU Battery voltage B %f above limit: %f", VoltageSensors::actual_voltage_battery_b, max_voltage);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
 
         if(CurrentSensors::actual_current_sensor_u_a > CURRENT_PROTECTION) {
-            ErrorHandler("PCU Current Sensor U A %f above limit: %f", CurrentSensors::actual_current_sensor_u_a, max_current);
+            PANIC("PCU Current Sensor U A %f above limit: %f", CurrentSensors::actual_current_sensor_u_a, max_current);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
         if(CurrentSensors::actual_current_sensor_v_a > CURRENT_PROTECTION) {
-            ErrorHandler("PCU Current Sensor V A %f above limit: %f", CurrentSensors::actual_current_sensor_v_a, max_current);
+            PANIC("PCU Current Sensor V A %f above limit: %f", CurrentSensors::actual_current_sensor_v_a, max_current);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
         if(CurrentSensors::actual_current_sensor_w_a > CURRENT_PROTECTION) {
-            ErrorHandler("PCU Current Sensor W A %f above limit: %f", CurrentSensors::actual_current_sensor_w_a, max_current);
+            PANIC("PCU Current Sensor W A %f above limit: %f", CurrentSensors::actual_current_sensor_w_a, max_current);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
         
         if(CurrentSensors::actual_current_sensor_u_b > CURRENT_PROTECTION) {
-            ErrorHandler("PCU Current Sensor U B %f above limit: %f", CurrentSensors::actual_current_sensor_u_b, max_current);
+            PANIC("PCU Current Sensor U B %f above limit: %f", CurrentSensors::actual_current_sensor_u_b, max_current);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
         if(CurrentSensors::actual_current_sensor_v_b > CURRENT_PROTECTION) {
-            ErrorHandler("PCU Current Sensor V B %f above limit: %f", CurrentSensors::actual_current_sensor_v_b, max_current);
+            PANIC("PCU Current Sensor V B %f above limit: %f", CurrentSensors::actual_current_sensor_v_b, max_current);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
         if(CurrentSensors::actual_current_sensor_w_b > CURRENT_PROTECTION) {
-            ErrorHandler("PCU Current Sensor W B %f above limit: %f", CurrentSensors::actual_current_sensor_w_b, max_current);
+            PANIC("PCU Current Sensor W B %f above limit: %f", CurrentSensors::actual_current_sensor_w_b, max_current);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
 
         if(control_data.position_encoder > 25.0) {
-            ErrorHandler("PCU Position Encoder %f above limit: %f", control_data.position_encoder, 25.0);
+            PANIC("PCU Position Encoder %f above limit: %f", control_data.position_encoder, 25.0);
+            PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+        }
+        if(SpaceVector::get_actual_time() > 4.5f)
+        {
+            PANIC("PCU Space Vector Time %f above limit: %f", SpaceVector::get_actual_time(), 4.5f);
             PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
         }
         PCU_State_Machine.check_transitions();
@@ -89,10 +107,10 @@ void PCU::start()
 
 void PCU::initialize_protections()
 {   
-    ProtectionManager::link_state_machine(PCU_State_Machine,
-                                        static_cast<uint8_t>(States_PCU::Fault));
+    // ProtectionManager::link_state_machine(PCU_State_Machine,
+    //                                     static_cast<uint8_t>(States_PCU::Fault));
     
-    ProtectionManager::add_standard_protections();
+    // ProtectionManager::add_standard_protections();
 
 //    auto& voltage_protection_A_PCU = ProtectionManager::_add_protection(
 //    &VoltageSensors::actual_voltage_battery_a, Boundary<float, ABOVE>{Protecction_Voltage});
@@ -135,7 +153,7 @@ void PCU::initialize_protections()
 //    current_protection_w_b.set_name((char*)"PCU Current Sensor W B");
 
     
-    ProtectionManager::initialize();
+    // ProtectionManager::initialize();
 
 }
 
@@ -231,6 +249,8 @@ void PCU::update()
     {
         OrderPackets::Zeroing_flag=false;
         CurrentSensors::zeroing();
+        #if PCU_H10 == 1
         IMU::calibrate(10000);
+        #endif
     }
 }

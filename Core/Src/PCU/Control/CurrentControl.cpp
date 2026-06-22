@@ -30,24 +30,22 @@ double CurrentControl::calculate_frequency_modulation(){
     constexpr double threshold_kmh = 15.0;
     constexpr double hysteresis_kmh = 0.5; // to avoid chattering around the threshold
 
-    const double encoder_speed_kmh = PCU::control_data.speed_km_h_encoder;
-    const double imu_speed_kmh      = PCU::control_data.IMU_speed_km_h;
 
     double fused_speed_kmh;
 
     if (!use_imu) {
         // Below threshold: follow Speetec/encoder. When we cross, initialize IMU integrator.
-        fused_speed_kmh = encoder_speed_kmh;
-        if ((encoder_speed_kmh >= 0.0 ? encoder_speed_kmh : -encoder_speed_kmh) > threshold_kmh) {
+        fused_speed_kmh = PCU::control_data.speed_km_h_encoder;
+        if ((PCU::control_data.speed_km_h_encoder >= 0.0 ? PCU::control_data.speed_km_h_encoder : -PCU::control_data.speed_km_h_encoder) > threshold_kmh) {
             // Initialize IMU integrator from Speetec speed in m/s
-            IMU::sync_speed_with_reference_ms(PCU::control_data.speed_encoder);
+            // IMU::sync_speed_with_reference_ms(PCU::control_data.speed_encoder);
             use_imu = true;
         }
     } else {
         // Above threshold: use IMU. Allow switching back with hysteresis.
-        fused_speed_kmh = imu_speed_kmh;
-        double abs_encoder_speed = (encoder_speed_kmh >= 0.0 ? encoder_speed_kmh : -encoder_speed_kmh);
-        if (abs_encoder_speed < (threshold_kmh - hysteresis_kmh)) {
+        fused_speed_kmh = PCU::control_data.IMU_speed_km_h;;
+        double abs_imu_speed = (PCU::control_data.IMU_speed_km_h >= 0.0 ? PCU::control_data.IMU_speed_km_h : -PCU::control_data.IMU_speed_km_h);
+        if (abs_imu_speed < (threshold_kmh - hysteresis_kmh)) {
             use_imu = false;
         }
     }

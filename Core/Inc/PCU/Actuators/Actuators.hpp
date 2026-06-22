@@ -79,7 +79,12 @@ class Actuators
     static void enable_reset_bypass();
     static void disable_reset_bypass();
 
-    #if PCU_H10 == 0
+    #if PCU_H10 == 1
+    static void enable_hall_supply(){};
+    static void disable_hall_supply(){};
+    static void enable_speedtec_supply(){};
+    static void disable_speedtec_supply(){};
+    #else
     static void enable_hall_supply();
     static void disable_hall_supply();
     static void enable_speedtec_supply();

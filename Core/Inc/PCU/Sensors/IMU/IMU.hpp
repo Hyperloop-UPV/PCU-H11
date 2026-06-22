@@ -6,6 +6,11 @@
 #include <deque>
 #include <cmath>
 
+struct imu_pair {
+	double velocity_km_h;
+	float position_m;
+};
+#if PCU_H10 == 1
 class IMU{
 	static inline double  accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, temp;
 
@@ -24,6 +29,7 @@ class IMU{
 	static inline double accel_offset_z = 0;
 	
 	static inline Integrator<IntegratorType::Trapezoidal> velocity_integrator{1.0 / 3000.0 , 1};
+	static inline Integrator<IntegratorType::Trapezoidal> position_integrator{1.0 / 3000.0 , 1};
 
 public:
 
@@ -46,31 +52,36 @@ public:
 		return read_accel_x() - accel_offset_x;
 	}
 
-	static double get_imu_x_speed(){
+	static imu_pair get_imu_x_speed(){
 		static double velocity = 0;
-		static double acceleration = read_imu_x_acceleration();
+		static double position = 0;
+		static double acceleration = 0;
+		static imu_pair result = {0, 0};
+		acceleration = read_imu_x_acceleration();
 		acceleration *= 9.8;
 
 		velocity_integrator.input(acceleration);
 		velocity_integrator.execute();
 		velocity= velocity_integrator.output_value;
-		return velocity * 3.6; // m/s to km/h
+
+		position_integrator.input(velocity);
+		position_integrator.execute();
+		position = position_integrator.output_value;
+
+		velocity *= -3.6f; // m/s to km/h
+		result.velocity_km_h = velocity;
+		result.position_m = -1 *position;
+
+		return result; 
 	}
 
 	static void restart()
 	{
 		velocity_integrator.reset();
+		position_integrator.reset();
 	}
 	// Sync IMU integrator speed with an external reference (e.g. Speetec),
 	// provided in km/h.
-	static void sync_speed_with_reference(double speed_km_h) {
-		double velocity_ms = speed_km_h / 3.6;
-		velocity_integrator.reset();
-		velocity_integrator.integral = velocity_ms;
-		velocity_integrator.output_value = velocity_ms;
-		velocity_integrator.first_execution = false;
-	}
-	}
 
 	static void calibrate(size_t TIMES_TO_CREATE_ZERO = 100) {
 		double new_offset_x = 0;
@@ -87,6 +98,7 @@ public:
 		accel_offset_x = new_offset_x;
 		accel_offset_y = new_offset_y;
 		accel_offset_z = new_offset_z;
+		restart();
 	}
 
 	static void read_imu_data(){
@@ -115,11 +127,11 @@ public:
 private:
 
 	static inline void SPI_transmit(const span<uint8_t> data) {
-		spi_wrapper->send_DMA(data);
+		spi_wrapper->send(data);
 	}
 
 	static inline void SPI_receive(span<uint8_t> buffer) {
-		spi_wrapper->receive_DMA(buffer);
+		spi_wrapper->receive(buffer);
 	}
 
 	static uint8_t read_register(uint8_t register_address){
@@ -240,4 +252,5 @@ private:
 	}
 
 };
+#endif
 
