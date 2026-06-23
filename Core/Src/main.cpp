@@ -53,7 +53,7 @@ int main(void) {
 
   Hard_fault_check();
   #if PCU_H10 == 1
-  using myBoard = ST_LIB::Board<ST_LIB::DefaultFaultPolicy, eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+  using myBoard = ST_LIB::Board<PCUFaultPolicy, eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                                Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B,
@@ -61,10 +61,14 @@ int main(void) {
                                Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
                                Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
                                Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::general_purpose_timer,
-                               Pinout::spi_cs_def,Pinout::spi_def>;
+                               Pinout::spi_cs_def,Pinout::spi_def,
+                               PCU_Protections::voltage_A, PCU_Protections::voltage_B,
+                               PCU_Protections::current_u_a, PCU_Protections::current_v_a, PCU_Protections::current_w_a,
+                               PCU_Protections::current_u_b, PCU_Protections::current_v_b, PCU_Protections::current_w_b,
+                               PCU_Protections::position_encoder, PCU_Protections::space_vector_time>;
 
   #else
-  using myBoard = ST_LIB::Board<ST_LIB::DefaultFaultPolicy, eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
+  using myBoard = ST_LIB::Board<PCUFaultPolicy, eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
                                Pinout::led_connecting, Pinout::led_fault, Pinout::led_operational, Pinout::led_accelerating, Pinout::led_braking,
                                Pinout::FAULT_GD_INVERTER_A,Pinout::FAULT_GD_INVERTER_B,
                                Pinout::READY_GD_INVERTER_A,Pinout::READY_GD_INVERTER_B,
@@ -72,7 +76,11 @@ int main(void) {
                                Pinout::Current_sensor_U_A, Pinout::Current_sensor_U_B,
                                Pinout::Current_sensor_V_A, Pinout::Current_sensor_V_B,
                                Pinout::Current_sensor_W_A, Pinout::Current_sensor_W_B,Pinout::general_purpose_timer,
-                               Pinout::Speetec_supply, Pinout::Hall_SupplyA, Pinout::Hall_SupplyB>;
+                               Pinout::Speetec_supply, Pinout::Hall_SupplyA, Pinout::Hall_SupplyB,
+                               PCU_Protections::voltage_A, PCU_Protections::voltage_B,
+                               PCU_Protections::current_u_a, PCU_Protections::current_v_a, PCU_Protections::current_w_a,
+                               PCU_Protections::current_u_b, PCU_Protections::current_v_b, PCU_Protections::current_w_b,
+                               PCU_Protections::position_encoder, PCU_Protections::space_vector_time>;
   #endif
   myBoard::init();
   

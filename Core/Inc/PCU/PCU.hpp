@@ -204,3 +204,62 @@ static inline constinit auto PCU_State_Machine = []() consteval
 
 
 };
+
+namespace PCU_Protections {
+
+    inline void on_fault() {
+        PCU::PCU_State_Machine.force_change_state(static_cast<size_t>(States_PCU::Fault));
+    }
+
+    inline constexpr auto voltage_A = Protections::protection<
+        "PCU Battery A voltage", VoltageSensors::actual_voltage_battery_a>(
+        Protections::Rules::above<float>(Protecction_Voltage)
+    );
+
+    inline constexpr auto voltage_B = Protections::protection<
+        "PCU Battery B voltage", VoltageSensors::actual_voltage_battery_b>(
+        Protections::Rules::above<float>(Protecction_Voltage)
+    );
+
+    inline constexpr auto current_u_a = Protections::protection<
+        "PCU Current Sensor U A", CurrentSensors::actual_current_sensor_u_a>(
+        Protections::Rules::above<float>(CURRENT_PROTECTION)
+    );
+
+    inline constexpr auto current_v_a = Protections::protection<
+        "PCU Current Sensor V A", CurrentSensors::actual_current_sensor_v_a>(
+        Protections::Rules::above<float>(CURRENT_PROTECTION)
+    );
+
+    inline constexpr auto current_w_a = Protections::protection<
+        "PCU Current Sensor W A", CurrentSensors::actual_current_sensor_w_a>(
+        Protections::Rules::above<float>(CURRENT_PROTECTION)
+    );
+
+    inline constexpr auto current_u_b = Protections::protection<
+        "PCU Current Sensor U B", CurrentSensors::actual_current_sensor_u_b>(
+        Protections::Rules::above<float>(CURRENT_PROTECTION)
+    );
+
+    inline constexpr auto current_v_b = Protections::protection<
+        "PCU Current Sensor V B", CurrentSensors::actual_current_sensor_v_b>(
+        Protections::Rules::above<float>(CURRENT_PROTECTION)
+    );
+
+    inline constexpr auto current_w_b = Protections::protection<
+        "PCU Current Sensor W B", CurrentSensors::actual_current_sensor_w_b>(
+        Protections::Rules::above<float>(CURRENT_PROTECTION)
+    );
+
+    inline constexpr auto position_encoder = Protections::protection<
+        "PCU Position Encoder", PCU::control_data.position_encoder>(
+        Protections::Rules::above<double>(25.0)
+    );
+
+    inline constexpr auto space_vector_time = Protections::protection<
+        "PCU Space Vector Time", PCU::control_data.time>(
+        Protections::Rules::above<float>(4.5f)
+    );
+}
+
+using PCUFaultPolicy = ST_LIB::FaultPolicy<PCU::PCU_State_Machine, PCU_Protections::on_fault>;
