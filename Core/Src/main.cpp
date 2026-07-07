@@ -22,26 +22,26 @@ void pcu_control_callback(void* raw) {
 
 #if defined(USE_PHY_LAN8742)
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:09",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:05",
                              "192.168.1.5", "255.255.0.0");
 #elif defined(USE_PHY_LAN8700)
 #if MASK_TO_24 == 1
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:09",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:05",
                              "192.168.1.5", "255.255.255.0");
 #else
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:09",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:05",
                              "192.168.1.5", "255.255.0.0");
 #endif
 #elif defined(USE_PHY_KSZ8041)
 #if MASK_TO_24 == 1
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "05:80:e8:55:61:09",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "05:80:e8:55:61:05",
                              "192.168.1.5", "255.255.255.0");
 #else
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "05:80:e8:55:61:09",
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "05:80:e8:55:61:05",
                              "192.168.1.5", "255.255.0.0");
 #endif
 #else
@@ -185,10 +185,14 @@ int main(void) {
   Comms::start();
   PCU::start();
 
+  Watchdog::watchdog_time = std::chrono::milliseconds(100);
+  Watchdog::start();
+
   while (1) {
     Scheduler::update();
     PCU::update();
     ethernet->update();
+    Watchdog::refresh();
   }
 }
 
