@@ -29,7 +29,7 @@ class PCU
     inline static bool flag_sensors_update{false};
     inline static bool flag_check_transitions{false};
     inline static bool flag_speetec_update{false};
-    inline static bool temporal_callback_flag{false};
+    inline static bool callback_flag{false};
 
 
     inline static States_PCU current_state_pcu{States_PCU::Connecting};
@@ -81,7 +81,7 @@ static constexpr auto nested_accelerating_state = make_state(Operational_States_
     }}
 );
 
-//Por hacer regenerativo
+//Por hacer regenerativo...
 
 static inline constinit auto Operational_State_Machine = []() consteval
 {
@@ -93,19 +93,19 @@ static inline constinit auto Operational_State_Machine = []() consteval
 
     sm.add_enter_action([]()
     {
-        temporal_callback_flag = false;
+        callback_flag = false;
         // IMU::restart();
         stop_motors();
     },nested_idle_state);
 
     sm.add_enter_action([]()
     {
-        temporal_callback_flag = true;
+        callback_flag = true;
     },nested_accelerating_state);
 
     sm.add_exit_action([]()
     {
-        temporal_callback_flag = false; //Temporal estas flags, lo pone en el nombre xd
+        callback_flag = false;
     },nested_accelerating_state);
 
     sm.add_cyclic_action([]()
@@ -117,7 +117,7 @@ static inline constinit auto Operational_State_Machine = []() consteval
     }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
 
 
-    // sm.add_cyclic_action([]()
+    // sm.add_cyclic_action([]() Implemented on the interuption
     // {   
     //     if(control_data.space_vector_active == SpaceVectorState::ACTIVE)
     //     {
@@ -185,12 +185,12 @@ static inline constinit auto PCU_State_Machine = []() consteval
     {
         stop_motors();
         Actuators::set_led_connecting(false);
-        temporal_callback_flag = false;
+        callback_flag = false;
     }, operational_state);
 
     sm.add_enter_action([]()
     {
-        temporal_callback_flag = false;
+        callback_flag = false;
         stop_motors();
         // ProtectionManager::propagate_fault();
         Actuators::set_led_operational(false);
@@ -252,8 +252,8 @@ namespace PCU_Protections {
     );
 
     inline constexpr auto position_encoder = Protections::protection<
-        "PCU Position Encoder", PCU::control_data.position_encoder>(
-        Protections::Rules::above<double>(25.0)
+        "PCU Position Encoder", PCU::control_data.IMU_position_m>(
+        Protections::Rules::above<float>(25.0)
     );
 
     inline constexpr auto space_vector_time = Protections::protection<

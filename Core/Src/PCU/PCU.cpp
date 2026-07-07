@@ -9,17 +9,17 @@ void PCU::start()
     Actuators::enable_hall_supply();
     Actuators::enable_speedtec_supply();
 
-    Scheduler::register_task(Sensors_data::read_sensors_us, [](){
-        Speetec::read();
-        control_data.cnt_encoder = TIM23->CNT;
-    });
+    // Scheduler::register_task(Sensors_data::read_sensors_us, [](){
+    //     Speetec::read();
+    //     control_data.cnt_encoder = TIM23->CNT;
+    // });
 
     Scheduler::register_task(400, [](){
         CurrentSensors::read();
     });
     
     #if PCU_H10 == 1
-    Scheduler::register_task(333, [](){
+    Scheduler::register_task(Sensors_data::read_sensors_us, [](){
         static imu_pair aux_speed_IMU = {0, 0};
         aux_speed_IMU = IMU::get_imu_x_speed();
         __disable_irq();
