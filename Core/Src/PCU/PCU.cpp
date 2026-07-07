@@ -1,5 +1,7 @@
 #include "PCU/PCU.hpp"
 
+ST_LIB::EthernetDomain::Instance *ethernet;
+
 void PCU::start()
 {
     CurrentControl::init();

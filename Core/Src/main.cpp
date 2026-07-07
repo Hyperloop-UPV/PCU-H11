@@ -175,22 +175,20 @@ int main(void) {
   Sensors::init(fault_inverter_a, fault_inverter_b,
                 ready_inverter_a, ready_inverter_b);
 
-   
-
   auto tim_gp0 = get_timer_instance(myBoard, Pinout::general_purpose_timer);
   tim_gp0.set_prescaler(tim_gp0.get_clock_frequency() / 1000'000);
   tim_gp0.configure16bit(pcu_control_callback, nullptr, 199);
   tim_gp0.enable_nvic();
   tim_gp0.enable_update_interrupt();
-    
-  auto eth_instance = &myBoard::instance_of<eth>();
+
+  ethernet = &myBoard::instance_of<eth>();
   Comms::start();
   PCU::start();
 
   while (1) {
     Scheduler::update();
     PCU::update();
-    eth_instance->update();
+    ethernet->update();
   }
 }
 

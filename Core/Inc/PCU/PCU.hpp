@@ -18,6 +18,9 @@
 
 #define MODULATION_FREQUENCY_DEFAULT 10
 #define Protecction_Voltage 410.0f 
+
+extern ST_LIB::EthernetDomain::Instance *ethernet;
+
 class PCU
 {
     public:
@@ -60,7 +63,7 @@ static constexpr auto connecting_state = make_state(States_PCU::Connecting,
 static constexpr auto operational_state = make_state(States_PCU::Operational,
     Transition<States_PCU>{States_PCU::Fault,[]()
     {
-        return (!OrderPackets::control_station_tcp->is_connected());
+        return (!OrderPackets::control_station_tcp->is_connected() || !ethernet->is_connected());
     }}
 );
 
