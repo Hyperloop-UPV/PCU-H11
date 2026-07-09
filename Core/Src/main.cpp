@@ -49,6 +49,8 @@ constexpr auto eth =
 
 #endif
 
+bool initialized_stlib = false;
+
 int main(void) {
 
   Hard_fault_check();
@@ -82,7 +84,9 @@ int main(void) {
                                PCU_Protections::current_u_b, PCU_Protections::current_v_b, PCU_Protections::current_w_b,
                                PCU_Protections::position_encoder, PCU_Protections::space_vector_time>;
   #endif
+
   myBoard::init();
+  initialized_stlib = true;
   
 
   #if PCU_H10 == 1

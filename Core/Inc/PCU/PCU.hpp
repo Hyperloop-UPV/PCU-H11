@@ -20,6 +20,7 @@
 #define Protecction_Voltage 410.0f 
 
 extern ST_LIB::EthernetDomain::Instance *ethernet;
+extern bool initialized_stlib;
 
 class PCU
 {
@@ -194,11 +195,15 @@ static inline constinit auto PCU_State_Machine = []() consteval
     sm.add_enter_action([]()
     {
         callback_flag = false;
-        stop_motors();
-        // ProtectionManager::propagate_fault();
-        Actuators::set_led_operational(false);
-        Actuators::set_led_connecting(false);
-        Actuators::set_led_fault(true);
+        if(initialized_stlib) {
+            stop_motors();
+            // ProtectionManager::propagate_fault();
+            Actuators::set_led_operational(false);
+            Actuators::set_led_connecting(false);
+            Actuators::set_led_fault(true);
+        } else {
+            WARNING("Fault in board::init()");
+        }
     }, fault_state);
 
 

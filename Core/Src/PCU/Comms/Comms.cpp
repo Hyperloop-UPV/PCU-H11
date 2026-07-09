@@ -94,6 +94,7 @@ void Comms::start()
     OrderPackets::Stop_Motor_init();
 
     OrderPackets::start();
+    Diagnostics::install_ethernet_sink(OrderPackets::control_station_tcp);
 
 }
 
