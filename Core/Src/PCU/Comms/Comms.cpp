@@ -52,26 +52,26 @@ void Comms::start()
     DataPackets::start();
 
     OrderPackets::Send_Reference_Current_init(
-        frequency_space_vector_received,
-        frequency_received,
-        current_reference_received,
-        Vmax_control_received,
-        Variable_frequency_recieved,
-        Reverse_direction
+        Comms::frequency_space_vector_received,
+        Comms::frequency_received,
+        Comms::current_reference_received,
+        Comms::Vmax_control_received,
+        Comms::Variable_frequency_recieved,
+        Comms::Reverse_direction
     );
 
     OrderPackets::Send_Reference_Speed_init(
-        speed_reference_received,
-        frequency_received,
-        Vmax_control_received,
-        Reverse_direction
+        Comms::speed_reference_received,
+        Comms::frequency_received,
+        Comms::Vmax_control_received,
+        Comms::Reverse_direction
     );
 
     OrderPackets::Start_SVPWM_init(
-        frequency_space_vector_received,
-        frequency_received,
-        ref_voltage_space_vector_received,
-        Vmax_control_received
+        Comms::frequency_space_vector_received,
+        Comms::frequency_received,
+        Comms::ref_voltage_space_vector_received,
+        Comms::Vmax_control_received
     );
 
     OrderPackets::Zeroing_init();
