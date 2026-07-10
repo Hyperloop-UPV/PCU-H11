@@ -189,14 +189,14 @@ int main(void) {
   Comms::start();
   PCU::start();
 
-  Watchdog::watchdog_time = std::chrono::milliseconds(100);
-  Watchdog::start();
+//   Watchdog::watchdog_time = std::chrono::milliseconds(100);
+//   Watchdog::start();
 
   while (1) {
     Scheduler::update();
     PCU::update();
     ethernet->update();
-    Watchdog::refresh();
+    // Watchdog::refresh();
   }
 }
 
