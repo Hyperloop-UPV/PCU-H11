@@ -350,13 +350,41 @@ namespace Sensors_data
 
 #include "Communications/Packets/DataPackets.hpp"
 
-using States_PCU = DataPackets::general_state_machine;
-using Operational_States_PCU = DataPackets::operational_state_machine;
-using EncoderDirection = DataPackets::encoder_direction;
-using SpeedControlState = DataPackets::speed_control_active;
-using CurrentControlState = DataPackets::current_control_active;
-using SpaceVectorState = DataPackets::space_vector_active;
-using PWM_ACTIVE = DataPackets::space_vector_active;
+enum class States_PCU : uint8_t
+{
+    Connecting = 0,
+    Operational = 1,
+    Fault = 2,
+};
+enum class Operational_States_PCU : uint8_t
+{
+    IDLE = 0,
+    Accelerating = 1,
+};
+
+using States_Shown_PCU = DataPackets::state;
+
+enum EncoderDirection {
+    Forward,
+    Backward,
+};
+
+enum class SpeedControlState {
+    DISABLE,
+    ACTIVE,
+};
+enum class CurrentControlState {
+    DISABLE,
+    ACTIVE,
+};
+enum class SpaceVectorState {
+    DISABLE,
+    ACTIVE,
+};
+enum class PWM_ACTIVE {
+    DISABLE,
+    ACTIVE,
+};
 
 enum class BUFFER_STATE: uint8_t
 {

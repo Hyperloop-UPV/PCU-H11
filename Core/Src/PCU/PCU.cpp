@@ -2,6 +2,23 @@
 
 ST_LIB::EthernetDomain::Instance *ethernet;
 
+States_Shown_PCU get_shown_state_from_internal(States_PCU state, Operational_States_PCU operational_state)
+{
+    switch(state) {
+        case States_PCU::Connecting: return States_Shown_PCU::Connecting;
+        case States_PCU::Operational: {
+            if(operational_state == Operational_States_PCU::IDLE) {
+                return States_Shown_PCU::Idle;
+            } else {
+                return States_Shown_PCU::Accelerating;
+            }
+        }
+        case States_PCU::Fault: return States_Shown_PCU::Fault;
+    }
+    // unknown state
+    return States_Shown_PCU::Fault;
+}
+
 void PCU::start()
 {
     CurrentControl::init();
@@ -40,6 +57,7 @@ void PCU::start()
         PCU_State_Machine.check_transitions();
         current_state_pcu = PCU_State_Machine.get_current_state();
         current_operational_state_pcu = Operational_State_Machine.get_current_state();
+        current_sending_state = get_shown_state_from_internal(current_state_pcu, current_operational_state_pcu);
         Sensors::read();
         VoltageSensors::read();
     });
@@ -128,15 +146,6 @@ void PCU::update()
         control_data.space_vector_active = SpaceVectorState::ACTIVE;
 
 
-    }
-
-    if(OrderPackets::Reset_Bypass_flag==true)
-    {
-        OrderPackets::Reset_Bypass_flag=false;
-        if(Comms::reset_bypass_received==false)
-            Actuators::disable_reset_bypass();
-        else
-        Actuators::enable_reset_bypass();
     }
 
     if(OrderPackets::Zeroing_flag==true)

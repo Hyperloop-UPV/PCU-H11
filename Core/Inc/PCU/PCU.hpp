@@ -38,6 +38,7 @@ class PCU
 
     inline static States_PCU current_state_pcu{States_PCU::Connecting};
     inline static Operational_States_PCU current_operational_state_pcu{Operational_States_PCU::IDLE};
+    inline static States_Shown_PCU current_sending_state{States_Shown_PCU::Connecting};
 
     static void start();
     static void update();
