@@ -62,7 +62,7 @@ double CurrentControl::calculate_peak(){
 void CurrentControl::control_action(){
     if (!should_be_running) return;
     float freq=0.0f;
-    if(PCU::control_data.speed_control_active == SpeedControlState::ACTIVE || Comms::Variable_frequency_recieved){
+    if(PCU::control_data.speed_control_active || Comms::Variable_frequency_recieved){
         freq = calculate_frequency_modulation();
         SpaceVector::set_frequency_Modulation(freq);
         Max_Peak::set_modulation_freq(freq);
@@ -118,13 +118,13 @@ void CurrentControl::control_action(){
 
 void CurrentControl::start() {
     should_be_running = true;
-    PCU::control_data.current_control_active = CurrentControlState::ACTIVE; 
+    PCU::control_data.current_control_active = true; 
     reset_PI();
 }
 
 void CurrentControl::stop() {
     should_be_running = false;
-    PCU::control_data.current_control_active = CurrentControlState::DISABLE; 
+    PCU::control_data.current_control_active = false; 
 }
 
 bool CurrentControl::is_running(){

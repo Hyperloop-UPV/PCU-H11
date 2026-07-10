@@ -3,7 +3,7 @@
 
 void Comms::start()
 {
-    DataPackets::pwm_packet_init(
+    DataPackets::PWM_init(
         PCU::control_data.actual_frequency,
         PCU::control_data.modulation_frequency,
         PCU::control_data.duty_cycle_u,
@@ -16,7 +16,7 @@ void Comms::start()
         VoltageSensors::actual_voltage_battery_b
     );
 
-    DataPackets::Current_sensors_init(
+    DataPackets::Current_Sensors_init(
         CurrentSensors::actual_current_sensor_u_a,
         CurrentSensors::actual_current_sensor_v_a,
         CurrentSensors::actual_current_sensor_w_a,
@@ -30,41 +30,26 @@ void Comms::start()
         PCU::control_data.imod
     );
 
-    DataPackets::StateMachine_states_init(
-        PCU::current_state_pcu,
-        PCU::current_operational_state_pcu,
-        PCU::control_data.space_vector_active,
-        PCU::control_data.current_control_active,
-        PCU::control_data.speed_control_active
+    DataPackets::State_Machine_States_init(
+        PCU::current_state_pcu
     );
 
-    DataPackets::Speetec_data_init(
-        PCU::control_data.position_encoder,
-        PCU::control_data.established_direction,
-        PCU::control_data.speed_encoder,
-        PCU::control_data.speed_km_h_encoder,
-        Speetec::acceleration_encoder
-    );
-
-    DataPackets::Speed_data_init(
+    DataPackets::Speed_Data_init(
         PCU::control_data.target_speed,
         PCU::control_data.speed_error,
         PCU::control_data.actual_current_ref,
         PCU::control_data.slip_control,
-        PCU::control_data.cnt_encoder,
         PCU::control_data.IMU_speed_km_h,
         PCU::control_data.IMU_position_m
     );
 
-    DataPackets::GateDriverReporting_init(
+    DataPackets::Gate_Driver_Reporting_init(
         Sensors::gd_fault_a,
         Sensors::gd_fault_b,
         Sensors::gd_ready_a,
         Sensors::gd_ready_b
     );
     DataPackets::start();
-
-    OrderPackets::Reset_Bypass_init(reset_bypass_received);
 
     OrderPackets::Send_Reference_Current_init(
         frequency_space_vector_received,
@@ -87,7 +72,6 @@ void Comms::start()
         frequency_received,
         ref_voltage_space_vector_received,
         Vmax_control_received
-        
     );
 
     OrderPackets::Zeroing_init();

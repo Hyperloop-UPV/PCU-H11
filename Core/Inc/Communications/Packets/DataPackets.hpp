@@ -9,91 +9,59 @@
 #endif
 class DataPackets{
 public:
-    enum class general_state_machine : uint8_t
+    enum class state : uint8_t
     {
         Connecting = 0,
-        Operational = 1,
-        Fault = 2,
-    };
-    enum class operational_state_machine : uint8_t
-    {
-        IDLE = 0,
-        Accelerating = 1,
-    };
-    enum class space_vector_active : uint8_t
-    {
-        DISABLE = 0,
-        ACTIVE = 1,
-    };
-    enum class current_control_active : uint8_t
-    {
-        DISABLE = 0,
-        ACTIVE = 1,
-    };
-    enum class speed_control_active : uint8_t
-    {
-        DISABLE = 0,
-        ACTIVE = 1,
-    };
-    enum class encoder_direction : uint8_t
-    {
-        Forward = 0,
-        Backward = 1,
+        Idle = 1,
+        Accelerating = 2,
+        Fault = 3,
     };
     
 #ifdef STLIB_ETH
-    static void pwm_packet_init(uint32_t &frequency, float &modulation_frequency, float &duty_u, float &duty_v, float &duty_w)
+    static void PWM_init(uint32_t &frequency, float &modulation_frequency, float &duty_u, float &duty_v, float &duty_w)
     {
-        pwm_packet_packet = new StackPacket(static_cast<uint16_t>(550), &frequency, &modulation_frequency, &duty_u, &duty_v, &duty_w);
+        PWM_packet = new StackPacket(static_cast<uint16_t>(550), &frequency, &modulation_frequency, &duty_u, &duty_v, &duty_w);
     }
 
-    static void Batteries_Voltage_init(float &Voltage_Battery_A, float &Voltage_Battery_B)
+    static void Batteries_Voltage_init(float &voltage_battery_a, float &voltage_battery_b)
     {
-        Batteries_Voltage_packet = new StackPacket(static_cast<uint16_t>(551), &Voltage_Battery_A, &Voltage_Battery_B);
+        Batteries_Voltage_packet = new StackPacket(static_cast<uint16_t>(551), &voltage_battery_a, &voltage_battery_b);
     }
 
-    static void Current_sensors_init(float &current_sensor_u_a, float &current_sensor_v_a, float &current_sensor_w_a, float &current_sensor_u_b, float &current_sensor_v_b, float &current_sensor_w_b, float &current_Peak, float &Error_PI, float &Target_Voltage, float &SVPWM_Time, float &imod)
+    static void Current_Sensors_init(float &current_sensor_u_a, float &current_sensor_v_a, float &current_sensor_w_a, float &current_sensor_u_b, float &current_sensor_v_b, float &current_sensor_w_b, float &current_Peak, float &error_pi, float &target_voltage, float &svpwm_time, float &imod)
     {
-        Current_sensors_packet = new StackPacket(static_cast<uint16_t>(552), &current_sensor_u_a, &current_sensor_v_a, &current_sensor_w_a, &current_sensor_u_b, &current_sensor_v_b, &current_sensor_w_b, &current_Peak, &Error_PI, &Target_Voltage, &SVPWM_Time, &imod);
+        Current_Sensors_packet = new StackPacket(static_cast<uint16_t>(552), &current_sensor_u_a, &current_sensor_v_a, &current_sensor_w_a, &current_sensor_u_b, &current_sensor_v_b, &current_sensor_w_b, &current_Peak, &error_pi, &target_voltage, &svpwm_time, &imod);
     }
 
-    static void StateMachine_states_init(general_state_machine &general_state_machine, operational_state_machine &operational_state_machine, space_vector_active &space_vector_active, current_control_active &current_control_active, speed_control_active &speed_control_active)
+    static void State_Machine_States_init(state &state)
     {
-        StateMachine_states_packet = new StackPacket(static_cast<uint16_t>(553), &general_state_machine, &operational_state_machine, &space_vector_active, &current_control_active, &speed_control_active);
+        State_Machine_States_packet = new StackPacket(static_cast<uint16_t>(553), &state);
     }
 
-    static void Speetec_data_init(double &encoder_position, encoder_direction &encoder_direction, double &encoder_speed, double &encoder_speed_km_h, double &encoder_acceleration)
+    static void Speed_Data_init(float &target_speed, double &speed_error, float &actual_current_ref, float &slip_motor, double &imu_speed_km_h, float &imu_position_m)
     {
-        Speetec_data_packet = new StackPacket(static_cast<uint16_t>(554), &encoder_position, &encoder_direction, &encoder_speed, &encoder_speed_km_h, &encoder_acceleration);
+        Speed_Data_packet = new StackPacket(static_cast<uint16_t>(555), &target_speed, &speed_error, &actual_current_ref, &slip_motor, &imu_speed_km_h, &imu_position_m);
     }
 
-    static void Speed_data_init(float &target_speed, double &speed_error, float &actual_current_ref, float &slip_motor, uint32_t &cnt_encoder, double &speed_km_h_IMU, float &IMU_position_m)
+    static void Gate_Driver_Reporting_init(bool &gd_fault_a, bool &gd_fault_b, bool &gd_ready_a, bool &gd_ready_b)
     {
-        Speed_data_packet = new StackPacket(static_cast<uint16_t>(555), &target_speed, &speed_error, &actual_current_ref, &slip_motor, &cnt_encoder, &speed_km_h_IMU, &IMU_position_m);
-    }
-
-    static void GateDriverReporting_init(bool &gd_fault_a, bool &gd_fault_b, bool &gd_ready_a, bool &gd_ready_b)
-    {
-        GateDriverReporting_packet = new StackPacket(static_cast<uint16_t>(558), &gd_fault_a, &gd_fault_b, &gd_ready_a, &gd_ready_b);
+        Gate_Driver_Reporting_packet = new StackPacket(static_cast<uint16_t>(558), &gd_fault_a, &gd_fault_b, &gd_ready_a, &gd_ready_b);
     }
 
     #endif
 
 public:
 #ifdef STLIB_ETH
-    inline static Packet *pwm_packet_packet{nullptr};
+    inline static Packet *PWM_packet{nullptr};
     inline static Packet *Batteries_Voltage_packet{nullptr};
-    inline static Packet *Current_sensors_packet{nullptr};
-    inline static Packet *StateMachine_states_packet{nullptr};
-    inline static Packet *Speetec_data_packet{nullptr};
-    inline static Packet *Speed_data_packet{nullptr};
-    inline static Packet *GateDriverReporting_packet{nullptr};
+    inline static Packet *Current_Sensors_packet{nullptr};
+    inline static Packet *State_Machine_States_packet{nullptr};
+    inline static Packet *Speed_Data_packet{nullptr};
+    inline static Packet *Gate_Driver_Reporting_packet{nullptr};
     
 
     inline static uint32_t group_0_idx = 0;
-    inline static Packet **group_0[] = { &pwm_packet_packet, &Current_sensors_packet };
-    inline static uint32_t group_1_idx = 0;
-    inline static Packet **group_1[] = { &Batteries_Voltage_packet, &StateMachine_states_packet, &Speetec_data_packet, &Speed_data_packet, &GateDriverReporting_packet };
+    inline static Packet **group_0[] = { &PWM_packet, &Batteries_Voltage_packet, &Current_Sensors_packet, &State_Machine_States_packet, &Speed_Data_packet, &Gate_Driver_Reporting_packet };
     
 
     inline static DatagramSocket *control_station_udp{nullptr};
@@ -103,40 +71,32 @@ public:
     static void start()
     {
 #ifdef STLIB_ETH
-        if (pwm_packet_packet == nullptr) {
-            PANIC("Packet pwm_packet not initialized");
+        if (PWM_packet == nullptr) {
+            PANIC("Packet PWM not initialized");
         }
         if (Batteries_Voltage_packet == nullptr) {
             PANIC("Packet Batteries_Voltage not initialized");
         }
-        if (Current_sensors_packet == nullptr) {
-            PANIC("Packet Current_sensors not initialized");
+        if (Current_Sensors_packet == nullptr) {
+            PANIC("Packet Current_Sensors not initialized");
         }
-        if (StateMachine_states_packet == nullptr) {
-            PANIC("Packet StateMachine_states not initialized");
+        if (State_Machine_States_packet == nullptr) {
+            PANIC("Packet State_Machine_States not initialized");
         }
-        if (Speetec_data_packet == nullptr) {
-            PANIC("Packet Speetec_data not initialized");
+        if (Speed_Data_packet == nullptr) {
+            PANIC("Packet Speed_Data not initialized");
         }
-        if (Speed_data_packet == nullptr) {
-            PANIC("Packet Speed_data not initialized");
-        }
-        if (GateDriverReporting_packet == nullptr) {
-            PANIC("Packet GateDriverReporting not initialized");
+        if (Gate_Driver_Reporting_packet == nullptr) {
+            PANIC("Packet Gate_Driver_Reporting not initialized");
         }
         
 
         control_station_udp = new DatagramSocket("192.168.1.5",50400,"192.168.0.9",50400);
         
-        Scheduler::register_task(1000 / ARRAY_LEN(DataPackets::group_0), +[](){
+        Scheduler::register_task(16670 / ARRAY_LEN(DataPackets::group_0), +[](){
             Packet *packet = *DataPackets::group_0[DataPackets::group_0_idx];
             DataPackets::control_station_udp->send_packet(*packet);
             DataPackets::group_0_idx = (DataPackets::group_0_idx + 1) % ARRAY_LEN(DataPackets::group_0);
-        });
-        Scheduler::register_task(16670 / ARRAY_LEN(DataPackets::group_1), +[](){
-            Packet *packet = *DataPackets::group_1[DataPackets::group_1_idx];
-            DataPackets::control_station_udp->send_packet(*packet);
-            DataPackets::group_1_idx = (DataPackets::group_1_idx + 1) % ARRAY_LEN(DataPackets::group_1);
         });
 #endif
     }

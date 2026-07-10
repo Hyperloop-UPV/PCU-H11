@@ -350,13 +350,7 @@ namespace Sensors_data
 
 #include "Communications/Packets/DataPackets.hpp"
 
-using States_PCU = DataPackets::general_state_machine;
-using Operational_States_PCU = DataPackets::operational_state_machine;
-using EncoderDirection = DataPackets::encoder_direction;
-using SpeedControlState = DataPackets::speed_control_active;
-using CurrentControlState = DataPackets::current_control_active;
-using SpaceVectorState = DataPackets::space_vector_active;
-using PWM_ACTIVE = DataPackets::space_vector_active;
+using States_PCU = DataPackets::state;
 
 enum class BUFFER_STATE: uint8_t
 {
@@ -370,7 +364,7 @@ extern TIM_TypeDef* global_us_timer;
 struct Control_Data
 {
     //SpaceVector:
-    PWM_ACTIVE pwm_active{PWM_ACTIVE::DISABLE};
+    bool pwm_active{false};
     uint32_t actual_frequency{};
     float modulation_frequency{0.0f};
     float duty_cycle_u{0.0f};
@@ -395,12 +389,11 @@ struct Control_Data
     float slip_control{0.0f};
 
     double IMU_speed_km_h{0.0f};
-    float IMU_position_m{0.0f}; 
+    float IMU_position_m{0.0f};
 
-    EncoderDirection established_direction{EncoderDirection::Forward};
-    SpeedControlState speed_control_active{SpeedControlState::DISABLE};
-    CurrentControlState current_control_active{CurrentControlState::DISABLE};
-    SpaceVectorState space_vector_active{SpaceVectorState::DISABLE};
+    bool speed_control_active{false};
+    bool current_control_active{false};
+    bool space_vector_active{false};
 
     uint32_t cnt_encoder{0};
 };

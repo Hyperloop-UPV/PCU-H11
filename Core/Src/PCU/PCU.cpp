@@ -32,14 +32,13 @@ void PCU::start()
     #endif
 
 
-    control_data.space_vector_active = SpaceVectorState::DISABLE;
-    control_data.speed_control_active = SpeedControlState::DISABLE;
-    control_data.current_control_active = CurrentControlState::DISABLE;
+    control_data.space_vector_active = false;
+    control_data.speed_control_active = false;
+    control_data.current_control_active = false;
 
     Scheduler::register_task(1'000, [](){
         PCU_State_Machine.check_transitions();
         current_state_pcu = PCU_State_Machine.get_current_state();
-        current_operational_state_pcu = Operational_State_Machine.get_current_state();
         Sensors::read();
         VoltageSensors::read();
     });
@@ -62,7 +61,7 @@ void PCU::stop_motors()
     SpeedControl::set_reference_speed(0);
     PWMActuators::set_three_frequencies(0);
     SpaceVector::set_VMAX(0);
-    Operational_State_Machine.force_change_state(nested_idle_state);
+    PCU_State_Machine.force_change_state(idle_state);
 }
 
 void PCU::update()
@@ -71,7 +70,7 @@ void PCU::update()
     {
         OrderPackets::Stop_Motor_flag=false;
         __disable_irq();
-        control_data.space_vector_active = SpaceVectorState::DISABLE;
+        control_data.space_vector_active = false;
         stop_motors();
         __enable_irq();
     }
@@ -83,7 +82,7 @@ void PCU::update()
     
     if(OrderPackets::Start_SVPWM_flag == true)
     {
-        OrderPackets::Start_SVPWM_flag=false;
+        OrderPackets::Start_SVPWM_flag = false;
         PWMActuators::set_three_frequencies(Comms::frequency_received);
         SpaceVector::set_frequency_Modulation(Comms::frequency_space_vector_received);
         SpaceVector::set_VMAX(Comms::Vmax_control_received);
@@ -92,7 +91,7 @@ void PCU::update()
 
         CurrentControl::stop();
         SpeedControl::stop();
-        control_data.space_vector_active=SpaceVectorState::ACTIVE;
+        control_data.space_vector_active = true;
 
     }
 
@@ -109,7 +108,7 @@ void PCU::update()
 
         SpeedControl::stop();
         CurrentControl::start();
-        control_data.space_vector_active = SpaceVectorState::ACTIVE;
+        control_data.space_vector_active = true;
 
     }
 
@@ -125,18 +124,7 @@ void PCU::update()
 
         CurrentControl::start();
         SpeedControl::start();
-        control_data.space_vector_active = SpaceVectorState::ACTIVE;
-
-
-    }
-
-    if(OrderPackets::Reset_Bypass_flag==true)
-    {
-        OrderPackets::Reset_Bypass_flag=false;
-        if(Comms::reset_bypass_received==false)
-            Actuators::disable_reset_bypass();
-        else
-        Actuators::enable_reset_bypass();
+        control_data.space_vector_active = true;
     }
 
     if(OrderPackets::Zeroing_flag==true)

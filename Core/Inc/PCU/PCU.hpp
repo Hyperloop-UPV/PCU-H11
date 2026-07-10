@@ -37,7 +37,6 @@ class PCU
 
 
     inline static States_PCU current_state_pcu{States_PCU::Connecting};
-    inline static Operational_States_PCU current_operational_state_pcu{Operational_States_PCU::IDLE};
 
     static void start();
     static void update();
@@ -55,71 +54,93 @@ class PCU
 /*-----State Machine declaration------*/
 
 static constexpr auto connecting_state = make_state(States_PCU::Connecting,
-    Transition<States_PCU>{States_PCU::Operational,[]()
+    Transition<States_PCU>{States_PCU::Idle,[]()
     {
         return OrderPackets::control_station_tcp->is_connected();
     }}
 );
 
-static constexpr auto operational_state = make_state(States_PCU::Operational,
+static constexpr auto idle_state = make_state(States_PCU::Idle,
     Transition<States_PCU>{States_PCU::Fault,[]()
     {
         return (!OrderPackets::control_station_tcp->is_connected() || !ethernet->is_connected());
+    }},
+    Transition<States_PCU>{States_PCU::Accelerating, [](){
+        return control_data.space_vector_active;
+    }}
+);
+
+static constexpr auto accelerating_state = make_state(States_PCU::Accelerating,
+    Transition<States_PCU>{States_PCU::Fault, [](){
+        return (!OrderPackets::control_station_tcp->is_connected() || !ethernet->is_connected());
+    }},
+    Transition<States_PCU>{States_PCU::Idle, [](){
+        return !control_data.space_vector_active;
     }}
 );
 
 static constexpr auto fault_state = make_state(States_PCU::Fault);
 
-static constexpr auto nested_idle_state = make_state(Operational_States_PCU::IDLE,
-    Transition<Operational_States_PCU>{Operational_States_PCU::Accelerating,[]()
-    {
-        return control_data.space_vector_active == SpaceVectorState::ACTIVE;
-    }}
-);
-
-
-static constexpr auto nested_accelerating_state = make_state(Operational_States_PCU::Accelerating,
-    Transition<Operational_States_PCU>{Operational_States_PCU::IDLE,[]()
-    {
-        return control_data.space_vector_active == SpaceVectorState::DISABLE;
-    }}
-);
-
 //Por hacer regenerativo...
 
-static inline constinit auto Operational_State_Machine = []() consteval
+static inline constinit auto PCU_State_Machine = []() consteval
 {
-    auto sm= make_state_machine(Operational_States_PCU::IDLE,
-        nested_idle_state,
-        nested_accelerating_state
+    auto sm = make_state_machine(States_PCU::Connecting,
+        connecting_state,
+        idle_state,
+        accelerating_state,
+        fault_state
     );
     using namespace std::chrono_literals;
 
-    sm.add_enter_action([]()
+    sm.add_cyclic_action([]()
     {
-        callback_flag = false;
-        // IMU::restart();
-        stop_motors();
-    },nested_idle_state);
+        static bool toggle = true;
+        Actuators::set_led_connecting(toggle);
+        toggle = !toggle;
+    }, ms(500), connecting_state);
+
+
 
     sm.add_enter_action([]()
     {
-        callback_flag = true;
-    },nested_accelerating_state);
+        Actuators::set_led_connecting(true);
+        Actuators::set_led_operational(false);
+        Actuators::set_led_fault(false);
+        callback_flag = false;
+        stop_motors();
+    }, idle_state);
 
     sm.add_exit_action([]()
     {
+        stop_motors();
+        Actuators::set_led_connecting(false);
         callback_flag = false;
-    },nested_accelerating_state);
+    }, idle_state);
+
+    sm.add_enter_action([]()
+    {
+        Actuators::set_led_connecting(true);
+        Actuators::set_led_operational(false);
+        Actuators::set_led_fault(false);
+        callback_flag = true;
+    }, accelerating_state);
+
+    sm.add_exit_action([]()
+    {
+        stop_motors();
+        Actuators::set_led_connecting(false);
+        callback_flag = false;
+
+        callback_flag = false;
+    }, accelerating_state);
 
     sm.add_cyclic_action([]()
     {
-        if(SpeedControl::running)
-        {
+        if(SpeedControl::running) {
             SpeedControl::control_action();
         }
-    }, us(Speed_Control_Data::microsecond_period) , nested_accelerating_state);
-
+    }, us(Speed_Control_Data::microsecond_period), accelerating_state);
 
     // sm.add_cyclic_action([]() Implemented on the interuption
     // {   
@@ -133,8 +154,6 @@ static inline constinit auto Operational_State_Machine = []() consteval
     //     }
     // }, us(Current_Control_Data::microsecond_period) , nested_accelerating_state);
 
-
-    
     sm.add_enter_action([]()
     {
         #if PCU_H10 == 0
@@ -142,9 +161,9 @@ static inline constinit auto Operational_State_Machine = []() consteval
         #else
         Actuators::enable_reset_bypass();
         #endif
-        
+
         Actuators::enable_buffer();
-    }, nested_accelerating_state);
+    }, accelerating_state);
 
     sm.add_exit_action([]()
     {
@@ -156,41 +175,7 @@ static inline constinit auto Operational_State_Machine = []() consteval
         #endif
         PWMActuators::stop();
         Actuators::disable_buffer();
-    }, nested_accelerating_state);
-    return sm;
-}();
-
-static inline constinit auto PCU_State_Machine = []() consteval
-{
-    auto nested = StateMachineHelper::add_nesting(operational_state, Operational_State_Machine);
-    auto sm = make_state_machine(States_PCU::Connecting,
-        StateMachineHelper::add_nested_machines(nested),
-        connecting_state,
-        operational_state,
-        fault_state
-
-    );
-    using namespace std::chrono_literals;
-    sm.add_cyclic_action([]()
-    {
-        static bool toggle = true;
-        Actuators::set_led_connecting(toggle);
-        toggle = !toggle;
-    }, ms(500), connecting_state);
-
-    sm.add_enter_action([]()
-    {
-        Actuators::set_led_connecting(true);
-        Actuators::set_led_operational(false);
-        Actuators::set_led_fault(false);
-    }, operational_state);
-
-    sm.add_exit_action([]()
-    {
-        stop_motors();
-        Actuators::set_led_connecting(false);
-        callback_flag = false;
-    }, operational_state);
+    }, accelerating_state);
 
     sm.add_enter_action([]()
     {
@@ -205,7 +190,6 @@ static inline constinit auto PCU_State_Machine = []() consteval
             WARNING("Fault in board::init()");
         }
     }, fault_state);
-
 
     return sm;
 }();

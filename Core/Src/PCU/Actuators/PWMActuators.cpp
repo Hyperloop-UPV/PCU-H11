@@ -27,7 +27,7 @@ void PWMActuators::init(ST_LIB::DualPWM<Pinout::tim_decl,Pinout::U_PWM_pin,Pinou
     U_Dual->turn_on();
     V_Dual->turn_on();
     W_Dual->turn_on();
-    PCU::control_data.pwm_active = PWM_ACTIVE::DISABLE;
+    PCU::control_data.pwm_active = false;
 }
 
 
@@ -48,7 +48,7 @@ void PWMActuators::stop()
     V_Dual->set_duty_cycle(0.0f);
     W_Dual->set_duty_cycle(0.0f);
 
-    PCU::control_data.pwm_active = PWM_ACTIVE::DISABLE;
+    PCU::control_data.pwm_active = false;
 
     PCU::control_data.duty_cycle_u = get_duty_u();
     PCU::control_data.duty_cycle_w = get_duty_w();
@@ -83,6 +83,6 @@ void PWMActuators::set_duty_w(float duty_cycle)
 void PWMActuators::set_three_frequencies(uint32_t frequency) 
 {
     U_Dual->set_timer_frequency(frequency);
-    PCU::control_data.pwm_active = PWM_ACTIVE::ACTIVE;
+    PCU::control_data.pwm_active = true;
     PCU::control_data.actual_frequency = frequency;
 }

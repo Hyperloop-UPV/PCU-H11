@@ -8,7 +8,7 @@ using ST_LIB::EthernetDomain;
 TIM_TypeDef* global_us_timer = nullptr;
 
 void pcu_control_callback(void* raw) {
-    if(PCU::control_data.space_vector_active == SpaceVectorState::ACTIVE && PCU::callback_flag)
+    if(PCU::control_data.space_vector_active && PCU::callback_flag)
     {
         SpaceVector::calculate_duties();
 

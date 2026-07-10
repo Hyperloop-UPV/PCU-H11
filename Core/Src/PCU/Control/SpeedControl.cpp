@@ -66,10 +66,10 @@ void SpeedControl::reset_PI(){
 
 void SpeedControl::start(){
     running = true;
-    PCU::control_data.speed_control_active = SpeedControlState::ACTIVE;
+    PCU::control_data.speed_control_active = true;
 }
 
 void SpeedControl::stop(){
     running = false;
-    PCU::control_data.speed_control_active = SpeedControlState::DISABLE;
+    PCU::control_data.speed_control_active = false;
 }
