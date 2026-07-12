@@ -20,48 +20,38 @@ void pcu_control_callback(void* raw) {
     
 }
 
+#define PCU_MAC_ADDR "02:11:22:33:44:55"
+#define PCU_IP_ADDR  "192.168.1.5"
+
 #if defined(USE_PHY_LAN8742)
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:05",
-                             "192.168.1.5", "255.255.0.0");
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, PCU_MAC_ADDR,
+                             PCU_IP_ADDR, "255.255.0.0");
 #elif defined(USE_PHY_LAN8700)
 #if MASK_TO_24 == 1
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:05",
-                             "192.168.1.5", "255.255.255.0");
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, PCU_MAC_ADDR,
+                             PCU_IP_ADDR, "255.255.255.0");
 #else
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, "05:80:e8:55:61:05",
-                             "192.168.1.5", "255.255.0.0");
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H10, PCU_MAC_ADDR,
+                             PCU_IP_ADDR, "255.255.0.0");
 #endif
 #elif defined(USE_PHY_KSZ8041)
 #if MASK_TO_24 == 1
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "05:80:e8:55:61:05",
-                             "192.168.1.5", "255.255.255.0");
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, PCU_MAC_ADDR,
+                             PCU_IP_ADDR, "255.255.255.0");
 #else
 constexpr auto eth =
-    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, "05:80:e8:55:61:05",
-                             "192.168.1.5", "255.255.0.0");
+    EthernetDomain::Ethernet(EthernetDomain::PINSET_H11, PCU_MAC_ADDR,
+                             PCU_IP_ADDR, "255.255.0.0");
 #endif
 #else
 #error "Ethernet PHY not defined"
 
 #endif
 
-//#define TEST_LEDS
-#ifdef TEST_LEDS
-//static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_can_def{ST_LIB::PG6};
-static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_flash_def{ST_LIB::PG5};
-static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_sleep_def{ST_LIB::PG4};
-static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_LIM1_def{ST_LIB::PD10};
-static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_LIM2_def{ST_LIB::PD9};
-
-ST_LIB::DigitalOutputDomain::Instance *led_flash = 0;
-ST_LIB::DigitalOutputDomain::Instance *led_sleep = 0;
-ST_LIB::DigitalOutputDomain::Instance *led_LIM1 = 0;
-ST_LIB::DigitalOutputDomain::Instance *led_LIM2 = 0;
-#endif
 ST_LIB::DigitalOutputDomain::Instance *led_connecting = 0;
 ST_LIB::DigitalOutputDomain::Instance *led_operational = 0;
 ST_LIB::DigitalOutputDomain::Instance *led_fault = 0;
@@ -113,62 +103,6 @@ int main(void) {
   led_connecting = &myBoard::instance_of<Pinout::led_connecting>();
   led_fault = &myBoard::instance_of<Pinout::led_fault>();
   led_operational = &myBoard::instance_of<Pinout::led_operational>();
-
-  led_connecting->toggle();
-  led_fault->toggle();
-  led_operational->toggle();
-
-#ifdef TEST_LEDS
-  led_flash = &myBoard::instance_of<led_flash_def>();
-  led_sleep = &myBoard::instance_of<led_sleep_def>();
-  led_LIM1 = &myBoard::instance_of<led_LIM1_def>();
-  led_LIM2 = &myBoard::instance_of<led_LIM2_def>();
-
-  led_connecting->turn_on();
-  led_operational->turn_on();
-  led_flash->turn_on();
-  led_sleep->turn_on();
-  led_LIM1->turn_on();
-  led_LIM2->turn_on();
-  led_fault->turn_on();
-
-  led_connecting->turn_off();
-  led_operational->turn_off();
-  led_flash->turn_off();
-  led_sleep->turn_off();
-  led_LIM1->turn_off();
-  led_LIM2->turn_off();
-  led_fault->turn_off();
-
-#if 0
-  Scheduler::register_task(100'000, [](){
-    led_flash->toggle();
-  });
-  Scheduler::register_task(200'000, [](){
-    led_sleep->toggle();
-  });
-  Scheduler::register_task(300'000, [](){
-    led_LIM1->toggle();
-  });
-  Scheduler::register_task(500'000, [](){
-    led_LIM2->toggle();
-  });
-  Scheduler::register_task(700'000, [](){
-    led_connecting->toggle();
-  });
-  Scheduler::register_task(1100'000, [](){
-    led_fault->toggle();
-  });
-  Scheduler::register_task(1300'000, [](){
-    led_operational->toggle();
-  });
-#endif
-
-  for(;;){
-    Scheduler::update();
-  }
-
-#endif // TEST_LEDS
 
   auto& fault_inverter_a = myBoard::instance_of<Pinout::FAULT_GD_INVERTER_A>();
   auto& fault_inverter_b = myBoard::instance_of<Pinout::FAULT_GD_INVERTER_B>();
@@ -265,14 +199,16 @@ int main(void) {
   Comms::start();
   PCU::start();
 
-  Watchdog::watchdog_time = std::chrono::milliseconds(100);
+  INFO("Helo");
+
+  Watchdog::watchdog_time = std::chrono::milliseconds(500);
   Watchdog::start();
 
   while (1) {
+    Watchdog::refresh();
     Scheduler::update();
     PCU::update();
     ethernet->update();
-    Watchdog::refresh();
   }
 }
 
