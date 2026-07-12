@@ -72,7 +72,6 @@ void Comms::start()
         frequency_received,
         ref_voltage_space_vector_received,
         Vmax_control_received
-        
     );
 
     OrderPackets::Zeroing_init();

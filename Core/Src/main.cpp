@@ -49,22 +49,22 @@ constexpr auto eth =
 
 #endif
 
-#define TEST_LEDS
+//#define TEST_LEDS
 #ifdef TEST_LEDS
 //static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_can_def{ST_LIB::PG6};
 static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_flash_def{ST_LIB::PG5};
 static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_sleep_def{ST_LIB::PG4};
 static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_LIM1_def{ST_LIB::PD10};
 static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_LIM2_def{ST_LIB::PD9};
-#endif
 
 ST_LIB::DigitalOutputDomain::Instance *led_flash = 0;
 ST_LIB::DigitalOutputDomain::Instance *led_sleep = 0;
 ST_LIB::DigitalOutputDomain::Instance *led_LIM1 = 0;
 ST_LIB::DigitalOutputDomain::Instance *led_LIM2 = 0;
+#endif
 ST_LIB::DigitalOutputDomain::Instance *led_connecting = 0;
-ST_LIB::DigitalOutputDomain::Instance *led_fault = 0;
 ST_LIB::DigitalOutputDomain::Instance *led_operational = 0;
+ST_LIB::DigitalOutputDomain::Instance *led_fault = 0;
 
 bool initialized_stlib = false;
 
@@ -168,7 +168,7 @@ int main(void) {
     Scheduler::update();
   }
 
-#endif
+#endif // TEST_LEDS
 
   auto& fault_inverter_a = myBoard::instance_of<Pinout::FAULT_GD_INVERTER_A>();
   auto& fault_inverter_b = myBoard::instance_of<Pinout::FAULT_GD_INVERTER_B>();
