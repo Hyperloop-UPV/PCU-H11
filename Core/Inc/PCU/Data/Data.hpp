@@ -3,7 +3,7 @@
 
 /*-------Flags-------*/
 #define PCU_H10 1       // 0 = PCU-H11, 1 = PCU-H10
-#define MASK_TO_24 0 //0 = mask to 16 , 1 = mask to 24
+#define MASK_TO_24 1 //0 = mask to 16 , 1 = mask to 24
 
 
 /*------Control flags------*/
