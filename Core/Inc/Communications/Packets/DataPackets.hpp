@@ -91,7 +91,7 @@ public:
         }
         
 
-        vcu_udp = new DatagramSocket("192.168.1.5",50400,"192.168.1.3",50400);
+        vcu_udp = new DatagramSocket("192.168.1.5",50402,"192.168.1.3",50402);
         
         Scheduler::register_task(16670 / ARRAY_LEN(DataPackets::group_0), +[](){
             Packet *packet = *DataPackets::group_0[DataPackets::group_0_idx];
