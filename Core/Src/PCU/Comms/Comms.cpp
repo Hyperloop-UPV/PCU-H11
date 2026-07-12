@@ -78,8 +78,10 @@ void Comms::start()
     OrderPackets::Zeroing_init();
     OrderPackets::Stop_Motor_init();
 
+    OrderPackets::FAULT_init();
+
     OrderPackets::start();
-    Diagnostics::install_ethernet_sink(OrderPackets::control_station_tcp);
+    Diagnostics::install_ethernet_sink(OrderPackets::TCP_CONNECTION);
 
 }
 

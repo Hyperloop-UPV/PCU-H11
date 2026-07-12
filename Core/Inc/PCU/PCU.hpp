@@ -58,14 +58,14 @@ class PCU
 static constexpr auto connecting_state = make_state(States_PCU::Connecting,
     Transition<States_PCU>{States_PCU::Operational,[]()
     {
-        return OrderPackets::control_station_tcp->is_connected();
+        return OrderPackets::TCP_CONNECTION->is_connected();
     }}
 );
 
 static constexpr auto operational_state = make_state(States_PCU::Operational,
     Transition<States_PCU>{States_PCU::Fault,[]()
     {
-        return (!OrderPackets::control_station_tcp->is_connected() || !ethernet->is_connected());
+        return (!OrderPackets::TCP_CONNECTION->is_connected() || !ethernet->is_connected());
     }}
 );
 

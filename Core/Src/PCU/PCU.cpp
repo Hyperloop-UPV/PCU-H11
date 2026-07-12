@@ -98,7 +98,12 @@ void PCU::update()
     {
         return;
     }
-    
+
+    if(OrderPackets::FAULT_flag) {
+        OrderPackets::FAULT_flag = false;
+        FAULT("received fault order");
+    }
+
     if(OrderPackets::Start_SVPWM_flag == true)
     {
         OrderPackets::Start_SVPWM_flag=false;

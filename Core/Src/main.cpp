@@ -49,6 +49,23 @@ constexpr auto eth =
 
 #endif
 
+#define TEST_LEDS
+#ifdef TEST_LEDS
+//static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_can_def{ST_LIB::PG6};
+static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_flash_def{ST_LIB::PG5};
+static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_sleep_def{ST_LIB::PG4};
+static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_LIM1_def{ST_LIB::PD10};
+static constexpr ST_LIB::DigitalOutputDomain::DigitalOutput led_LIM2_def{ST_LIB::PD9};
+#endif
+
+ST_LIB::DigitalOutputDomain::Instance *led_flash = 0;
+ST_LIB::DigitalOutputDomain::Instance *led_sleep = 0;
+ST_LIB::DigitalOutputDomain::Instance *led_LIM1 = 0;
+ST_LIB::DigitalOutputDomain::Instance *led_LIM2 = 0;
+ST_LIB::DigitalOutputDomain::Instance *led_connecting = 0;
+ST_LIB::DigitalOutputDomain::Instance *led_fault = 0;
+ST_LIB::DigitalOutputDomain::Instance *led_operational = 0;
+
 bool initialized_stlib = false;
 
 int main(void) {
@@ -67,6 +84,9 @@ int main(void) {
                                PCU_Protections::voltage_A, PCU_Protections::voltage_B,
                                PCU_Protections::current_u_a, PCU_Protections::current_v_a, PCU_Protections::current_w_a,
                                PCU_Protections::current_u_b, PCU_Protections::current_v_b, PCU_Protections::current_w_b,
+#ifdef TEST_LEDS
+                               led_flash_def, led_sleep_def, led_LIM1_def, led_LIM2_def,
+#endif
                                PCU_Protections::position_encoder, PCU_Protections::space_vector_time>;
 
   #else
@@ -90,9 +110,65 @@ int main(void) {
   
 
   #if PCU_H10 == 1
-  auto& led_connecting = myBoard::instance_of<Pinout::led_connecting>();
-  auto& led_fault = myBoard::instance_of<Pinout::led_fault>();
-  auto& led_operational = myBoard::instance_of<Pinout::led_operational>();
+  led_connecting = &myBoard::instance_of<Pinout::led_connecting>();
+  led_fault = &myBoard::instance_of<Pinout::led_fault>();
+  led_operational = &myBoard::instance_of<Pinout::led_operational>();
+
+  led_connecting->toggle();
+  led_fault->toggle();
+  led_operational->toggle();
+
+#ifdef TEST_LEDS
+  led_flash = &myBoard::instance_of<led_flash_def>();
+  led_sleep = &myBoard::instance_of<led_sleep_def>();
+  led_LIM1 = &myBoard::instance_of<led_LIM1_def>();
+  led_LIM2 = &myBoard::instance_of<led_LIM2_def>();
+
+  led_connecting->turn_on();
+  led_operational->turn_on();
+  led_flash->turn_on();
+  led_sleep->turn_on();
+  led_LIM1->turn_on();
+  led_LIM2->turn_on();
+  led_fault->turn_on();
+
+  led_connecting->turn_off();
+  led_operational->turn_off();
+  led_flash->turn_off();
+  led_sleep->turn_off();
+  led_LIM1->turn_off();
+  led_LIM2->turn_off();
+  led_fault->turn_off();
+
+#if 0
+  Scheduler::register_task(100'000, [](){
+    led_flash->toggle();
+  });
+  Scheduler::register_task(200'000, [](){
+    led_sleep->toggle();
+  });
+  Scheduler::register_task(300'000, [](){
+    led_LIM1->toggle();
+  });
+  Scheduler::register_task(500'000, [](){
+    led_LIM2->toggle();
+  });
+  Scheduler::register_task(700'000, [](){
+    led_connecting->toggle();
+  });
+  Scheduler::register_task(1100'000, [](){
+    led_fault->toggle();
+  });
+  Scheduler::register_task(1300'000, [](){
+    led_operational->toggle();
+  });
+#endif
+
+  for(;;){
+    Scheduler::update();
+  }
+
+#endif
 
   auto& fault_inverter_a = myBoard::instance_of<Pinout::FAULT_GD_INVERTER_A>();
   auto& fault_inverter_b = myBoard::instance_of<Pinout::FAULT_GD_INVERTER_B>();
@@ -117,7 +193,7 @@ int main(void) {
   IMU::init(spi_cs, spi_pins);
 
   Actuators::init(buff_enable, reset_bypass,
-                  led_connecting, led_fault, led_operational);
+                  *led_connecting, *led_fault, *led_operational);
 
   #else
   auto& led_connecting = myBoard::instance_of<Pinout::led_connecting>();

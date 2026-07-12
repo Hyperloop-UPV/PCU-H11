@@ -9,6 +9,7 @@ class OrderPackets{
 public:
     
 
+    inline static bool FAULT_flag{false};
     inline static bool Start_SVPWM_flag{false};
     inline static bool Stop_Motor_flag{false};
     inline static bool Send_Reference_Current_flag{false};
@@ -18,6 +19,7 @@ public:
 
     OrderPackets() = default;
 #ifdef STLIB_ETH
+    inline static HeapOrder *FAULT_order{nullptr};
     inline static HeapOrder *Start_SVPWM_order{nullptr};
     inline static HeapOrder *Stop_Motor_order{nullptr};
     inline static HeapOrder *Send_Reference_Current_order{nullptr};
@@ -25,6 +27,10 @@ public:
     inline static HeapOrder *Send_Reference_Speed_order{nullptr};
     
 
+    static void FAULT_init()
+    {
+        FAULT_order = new HeapOrder(0, &FAULT_cb);
+    }
     static void Start_SVPWM_init(float &frequency_to_send_svpwm, float &frequency_to_send_pwm, float &v_ref, float &vmax)
     {
         Start_SVPWM_order = new HeapOrder(507, &Start_SVPWM_cb, &frequency_to_send_svpwm, &frequency_to_send_pwm, &v_ref, &vmax);
@@ -48,12 +54,15 @@ public:
     
 
     
-    inline static ServerSocket *control_station_tcp{nullptr};
+    inline static ServerSocket *vcu_tcp{nullptr};
     
 #endif
     static void start()
     {
 #ifdef STLIB_ETH
+        if (FAULT_order == nullptr) {
+            PANIC("Order FAULT not initialized");
+        }
         if (Start_SVPWM_order == nullptr) {
             PANIC("Order Start_SVPWM not initialized");
         }
@@ -71,12 +80,16 @@ public:
         }
         
 
-        control_station_tcp = new ServerSocket("192.168.1.5",50500);
+        vcu_tcp = new ServerSocket("192.168.1.5",50500);
         
 #endif
     }
 
 private:
+    static void FAULT_cb()
+    {
+        FAULT_flag = true;
+    }
     static void Start_SVPWM_cb()
     {
         Start_SVPWM_flag = true;
