@@ -21,8 +21,20 @@ float SpeedControl::get_reference_speed(){
 void SpeedControl::control_action(){
     if(!CurrentControl::is_running() || !running) return;
     
+    __disable_irq();
+    double effective_speed_kmh = PCU::control_data.IMU_speed_km_h;
+    __enable_irq();
+    if (Comms::Reverse_direction) {
+        effective_speed_kmh = -effective_speed_kmh;
+    }
 
-    double speed_error = reference_speed - PCU::control_data.speed_km_h_encoder;
+    constexpr double epsilon = 0.1;
+    if (effective_speed_kmh < -epsilon) {
+        FAULT("Going backwards");
+        CurrentControl::stop();
+    }
+
+    double speed_error = reference_speed - effective_speed_kmh;
     PCU::control_data.speed_error = speed_error;
     float actual_current_ref;
     

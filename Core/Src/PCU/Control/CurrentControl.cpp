@@ -33,6 +33,12 @@ double CurrentControl::calculate_frequency_modulation(){
         effective_speed_kmh = -effective_speed_kmh;
     }
 
+    constexpr double epsilon = 0.1;
+    if (effective_speed_kmh < -epsilon) {
+        FAULT("Going backwards");
+        CurrentControl::stop();
+    }
+
     return exp_follower((a * effective_speed_kmh) + b);
 
 }
