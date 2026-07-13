@@ -262,7 +262,7 @@ namespace PCU_Protections {
 
     inline constexpr auto position_encoder = Protections::protection<
         "PCU Position", PCU::control_data.IMU_position_m>(
-        Protections::Rules::above<float>(25.0)
+        Protections::Rules::above<float>(33.0)
     );
 
     inline constexpr auto space_vector_time = Protections::protection<
