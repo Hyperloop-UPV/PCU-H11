@@ -1,5 +1,7 @@
 #include "PCU/PCU.hpp"
 
+#include "../Src/Runes/generated_metadata.cpp"
+
 ST_LIB::EthernetDomain::Instance *ethernet;
 HeapOrder *adj_commit_hash_order;
 bool adj_commit_hash_received;
@@ -27,7 +29,21 @@ bool check_adj_commit_success()
             ((uint64_t)ADJ_COMMIT_HASH[5] << 40) |
             ((uint64_t)ADJ_COMMIT_HASH[6] << 48) |
             ((uint64_t)ADJ_COMMIT_HASH[7] << 56);
-        return adj_commit_hash_received_value == hash_flat;
+        bool ok = adj_commit_hash_received_value == hash_flat;
+        if (!ok) {
+            char buf[16];
+            buf[0] = ((adj_commit_hash_received_value >> 0) & 0xFF);
+            buf[1] = ((adj_commit_hash_received_value >> 8) & 0xFF);
+            buf[2] = ((adj_commit_hash_received_value >> 16) & 0xFF);
+            buf[3] = ((adj_commit_hash_received_value >> 24) & 0xFF);
+            buf[4] = ((adj_commit_hash_received_value >> 32) & 0xFF);
+            buf[5] = ((adj_commit_hash_received_value >> 40) & 0xFF);
+            buf[6] = ((adj_commit_hash_received_value >> 48) & 0xFF);
+            buf[7] = ((adj_commit_hash_received_value >> 56) & 0xFF);
+            buf[8] = 0;
+            FAULT("different commit hash received from control-station\n"
+                  "board adj commit: %s, received commit %s", ADJ_COMMIT_HASH, buf);
+        }
     } else {
         return false;
     }
