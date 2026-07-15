@@ -44,6 +44,7 @@ bool check_adj_commit_success()
             FAULT("different commit hash received from control-station\n"
                   "board adj commit: %s, received commit %s", ADJ_COMMIT_HASH, buf);
         }
+        return ok;
     } else {
         return false;
     }
