@@ -21,6 +21,10 @@
 
 extern ST_LIB::EthernetDomain::Instance *ethernet;
 extern bool initialized_stlib;
+extern const char ADJ_COMMIT_HASH[16];
+extern HeapOrder *adj_commit_hash_order;
+
+bool check_adj_commit_success();
 
 class PCU
 {
@@ -58,7 +62,7 @@ class PCU
 static constexpr auto connecting_state = make_state(States_PCU::Connecting,
     Transition<States_PCU>{States_PCU::Operational,[]()
     {
-        return OrderPackets::TCP_CONNECTION->is_connected();
+        return OrderPackets::TCP_CONNECTION->is_connected() && check_adj_commit_success();
     }}
 );
 

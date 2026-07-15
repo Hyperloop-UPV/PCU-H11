@@ -1,6 +1,37 @@
 #include "PCU/PCU.hpp"
 
 ST_LIB::EthernetDomain::Instance *ethernet;
+HeapOrder *adj_commit_hash_order;
+bool adj_commit_hash_received;
+uint64_t adj_commit_hash_received_value;
+
+void commit_hash_callback()
+{
+    adj_commit_hash_received = true;
+}
+
+void init_adj_commit_hash_check()
+{
+    adj_commit_hash_order = new HeapOrder(0xFFFF, &commit_hash_callback, &adj_commit_hash_received_value);
+}
+
+bool check_adj_commit_success()
+{
+    if(adj_commit_hash_received) {
+        uint64_t hash_flat = 
+            ((uint64_t)ADJ_COMMIT_HASH[0]) | 
+            ((uint64_t)ADJ_COMMIT_HASH[1] << 8) |
+            ((uint64_t)ADJ_COMMIT_HASH[2] << 16) |
+            ((uint64_t)ADJ_COMMIT_HASH[3] << 24) |
+            ((uint64_t)ADJ_COMMIT_HASH[4] << 32) |
+            ((uint64_t)ADJ_COMMIT_HASH[5] << 40) |
+            ((uint64_t)ADJ_COMMIT_HASH[6] << 48) |
+            ((uint64_t)ADJ_COMMIT_HASH[7] << 56);
+        return adj_commit_hash_received_value == hash_flat;
+    } else {
+        return false;
+    }
+}
 
 States_Shown_PCU get_shown_state_from_internal(States_PCU state, Operational_States_PCU operational_state)
 {
