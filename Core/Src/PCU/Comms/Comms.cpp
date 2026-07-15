@@ -80,7 +80,7 @@ void Comms::start()
     OrderPackets::FAULT_init();
 
     OrderPackets::start();
+    FaultController::register_fault_propagation(OrderPackets::TCP_CONNECTION, OrderPackets::FAULT_order);
     Diagnostics::install_ethernet_sink(OrderPackets::TCP_CONNECTION);
-
 }
 

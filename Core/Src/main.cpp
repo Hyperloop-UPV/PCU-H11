@@ -199,8 +199,6 @@ int main(void) {
   Comms::start();
   PCU::start();
 
-  INFO("Helo");
-
   Watchdog::watchdog_time = std::chrono::milliseconds(500);
   Watchdog::start();
 

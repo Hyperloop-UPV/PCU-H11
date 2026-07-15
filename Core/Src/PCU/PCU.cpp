@@ -41,8 +41,8 @@ bool check_adj_commit_success()
             buf[6] = ((adj_commit_hash_received_value >> 48) & 0xFF);
             buf[7] = ((adj_commit_hash_received_value >> 56) & 0xFF);
             buf[8] = 0;
-            FAULT("different commit hash received from control-station\n"
-                  "board adj commit: %s, received commit %s", ADJ_COMMIT_HASH, buf);
+            FAULT("different commit hash received from control-station."
+                  " Board adj commit: %s, received commit %s", ADJ_COMMIT_HASH, buf);
         }
         return ok;
     } else {

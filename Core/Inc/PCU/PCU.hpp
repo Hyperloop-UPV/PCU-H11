@@ -21,7 +21,7 @@
 
 extern ST_LIB::EthernetDomain::Instance *ethernet;
 extern bool initialized_stlib;
-extern "C" const char ADJ_COMMIT_HASH[16] __attribute__((section(".metadata_pool")));
+extern "C" const char ADJ_COMMIT_HASH[16];
 extern HeapOrder *adj_commit_hash_order;
 
 void init_adj_commit_hash_check();

@@ -17,7 +17,7 @@
 
 #define CURRENT_PROTECTION 120
 
-//#define TCP_CONNECTION control_station_tcp
+// #define TCP_CONNECTION control_station_tcp
 #define TCP_CONNECTION vcu_tcp
 
 using ST_LIB::DigitalInputDomain;
