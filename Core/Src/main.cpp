@@ -97,7 +97,7 @@ int main(void) {
 
   myBoard::init();
   initialized_stlib = true;
-  
+  init_adj_commit_hash_check();
 
   #if PCU_H10 == 1
   led_connecting = &myBoard::instance_of<Pinout::led_connecting>();

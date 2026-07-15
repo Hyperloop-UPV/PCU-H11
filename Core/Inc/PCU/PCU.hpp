@@ -24,6 +24,7 @@ extern bool initialized_stlib;
 extern "C" const char ADJ_COMMIT_HASH[16] __attribute__((section(".metadata_pool")));
 extern HeapOrder *adj_commit_hash_order;
 
+void init_adj_commit_hash_check();
 bool check_adj_commit_success();
 
 class PCU
