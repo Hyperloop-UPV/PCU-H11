@@ -53,13 +53,14 @@ void SpaceVector::calculate_duties() {
     sin_w -= offset;
 #endif
 
-    if ( Comms::Reverse_direction == false){ 
+    // Reverse_direction has been unimplemented because we're not supposed to go backwards _ever_
+    //if ( Comms::Reverse_direction == false){ 
         PWMActuators::set_duty_u((sin_u / 2.0 + 0.5) * 100.0);
         PWMActuators::set_duty_v((sin_v / 2.0 + 0.5) * 100.0);
-    } else {
-        PWMActuators::set_duty_u((sin_v / 2.0 + 0.5) * 100.0);
-        PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
-    }
+    //} else {
+    //    PWMActuators::set_duty_u((sin_v / 2.0 + 0.5) * 100.0);
+    //    PWMActuators::set_duty_v((sin_u / 2.0 + 0.5) * 100.0);
+    //}
     PWMActuators::set_duty_w((sin_w / 2.0 + 0.5) * 100.0);
   
     time += period_time;

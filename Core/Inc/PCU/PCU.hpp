@@ -265,7 +265,7 @@ namespace PCU_Protections {
         Protections::Rules::above<float>(CURRENT_PROTECTION)
     );
 
-    inline constexpr auto position_encoder = Protections::protection<
+    inline constexpr auto position = Protections::protection<
         "PCU Position", PCU::control_data.IMU_position_m>(
         Protections::Rules::above<float>(33.0)
     );
@@ -273,6 +273,11 @@ namespace PCU_Protections {
     inline constexpr auto space_vector_time = Protections::protection<
         "PCU Space Vector Time", PCU::control_data.time>(
         Protections::Rules::above<float>(4.5f)
+    );
+
+    inline constexpr auto max_theoretical_speed = Protections::protection<
+        "Max Theoretical Speed", PCU::control_data.IMU_speed_km_h>(
+        Protections::Rules::above<double>(50.0)
     );
 }
 

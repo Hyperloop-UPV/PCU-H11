@@ -24,9 +24,10 @@ void SpeedControl::control_action(){
     __disable_irq();
     double effective_speed_kmh = PCU::control_data.IMU_speed_km_h;
     __enable_irq();
-    if (Comms::Reverse_direction) {
-        effective_speed_kmh = -effective_speed_kmh;
-    }
+    // Reverse_direction has been unimplemented because we're not supposed to go backwards _ever_
+    //if (Comms::Reverse_direction) {
+    //    effective_speed_kmh = -effective_speed_kmh;
+    //}
 
     constexpr double epsilon = 0.1;
     if (effective_speed_kmh < -epsilon) {

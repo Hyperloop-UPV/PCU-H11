@@ -73,11 +73,11 @@ int main(void) {
                                Pinout::spi_cs_def,Pinout::spi_def,
                                PCU_Protections::voltage_A, PCU_Protections::voltage_B,
                                PCU_Protections::current_u_a, PCU_Protections::current_v_a, PCU_Protections::current_w_a,
-                               PCU_Protections::current_u_b, PCU_Protections::current_v_b, PCU_Protections::current_w_b,
+                               PCU_Protections::current_u_b, PCU_Protections::current_v_b, PCU_Protections::current_w_b, PCU_Protections::max_theoretical_speed,
 #ifdef TEST_LEDS
                                led_flash_def, led_sleep_def, led_LIM1_def, led_LIM2_def,
 #endif
-                               PCU_Protections::position_encoder, PCU_Protections::space_vector_time>;
+                               PCU_Protections::position, PCU_Protections::space_vector_time>;
 
   #else
   using myBoard = ST_LIB::Board<PCUFaultPolicy, eth,Pinout::tim_encoder_decl,Pinout::tim_decl, Pinout::Buff_enable, Pinout::Reset_bypass,
@@ -91,13 +91,15 @@ int main(void) {
                                Pinout::Speetec_supply, Pinout::Hall_SupplyA, Pinout::Hall_SupplyB,
                                PCU_Protections::voltage_A, PCU_Protections::voltage_B,
                                PCU_Protections::current_u_a, PCU_Protections::current_v_a, PCU_Protections::current_w_a,
-                               PCU_Protections::current_u_b, PCU_Protections::current_v_b, PCU_Protections::current_w_b,
-                               PCU_Protections::position_encoder, PCU_Protections::space_vector_time>;
+                               PCU_Protections::current_u_b, PCU_Protections::current_v_b, PCU_Protections::current_w_b, PCU_Protections::max_theoretical_speed,
+                               PCU_Protections::position, PCU_Protections::space_vector_time>;
   #endif
 
   myBoard::init();
   initialized_stlib = true;
-  init_adj_commit_hash_check();
+  // run zeroing order at the start of execution...
+  OrderPackets::Zeroing_flag = true;
+  //init_adj_commit_hash_check();
 
   #if PCU_H10 == 1
   led_connecting = &myBoard::instance_of<Pinout::led_connecting>();
@@ -199,11 +201,11 @@ int main(void) {
   Comms::start();
   PCU::start();
 
-  Watchdog::watchdog_time = std::chrono::milliseconds(500);
-  Watchdog::start();
+//   Watchdog::watchdog_time = std::chrono::milliseconds(500);
+//   Watchdog::start();
 
   while (1) {
-    Watchdog::refresh();
+    // Watchdog::refresh();
     Scheduler::update();
     PCU::update();
     ethernet->update();

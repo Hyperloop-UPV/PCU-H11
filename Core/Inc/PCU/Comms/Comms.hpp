@@ -14,7 +14,8 @@ class Comms{
     inline static float Vmax_control_received{0.0f};
     inline static float speed_reference_received{0.0f};
     inline static bool reset_bypass_received{false};
-    inline static bool Reverse_direction{false};
+    // NOTE: Reverse_direction has been unimlplemented because we're not supposeed to be able to go backwards _ever_ (apparently)
+    // inline static bool Reverse_direction{false};
 
     inline static bool Variable_frequency_recieved{false};
 

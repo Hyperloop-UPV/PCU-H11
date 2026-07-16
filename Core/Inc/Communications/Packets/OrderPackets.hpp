@@ -39,17 +39,17 @@ public:
     {
         Stop_Motor_order = new HeapOrder(508, &Stop_Motor_cb);
     }
-    static void Send_Reference_Current_init(float &freq_to_send_svpwm, float &freq_to_send_pwm, float &current_ref, float &vmax, bool &vf_control, bool &reverse)
+    static void Send_Reference_Current_init(float &freq_to_send_svpwm, float &freq_to_send_pwm, float &current_ref, float &vmax, bool &vf_control)
     {
-        Send_Reference_Current_order = new HeapOrder(509, &Send_Reference_Current_cb, &freq_to_send_svpwm, &freq_to_send_pwm, &current_ref, &vmax, &vf_control, &reverse);
+        Send_Reference_Current_order = new HeapOrder(509, &Send_Reference_Current_cb, &freq_to_send_svpwm, &freq_to_send_pwm, &current_ref, &vmax, &vf_control);
     }
     static void Zeroing_init()
     {
         Zeroing_order = new HeapOrder(510, &Zeroing_cb);
     }
-    static void Send_Reference_Speed_init(float &speed_ref, float &freq_to_send_pwm, float &vmax, bool &reverse)
+    static void Send_Reference_Speed_init(float &speed_ref, float &freq_to_send_pwm, float &vmax)
     {
-        Send_Reference_Speed_order = new HeapOrder(511, &Send_Reference_Speed_cb, &speed_ref, &freq_to_send_pwm, &vmax, &reverse);
+        Send_Reference_Speed_order = new HeapOrder(511, &Send_Reference_Speed_cb, &speed_ref, &freq_to_send_pwm, &vmax);
     }
     
 

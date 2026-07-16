@@ -12,6 +12,7 @@ static double exp_follower(double reference, double error_factor = 0.5){
     return output;
 }
 
+float imu_prev_position_safety = 0.0f;
 void CurrentControl::init(){
     current_PI.reset();
     current_regenerate_PI.reset();
@@ -29,9 +30,10 @@ double CurrentControl::calculate_frequency_modulation(){
     __disable_irq();
     double effective_speed_kmh = PCU::control_data.IMU_speed_km_h;
     __enable_irq();
-    if (Comms::Reverse_direction) {
-        effective_speed_kmh = -effective_speed_kmh;
-    }
+    // Reverse_direction has been unimplemented because we're not supposed to go backwards _ever_
+    //if (Comms::Reverse_direction) {
+    //    effective_speed_kmh = -effective_speed_kmh;
+    //}
 
     constexpr double epsilon = 0.1;
     if (effective_speed_kmh < -epsilon) {
@@ -65,6 +67,7 @@ double CurrentControl::calculate_peak(){
     #endif
 }
 
+uint32_t control_idx = 0;
 void CurrentControl::control_action(){
     if (!should_be_running) return;
     float freq=0.0f;
@@ -80,7 +83,7 @@ void CurrentControl::control_action(){
     PCU::control_data.synchronous_speed = 2.0 * freq * Current_Control_Data::pole_pitch;
 
     if (std::abs(PCU::control_data.synchronous_speed) > 0.01) { 
-        PCU::control_data.slip_control = (PCU::control_data.synchronous_speed - PCU::control_data.speed_encoder) / PCU::control_data.synchronous_speed;
+        PCU::control_data.slip_control = (PCU::control_data.synchronous_speed - PCU::control_data.IMU_speed_km_h) / PCU::control_data.synchronous_speed;
     } else {
         PCU::control_data.slip_control = 0.0;
     }
@@ -110,13 +113,25 @@ void CurrentControl::control_action(){
     //     target_voltage = current_regenerate_PI.output_value;
     // }
 
+#if 0
+    // once every x iterations, do a safety check on position
+    static const uint32_t safety_iterations = 100;
+    if((control_idx % safety_iterations) == 0) {
+        float epsilon = 0.001f;
+        float dif = (float)abs(imu_prev_position_safety - PCU::control_data.IMU_position_m);
+        if(dif < epsilon) {
+            FAULT("Did %d iterations on Current control and didn't detect any significant movement from IMU", safety_iterations);
+        }
+        imu_prev_position_safety = PCU::control_data.IMU_position_m;
+    }
+    control_idx++;
+#endif
+
     if(target_voltage > SpaceVector::VMAX){
         PCU::control_data.target_voltage = SpaceVector::VMAX;
-    }
-    else if(target_voltage < 0.0){
+    } else if(target_voltage < 0.0){
         PCU::control_data.target_voltage = 0.0;
-    }
-    else{
+    } else{
         PCU::control_data.target_voltage = target_voltage;
     }
     SpaceVector::set_target_voltage(PCU::control_data.target_voltage);
@@ -126,6 +141,16 @@ void CurrentControl::start() {
     should_be_running = true;
     PCU::control_data.current_control_active = CurrentControlState::ACTIVE; 
     reset_PI();
+
+    imu_prev_position_safety = PCU::control_data.IMU_position_m;
+    Scheduler::set_timeout(2'000'000, [](){
+        float curr_pos = PCU::control_data.IMU_position_m;
+        float diff = (float)abs(curr_pos - imu_prev_position_safety);
+        float epsilon = 0.2f;
+        if(diff < epsilon) {
+            FAULT("Didn't detect any significant movement from IMU after 2 seconds of current control");
+        }
+    });
 }
 
 void CurrentControl::stop() {

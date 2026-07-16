@@ -424,7 +424,7 @@ struct Control_Data
     double synchronous_speed{0.0f};
     float slip_control{0.0f};
 
-    double IMU_speed_km_h{0.0f};
+    double IMU_speed_km_h{0.0};
     float IMU_position_m{0.0f}; 
 
     EncoderDirection established_direction{EncoderDirection::Forward};
