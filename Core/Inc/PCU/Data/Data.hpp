@@ -3,7 +3,7 @@
 
 /*-------Flags-------*/
 #define PCU_H10 1       // 0 = PCU-H11, 1 = PCU-H10
-#define MASK_TO_24 1 //0 = mask to 16 , 1 = mask to 24
+#define MASK_TO_24 0 //0 = mask to 16 , 1 = mask to 24
 
 
 /*------Control flags------*/
@@ -17,8 +17,8 @@
 
 #define CURRENT_PROTECTION 120
 
-// #define TCP_CONNECTION control_station_tcp
-#define TCP_CONNECTION vcu_tcp
+#define TCP_CONNECTION control_station_tcp
+// #define TCP_CONNECTION vcu_tcp
 
 using ST_LIB::DigitalInputDomain;
 using ST_LIB::DigitalOutputDomain;

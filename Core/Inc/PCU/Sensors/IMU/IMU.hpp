@@ -6,20 +6,15 @@
 #include <deque>
 #include <cmath>
 
-struct imu_pair {
-	double velocity_km_h;
-	float position_m;
-};
-#if PCU_H10 == 1
-class IMU{
+struct IMU{
 	static inline double  accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, temp;
 
 	static inline constexpr double PI_ = 3.1415926535;
 	static inline double accel_sensitivity = 16384;
 	static inline double gyro_sensitivity = 16.4;
 
-	static inline uint8_t txData[1] = { 0 };
-	static inline uint8_t rxData[1] = { 0 };
+	static volatile inline uint8_t txData[1] = { 0 };
+	static volatile inline uint8_t rxData[1] = { 0 };
 
 	static inline std::optional<ST_LIB::SPIDomain::SPIWrapper<Pinout::spi_def>> spi_wrapper;
 	static inline ST_LIB::DigitalOutputDomain::Instance* spi_cs = nullptr;
@@ -29,21 +24,19 @@ class IMU{
 	static inline double accel_offset_z = 0;
 	
 	static inline Integrator<IntegratorType::Trapezoidal> velocity_integrator{1.0 / 3000.0 , 1};
-	static inline Integrator<IntegratorType::Trapezoidal> position_integrator{1.0 / 3000.0 , 1};
-
-public:
 
 	static void init(ST_LIB::DigitalOutputDomain::Instance& spi_cs_get, ST_LIB::SPIDomain::Instance& spi_pins_get)
 	{
 		spi_cs = &spi_cs_get;
 		spi_pins = &spi_pins_get;
 		spi_wrapper.emplace(*spi_pins);
-		soft_reset();
-		Scheduler::set_timeout(15*1000, [](){
+		IMU::soft_reset();
+        HAL_Delay(30);
+		//Scheduler::set_timeout(15*1000, [](){
 			write_acceleration_config(ACCELERATION_2G, ACCELERATION_4KHZ);
 			config_accel_antialias(ANTIALIAS_FREQ_1051_HZ);
 			turn_on_sensors();
-		});
+		//});
 	
 	}
 
@@ -52,36 +45,31 @@ public:
 		return read_accel_x() - accel_offset_x;
 	}
 
-	static imu_pair get_imu_x_speed(){
+	static double get_imu_x_speed(){
 		static double velocity = 0;
-		static double position = 0;
-		static double acceleration = 0;
-		static imu_pair result = {0, 0};
-		acceleration = read_imu_x_acceleration();
+		static double acceleration;
+        acceleration = read_imu_x_acceleration();
 		acceleration *= 9.8;
 
 		velocity_integrator.input(acceleration);
 		velocity_integrator.execute();
 		velocity= velocity_integrator.output_value;
-
-		position_integrator.input(velocity);
-		position_integrator.execute();
-		position = position_integrator.output_value;
-
-		velocity *= -3.6f; // m/s to km/h
-		result.velocity_km_h = velocity;
-		result.position_m = -1 *position;
-
-		return result; 
+		return velocity * 3.6; // m/s to km/h
 	}
 
 	static void restart()
 	{
 		velocity_integrator.reset();
-		position_integrator.reset();
 	}
 	// Sync IMU integrator speed with an external reference (e.g. Speetec),
 	// provided in km/h.
+	static void sync_speed_with_reference(double speed_km_h) {
+		double velocity_ms = speed_km_h / 3.6;
+		velocity_integrator.reset();
+		velocity_integrator.integral = velocity_ms;
+		velocity_integrator.output_value = velocity_ms;
+		velocity_integrator.first_execution = false;
+	}
 
 	static void calibrate(size_t TIMES_TO_CREATE_ZERO = 100) {
 		double new_offset_x = 0;
@@ -98,7 +86,6 @@ public:
 		accel_offset_x = new_offset_x;
 		accel_offset_y = new_offset_y;
 		accel_offset_z = new_offset_z;
-		restart();
 	}
 
 	static void read_imu_data(){
@@ -124,13 +111,11 @@ public:
 	// HAL_Delay(5);
 	}
 
-private:
-
-	static inline void SPI_transmit(const span<uint8_t> data) {
+	static inline void SPI_transmit(const span<volatile uint8_t> data) {
 		spi_wrapper->send(data);
 	}
 
-	static inline void SPI_receive(span<uint8_t> buffer) {
+	static inline void SPI_receive(span<volatile uint8_t> buffer) {
 		spi_wrapper->receive(buffer);
 	}
 
@@ -142,6 +127,7 @@ private:
 	SPI_receive(rxData);
 	spi_cs->turn_on(); 
 	return rxData[0];
+    
 	}
 
 	static bool write_register(uint8_t register_address, uint8_t content){
@@ -207,7 +193,8 @@ private:
 		static uint16_t last_freq = 0;
 		last_freq = freq;
 		turn_off_sensors();
-		Scheduler::set_timeout(5*1000, [](){
+        HAL_Delay(10);
+		//Scheduler::set_timeout(5*1000, [](){
 			AntialiasConfig config = ANTIALIAS_FREQ_TO_FILTER_CONFIG[last_freq];
 			AccelConfigStatic2Register config_static2;
 			AccelConfigStatic3Register config_static3;
@@ -227,7 +214,7 @@ private:
 			write_register(ACCEL_CONFIG_STATIC3, config_static3.value);
 			write_register(ACCEL_CONFIG_STATIC4, config_static4.value);
 			turn_on_sensors();
-		});
+		//});
 	}
 
 	static double read_temp(){
@@ -252,5 +239,3 @@ private:
 	}
 
 };
-#endif
-

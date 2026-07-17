@@ -15,8 +15,6 @@ class CurrentSensors{
     inline static bool is_on{false};
     #endif
 
-
-    private:
         inline static LinearSensor<float>* sensor_u_a{nullptr};
         inline static LinearSensor<float>* sensor_u_b{nullptr};
         inline static LinearSensor<float>* sensor_v_a{nullptr};
@@ -30,6 +28,7 @@ class CurrentSensors{
     static void init(ST_LIB::ADCDomain::Instance& Sensor_U_A,ST_LIB::ADCDomain::Instance& Sensor_U_B,ST_LIB::ADCDomain::Instance& Sensor_V_A,
     ST_LIB::ADCDomain::Instance& Sensor_V_B,ST_LIB::ADCDomain::Instance& Sensor_W_A,ST_LIB::ADCDomain::Instance& Sensor_W_B);
     static void read();
-    static void zeroing();
 
 };
+
+void zeroing();

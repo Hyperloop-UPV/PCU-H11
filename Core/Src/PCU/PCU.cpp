@@ -7,6 +7,8 @@ HeapOrder *adj_commit_hash_order;
 bool adj_commit_hash_received;
 uint64_t adj_commit_hash_received_value;
 
+Integrator<IntegratorType::Trapezoidal> speed_integrator{200.0 , 1};
+
 void commit_hash_callback()
 {
     adj_commit_hash_received = true;
@@ -67,6 +69,20 @@ States_Shown_PCU get_shown_state_from_internal(States_PCU state, Operational_Sta
     return States_Shown_PCU::Fault;
 }
 
+void read_from_imu()
+{
+    double speed_imu = 0;
+    speed_imu = IMU::get_imu_x_speed();
+    __disable_irq();
+    PCU::control_data.IMU_speed_km_h = speed_imu;
+    __enable_irq();
+
+    speed_integrator.input(speed_imu);
+    speed_integrator.execute();
+    double speed = speed_integrator.output_value;
+    PCU::control_data.IMU_position_m = speed / 3.6;
+}
+
 void PCU::start()
 {
     CurrentControl::init();
@@ -86,14 +102,7 @@ void PCU::start()
     });
     
     #if PCU_H10 == 1
-    Scheduler::register_task(Sensors_data::read_sensors_us, [](){
-        static imu_pair aux_speed_IMU = {0, 0};
-        aux_speed_IMU = IMU::get_imu_x_speed();
-        __disable_irq();
-        control_data.IMU_speed_km_h = aux_speed_IMU.velocity_km_h;
-        __enable_irq();
-        control_data.IMU_position_m = aux_speed_IMU.position_m;
-    });
+    Scheduler::register_task(Sensors_data::read_sensors_us, read_from_imu);
     #endif
 
 
@@ -204,7 +213,7 @@ void PCU::update()
     if(OrderPackets::Zeroing_flag==true)
     {
         OrderPackets::Zeroing_flag=false;
-        CurrentSensors::zeroing();
+        zeroing();
         #if PCU_H10 == 1
         IMU::calibrate(10000);
         #endif

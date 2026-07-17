@@ -64,7 +64,7 @@ public:
     inline static Packet **group_0[] = { &PWM_packet, &Batteries_Voltage_packet, &Current_Sensors_packet, &State_Machine_States_packet, &Speed_Data_packet, &Gate_Driver_Reporting_packet };
     
 
-    inline static DatagramSocket *vcu_udp{nullptr};
+    inline static DatagramSocket *control_station_udp{nullptr};
     
 #endif
 
@@ -91,11 +91,11 @@ public:
         }
         
 
-        vcu_udp = new DatagramSocket("192.168.1.5",50402,"192.168.1.3",50402);
+        control_station_udp = new DatagramSocket("192.168.1.5",50400,"192.168.0.9",50400);
         
         Scheduler::register_task(16670 / ARRAY_LEN(DataPackets::group_0), +[](){
             Packet *packet = *DataPackets::group_0[DataPackets::group_0_idx];
-            DataPackets::vcu_udp->send_packet(*packet);
+            DataPackets::control_station_udp->send_packet(*packet);
             DataPackets::group_0_idx = (DataPackets::group_0_idx + 1) % ARRAY_LEN(DataPackets::group_0);
         });
 #endif

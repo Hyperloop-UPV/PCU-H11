@@ -97,9 +97,7 @@ int main(void) {
 
   myBoard::init();
   initialized_stlib = true;
-  // run zeroing order at the start of execution...
-  OrderPackets::Zeroing_flag = true;
-  //init_adj_commit_hash_check();
+  init_adj_commit_hash_check();
 
   #if PCU_H10 == 1
   led_connecting = &myBoard::instance_of<Pinout::led_connecting>();
@@ -127,6 +125,7 @@ int main(void) {
   auto& spi_pins = myBoard::instance_of<Pinout::spi_def>();
   auto& spi_cs = myBoard::instance_of<Pinout::spi_cs_def>();
   IMU::init(spi_cs, spi_pins);
+  HAL_Delay(30);
 
   Actuators::init(buff_enable, reset_bypass,
                   *led_connecting, *led_fault, *led_operational);
@@ -198,14 +197,31 @@ int main(void) {
   tim_gp0.enable_update_interrupt();
 
   ethernet = &myBoard::instance_of<eth>();
-  Comms::start();
   PCU::start();
 
-//   Watchdog::watchdog_time = std::chrono::milliseconds(500);
-//   Watchdog::start();
+  for(uint32_t i = 0; i < 20000; i++) {
+    Scheduler::update();
+  }
+
+#if 1
+  {
+    zeroing();
+    IMU::restart();
+    speed_integrator.reset();
+    #if PCU_H10 == 1
+    IMU::calibrate(10000);
+    #endif
+  }
+
+#endif
+
+  Comms::start();
+
+  Watchdog::watchdog_time = std::chrono::milliseconds(500);
+  Watchdog::start();
 
   while (1) {
-    // Watchdog::refresh();
+    Watchdog::refresh();
     Scheduler::update();
     PCU::update();
     ethernet->update();

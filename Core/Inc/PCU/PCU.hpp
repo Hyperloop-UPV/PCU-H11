@@ -27,6 +27,10 @@ extern HeapOrder *adj_commit_hash_order;
 void init_adj_commit_hash_check();
 bool check_adj_commit_success();
 
+void read_from_imu();
+
+extern Integrator<IntegratorType::Trapezoidal> speed_integrator;
+
 class PCU
 {
     public:

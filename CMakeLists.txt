@@ -179,6 +179,7 @@ if(CMAKE_CROSSCOMPILING)
     -fno-exceptions
 
     -Wno-psabi
+    -Og
 
     $<$<COMPILE_LANGUAGE:C>:-w>
 
