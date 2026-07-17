@@ -125,7 +125,6 @@ int main(void) {
   auto& spi_pins = myBoard::instance_of<Pinout::spi_def>();
   auto& spi_cs = myBoard::instance_of<Pinout::spi_cs_def>();
   IMU::init(spi_cs, spi_pins);
-  HAL_Delay(30);
 
   Actuators::init(buff_enable, reset_bypass,
                   *led_connecting, *led_fault, *led_operational);
@@ -203,7 +202,7 @@ int main(void) {
     Scheduler::update();
   }
 
-#if 1
+#if 0
   {
     zeroing();
     IMU::restart();

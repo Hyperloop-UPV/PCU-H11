@@ -13,8 +13,10 @@ struct IMU{
 	static inline double accel_sensitivity = 16384;
 	static inline double gyro_sensitivity = 16.4;
 
-	static volatile inline uint8_t txData[1] = { 0 };
-	static volatile inline uint8_t rxData[1] = { 0 };
+	// static volatile inline uint8_t txData[2] = { 0, 0 };
+	// static volatile inline uint8_t rxData[2] = { 0, 0 };
+    static volatile inline uint16_t txData = 0;
+    static volatile inline uint16_t rxData = 0;
 
 	static inline std::optional<ST_LIB::SPIDomain::SPIWrapper<Pinout::spi_def>> spi_wrapper;
 	static inline ST_LIB::DigitalOutputDomain::Instance* spi_cs = nullptr;
@@ -119,25 +121,23 @@ struct IMU{
 		spi_wrapper->receive(buffer);
 	}
 
-	static uint8_t read_register(uint8_t register_address){
-	txData[0] = register_address | 0b10000000;
-	spi_cs->turn_off(); 
-	SPI_transmit(txData);
-	rxData[0] = 0;
-	SPI_receive(rxData);
-	spi_cs->turn_on(); 
-	return rxData[0];
-    
+	static uint16_t read_register(uint8_t register_address){
+        txData = register_address | 0b10000000;
+        rxData = 0;
+        spi_cs->turn_off(); 
+        spi_wrapper->transceive(txData, rxData);
+        // SPI_transmit(txData);
+        // SPI_receive(rxData);
+        spi_cs->turn_on(); 
+        return rxData;
 	}
 
 	static bool write_register(uint8_t register_address, uint8_t content){
-	spi_cs->turn_off(); 
-	txData[0] = register_address;
-	SPI_transmit(txData);
-	txData[0] = content;
-	SPI_transmit(txData);
-	spi_cs->turn_on(); 
-	return read_register(register_address) == content;
+        txData = ((uint16_t)register_address << 8) | (uint16_t)content;
+        spi_cs->turn_off();
+        spi_wrapper->send(txData);
+        spi_cs->turn_on(); 
+        return read_register(register_address) == content;
 	}
 
 	static void soft_reset(){
@@ -159,34 +159,34 @@ struct IMU{
 	static void write_sensors_configuration(	TEMPERATURE_OPERACION_MODES temp_dis,
 								 	 RC_OPERATION_MODE idle,
 									ACCELERATION_OPERATION_MODES accel_mode	){
-	SensorConfigRegister reg;
-	reg.value = 0;
-	reg.fields.TEMP_DIS		= temp_dis;
-	reg.fields.ACCEL_MODE	= accel_mode;
-	reg.fields.GYRO_MODE	= 0;
-	reg.fields.IDLE 		= idle;
-	write_register(PWR_MGMT0, reg.value);
+        SensorConfigRegister reg;
+        reg.value = 0;
+        reg.fields.TEMP_DIS		= temp_dis;
+        reg.fields.ACCEL_MODE	= accel_mode;
+        reg.fields.GYRO_MODE	= 0;
+        reg.fields.IDLE 		= idle;
+        write_register(PWR_MGMT0, reg.value);
 	}
 	
 	static SensorConfigRegister read_sensor_configuration() {
-	SensorConfigRegister reg;
-	reg.value = read_register(PWR_MGMT0);
-	return reg;
+        SensorConfigRegister reg;
+        reg.value = read_register(PWR_MGMT0);
+        return reg;
 	}
 
 	static AccelerationConfigRegister read_acceleration_config(){
-	AccelerationConfigRegister reg;
-	reg.value = read_register(ACCEL_CONFIG0);
-	return reg;
+        AccelerationConfigRegister reg;
+        reg.value = read_register(ACCEL_CONFIG0);
+        return reg;
 	}
 
 	static void write_acceleration_config(ACCELERATION_FULL_SCALE sf, ACCELERATION_ODR odr){
-	AccelerationConfigRegister reg;
-	reg.fields.ACCEL_FS_SEL = sf;
-	reg.fields.ACCEL_ODR = odr;
-	reg.fields.__RESERVED_2 = 0;
-	accel_sensitivity = ACCLERATION_FS_SENSITIVITY[(uint8_t) sf];
-	write_register(ACCEL_CONFIG0, reg.value);
+        AccelerationConfigRegister reg;
+        reg.fields.ACCEL_FS_SEL = sf;
+        reg.fields.ACCEL_ODR = odr;
+        reg.fields.__RESERVED_2 = 0;
+        accel_sensitivity = ACCLERATION_FS_SENSITIVITY[(uint8_t) sf];
+        write_register(ACCEL_CONFIG0, reg.value);
 	}
 
 	static void config_accel_antialias(uint16_t freq){
